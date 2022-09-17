@@ -1,1 +1,1 @@
-﻿This repo is for Team 3 business and should be used for such. Don’t share it with anyone else.
+﻿This repo is for Team 7 business and should be used for such. 
