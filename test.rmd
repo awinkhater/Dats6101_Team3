@@ -29,6 +29,7 @@ plot(pressure)
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 ```{r}
+library(ggplot2)
 fp1<- data.frame(read.csv("fatal-police-shootings-data.csv"))
 ```
 
@@ -64,5 +65,27 @@ str(fp)
 ```{r}
 ar <-lm(age~race, data=fp)
 summary(ar)
+```
+
+```{r}
+fp1$agecat <-cut(fp1$age, c(-Inf, 0, 18, 28, 38, 48, 58, 68, Inf))
+
+str(fp1)
+
+counts <- table(fp1$state, fp1$body_camera)
+mosaicplot(counts, xlab='Match Result', ylab='Body Camera',main='State/ BodyCam', col='Green')
+
+```
+```{r}
+ggplot(fp1, aes(x=state, y=body_camera)) +  geom_boxplot(fill='green')
+
+
+```
+
+```{r}
+ggplot(fp1, aes(x=reorder(state, state, function(x)-length(x)))) +
+geom_bar(fill='red') +  labs(x='state')
+
+table(fp1$state)
 ```
 
