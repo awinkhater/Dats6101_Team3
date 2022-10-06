@@ -30,12 +30,12 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 
 ```{r}
 library(ggplot2)
-fp1<- data.frame(read.csv("fatal-police-shootings-data.csv"))
+fp1<- data.frame(read.csv("FPS22.csv"))
 ```
 
 ```{r}
 fp <- na.omit(fp1) # Method 1 - Remove NA
-fp
+max(fp$date)
 
 ```
 
@@ -43,7 +43,7 @@ fp
 ```{r}
 nrow(fp)
 
-table(fp$armed)
+min(fp$date)
 ```
 
 ```{r}
