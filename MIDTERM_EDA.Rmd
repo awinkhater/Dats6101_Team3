@@ -32,7 +32,7 @@ fp <- na.omit(fp1) # Method 1 - Remove NA
 
 
 ```{r}
-#Getting row count and first incident
+#Getting row count and latest incident
 nrow(fp)
 
 max(fp$date)
@@ -46,7 +46,7 @@ mean(fp$age, na.rm= TRUE)
 median(fp$age)
 ```
 ```{r}
-#First 7 names Printed + structure of dataset
+#First 7 names Printed 
 count=1
 for (i in fp$name){
   if (i== "Brock Nichols"){
@@ -59,7 +59,7 @@ for (i in fp$name){
 
 ```
 ```{r}
-#Initial Creation of Regional Subgroups and tests that they cover everything. DO NOT MODIFY
+#Initial Creation of Regional Subgroups and tests that they cover everything. DO NOT MODIFY. THIS WAS SUPER HARD TO MAKE.
 NW <- subset(fp, state=="CA"| state=="WA" | state=="OR" | state== "NV"| state=="ID"| state=="UT"|state=="MT"|state=="CO"| state=="WY"| state=="AK")
 nrow(NW)
 SW <- subset(fp, state== "NM"| state=="AZ"| state== "TX"| state=="OK"| state== "HI")
@@ -83,7 +83,7 @@ fp$regions <- as.factor(ifelse(( fp$state=="CA"| fp$state=="WA" | fp$state=="OR"
 
 ```
 ```{r}
-#Defining 2 new factors called stbcp and rgbcp. These show the proportions of body cameras being on per state and per region respectively. PLEASE DO NOT MODIFY. THIS WAS HARD
+#Defining 2 new factors called stbcp and rgbcp. These show the proportions of body cameras being on per state and per region respectively. PLEASE DO NOT MODIFY. THIS WAS HARD AS HELL.
 #Still working on it
 
 sfp <- fp %>%
@@ -93,14 +93,18 @@ sfp <- fp %>%
 rfp <- fp %>%
    group_by(regions) %>%
    mutate(rgbcp =  sum(body_camera==1)/n())
+
+#So Now we Have two sub datasets: sfp has the stbcp column that shows each states percentage of body cameras being on, and rfp which does the same but for regions
 ```
 ```{r}
+#Just some tests on the new sub dataset
 mean(sfp$stbcp)
 head(sfp)
 ```
 
 ```{r}
-ggplot(fp, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Incidents", title = "Regional Body Camera proportions")
+#a bar graph showing number of fatal police shootings AND proportions of body cameras being on by region (too many states to show on a bar graph like this)
+ggplot(fp, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Incidents", title = "Regional Police Shootings Colored by Body Camera Proportions")
 
 #Normality check of proportions of body cameras being on by state
 qqnorm(sfp$stbcp)
@@ -108,7 +112,9 @@ qqnorm(sfp$stbcp)
 
 ```
 ```{r}
+#Scatter Plot of Body Camera Proportion by State
 ggplot(sfp, aes(x=state, y= stbcp, label=state)) + geom_point(shape=6, color="violet")+ labs(x = "State", y="Body Camera Proportion", title = "Body Camera On Proportion By US State") + geom_text(hjust=1, vjust=-0.6)
+
 #This is kind of a mess so lets try grouping by regions on the next graph
 ggplot(rfp, aes(x=regions, y= rgbcp, label=regions)) + geom_point(shape=8, color="navy")+ labs(x = "Region", y="Body Camera Proportion", title = "Body Camera On Proportion By US Region") +  geom_text(hjust=1, vjust=-0.6)
 
