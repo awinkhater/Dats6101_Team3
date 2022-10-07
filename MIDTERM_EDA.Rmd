@@ -17,7 +17,9 @@ When you click the **Knit** button a document will be generated that includes bo
 ```{r}
 #Calling Packages
 library(dplyr)
+
 library(ggplot2)
+
 fp1<- data.frame(read.csv("FPS22.csv"))
 ```
 
@@ -81,35 +83,39 @@ fp$regions <- as.factor(ifelse(( fp$state=="CA"| fp$state=="WA" | fp$state=="OR"
 
 ```
 ```{r}
-#Defining 2 new factors called stbc and rgbc. These show the proportions of body cameras being on per state and per region respectively. PLEASE DO NOT MODIFY. THIS WAS HARD
+#Defining 2 new factors called stbcp and rgbcp. These show the proportions of body cameras being on per state and per region respectively. PLEASE DO NOT MODIFY. THIS WAS HARD
+#Still working on it
 
-
-fp %>%
+sfp <- fp %>%
    group_by(state) %>%
-   mutate(sbcp =  sum(body_camera==1)/n())
+   mutate(stbcp =  sum(body_camera==1)/n())
 
-fp %>%
+rfp <- fp %>%
    group_by(regions) %>%
-   mutate(rgcp =  sum(body_camera==1)/n())
+   mutate(rgbcp =  sum(body_camera==1)/n())
+```
+```{r}
+mean(sfp$stbcp)
+head(sfp)
 ```
 
 ```{r}
 ggplot(fp, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Incidents", title = "Regional Body Camera proportions")
 
-qqplot()
-
+#Normality check of proportions of body cameras being on by state
+qqnorm(sfp$stbcp)
+#Seems Normal
 
 ```
 ```{r}
-ggplot(fp, aes(x=regions, y=body_camera)) +  geom_boxplot(fill='green')
-
+ggplot(sfp, aes(x=state, y= stbcp, label=state)) + geom_point(shape=6, color="violet")+ labs(x = "State", y="Body Camera Proportion", title = "Body Camera On Proportion By US State") + geom_text(hjust=1, vjust=-0.6)
+#This is kind of a mess so lets try grouping by regions on the next graph
+ggplot(rfp, aes(x=regions, y= rgbcp, label=regions)) + geom_point(shape=8, color="navy")+ labs(x = "Region", y="Body Camera Proportion", title = "Body Camera On Proportion By US Region") +  geom_text(hjust=1, vjust=-0.6)
 
 ```
 
 ```{r}
-ggplot(fp1, aes(x=reorder(state, state, function(x)-length(x)))) +
-geom_bar(fill='red') +  labs(x='state')
-
-table(fp1$state)
+#Some statistical testing that I need to tinker more with next week
+anova(lm( stbcp~state , sfp))
 ```
 
