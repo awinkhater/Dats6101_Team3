@@ -124,4 +124,10 @@ ggplot(rfp, aes(x=regions, y= rgbcp, label=regions)) + geom_point(shape=8, color
 #Some statistical testing that I need to tinker more with next week
 anova(lm( stbcp~state , sfp))
 ```
+```{r}
+# Use sfp to call dataset grouped by states, call rfp dataset grouped by regions, and fp
+
+mean(rfp$rgbcp)
+
+```
 
