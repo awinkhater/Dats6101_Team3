@@ -44,6 +44,8 @@ str(fp)
 
 mean(fp$age, na.rm= TRUE)
 median(fp$age)
+
+
 ```
 ```{r}
 #First 7 names Printed 
@@ -128,6 +130,10 @@ anova(lm( stbcp~state , sfp))
 # Use sfp to call dataset grouped by states, call rfp dataset grouped by regions, and fp
 
 mean(rfp$rgbcp)
+
+```
+
+```{r}
 
 ```
 
