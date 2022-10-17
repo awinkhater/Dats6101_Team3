@@ -77,6 +77,11 @@ nrow(NE)
 nrow(fp)
 ```
 ```{r}
+table(fp$race)
+```
+
+
+```{r}
 #Implementation of the subgroups as a new factor called "regions". PLEASE PLEASE DO NOT MODIFY. THIS TOOK FOREVER
 fp$regions <- as.factor(ifelse(( fp$state=="CA"| fp$state=="WA" | fp$state=="OR" | fp$state== "NV"| fp$state=="ID"| fp$state=="UT"|fp$state=="MT"|fp$state=="CO"| fp$state=="WY"| fp$state=="AK"), 'NW',
                      ifelse((fp$state== "NM"| fp$state=="AZ"| fp$state== "TX"| fp$state=="OK"| fp$state== "HI"), 'SW', 
@@ -84,24 +89,104 @@ fp$regions <- as.factor(ifelse(( fp$state=="CA"| fp$state=="WA" | fp$state=="OR"
                      ifelse(( fp$state=="NY"| fp$state== "MD"| fp$state=="RI"| fp$state== "VT"| fp$state=="PA"| fp$state=="ME"| fp$state== "NH"| fp$state=="NJ"| fp$state=="CT"| fp$state=="MA"), 'NE', 'SE')))))
 
 ```
+
+
 ```{r}
-#Defining 2 new factors called stbcp and rgbcp. These show the proportions of body cameras being on per state and per region respectively. PLEASE DO NOT MODIFY. THIS WAS HARD AS HELL.
+#Defining 2 new datasets. These show all the variables (with some modification) by state. PLEASE DO NOT MODIFY. THIS WAS HARD AS HELL.
 #Still working on it
 
 sfp <- fp %>%
    group_by(state) %>%
    mutate(stbcp =  sum(body_camera==1)/n())
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(gen.p =  sum(gender=="M")/n())
 
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(smi.p =  sum(signs_of_mental_illness==TRUE)/n())
+
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(flee.p =  sum(flee=="fleeing")/n())
+
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(att.p =  sum(threat_level== "attack")/n())
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(armed.p =  sum(armed != "unarmed")/n())
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(MoD.p =  sum(manner_of_death == "shot")/n())
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(age.avg =  sum(age)/n())
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(Non_White_prop =  sum(race != "W")/n())
+
+
+
+By_State <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, regions, date, is_geocoding_exact))
+
+
+
+summary(By_State)
+
+
+
+
+
+```
+```{r}
 rfp <- fp %>%
    group_by(regions) %>%
    mutate(rgbcp =  sum(body_camera==1)/n())
 
-#So Now we Have two sub datasets: sfp has the stbcp column that shows each states percentage of body cameras being on, and rfp which does the same but for regions
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(gen.p =  sum(gender=="M")/n())
+
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(smi.p =  sum(signs_of_mental_illness==TRUE)/n())
+
+rfp <- rfp %>%
+   group_by(regions) %>%
+   mutate(flee.p =  sum(flee=="fleeing")/n())
+
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(att.p =  sum(threat_level== "attack")/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(armed.p =  sum(armed != "unarmed")/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(MoD.p =  sum(manner_of_death == "shot")/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(age.avg =  sum(age)/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(Non_White_prop =  sum(race != "W")/n())
+
+
+
+By_Region <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, regions, date, is_geocoding_exact))
+
+
+
+summary(By_Region)
+
+
 ```
+
 ```{r}
 #Just some tests on the new sub dataset
-mean(sfp$stbcp)
-head(sfp)
+mean(By_State$stbcp)
+head(By_State)
 ```
 
 ```{r}
@@ -109,23 +194,46 @@ head(sfp)
 ggplot(fp, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Incidents", title = "Regional Police Shootings Colored by Body Camera Proportions")
 
 #Normality check of proportions of body cameras being on by state
-qqnorm(sfp$stbcp)
+qqnorm(By_State$stbcp)
 #Seems Normal
 
 ```
 ```{r}
 #Scatter Plot of Body Camera Proportion by State
-ggplot(sfp, aes(x=state, y= stbcp, label=state)) + geom_point(shape=6, color="violet")+ labs(x = "State", y="Body Camera Proportion", title = "Body Camera On Proportion By US State") + geom_text(hjust=1, vjust=-0.6)
+ggplot(By_State, aes(x=state, y= stbcp, label=state)) + geom_point(shape=6, color="violet")+ labs(x = "State", y="Body Camera Proportion", title = "Body Camera On Proportion By US State") + geom_text(hjust=1, vjust=-0.6)
 
 #This is kind of a mess so lets try grouping by regions on the next graph
-ggplot(rfp, aes(x=regions, y= rgbcp, label=regions)) + geom_point(shape=8, color="navy")+ labs(x = "Region", y="Body Camera Proportion", title = "Body Camera On Proportion By US Region") +  geom_text(hjust=1, vjust=-0.6)
+ggplot(By_Region, aes(x=regions, y= rgbcp, label=regions)) + geom_point(shape=8, color="navy")+ labs(x = "Region", y="Body Camera Proportion", title = "Body Camera On Proportion By US Region") +  geom_text(hjust=1, vjust=-0.6)
+
+``` 
+```{r}
+summary(By_State)
 
 ```
 
 ```{r}
 #Some statistical testing that I need to tinker more with next week
-anova(lm( stbcp~state , sfp))
+
+two.way <- aov(stbcp ~ (age.avg + Non_White_prop + gen.p + smi.p + flee.p + MoD.p + att.p+armed.p), data=sfp)
+summary(two.way)
 ```
+
+
+```{r}
+
+itwo.way <- aov(stbcp ~ ((age.avg * Non_White_prop * gen.p) + (smi.p * flee.p * MoD.p * att.p * armed.p)), data=sfp)
+summary(itwo.way) 
+```
+```{r}
+#install.packages("AICcmodavg")
+library(AICcmodavg)
+
+model.set <- list( two.way, itwo.way)
+model.names <- c( "two.way", "interaction")
+
+aictab(model.set, modnames = model.names)
+```
+
 ```{r}
 # Use sfp to call dataset grouped by states, call rfp dataset grouped by regions, and fp
 
@@ -134,6 +242,6 @@ mean(rfp$rgbcp)
 ```
 
 ```{r}
-
+h
 ```
 
