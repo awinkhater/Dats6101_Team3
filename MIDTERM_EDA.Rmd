@@ -188,7 +188,9 @@ summary(By_Region)
 mean(By_State$stbcp)
 head(By_State)
 ```
+Explanation:
 
+I made two new datasets. One grouped by State, one grouped by Region.
 ```{r}
 #a bar graph showing number of fatal police shootings AND proportions of body cameras being on by region (too many states to show on a bar graph like this)
 ggplot(fp, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Incidents", title = "Regional Police Shootings Colored by Body Camera Proportions")
