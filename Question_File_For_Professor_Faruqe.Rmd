@@ -1,0 +1,102 @@
+---
+title: "Question For Professor Faruqe"
+output: html_document
+date: "2022-10-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r}
+#Calling Packages
+library(dplyr)
+
+library(ggplot2)
+#RAW SET BELOW 
+fp1<- data.frame(read.csv("FPS22.csv"))
+```
+```{r}
+#Cleaning null values from dataset
+fp <- na.omit(fp1) 
+
+```
+
+```{r}
+#Basics
+nrow(fp)
+col(fp)
+summary(fp)
+head(fp)
+```
+So for this project I would like to take this data and reshape it to be grouped by state, and compare proportions of body_cameras being turned on by state. I would like to do this with a chisq test, but I am having trouble reshaping and grouping the data but maintaining it in a format where the chisq() function works.
+
+Heres how I reshaped the data frame to be grouped by state. I will explain each new variable with a comment above:
+
+```{r}
+#This is the raw categorical data of bodycameras being on or off, grouped by state
+sfp <- fp %>%
+   group_by(state) %>%
+   mutate(sbc = body_camera)
+
+#This is a numeric proportion of the body cameras being on by state
+sfp <- fp %>%
+   group_by(state) %>%
+   mutate(stbcp =  sum(body_camera==1)/n())
+#This is a numeric proportion of the Men by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(gen.p =  sum(gender=="M")/n())
+#This is a numeric proportion of sings_of_mental_illness by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(smi.p =  sum(signs_of_mental_illness==TRUE)/n())
+#This is a numeric proportion of fleeing victims by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(flee.p =  sum(flee=="fleeing")/n())
+#This is a numeric proportion of attackers by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(att.p =  sum(threat_level== "attack")/n())
+#This is a numeric proportion of armed victims by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(armed.p =  sum(armed != "unarmed")/n())
+#This is a numeric proportion of suspects being shot (as opposed to tasered) by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(MoD.p =  sum(manner_of_death == "shot")/n())
+#This is the average age by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(age.avg =  sum(age)/n())
+#This is variable is for later analysis (maybe for the final) and is the proportion of non-white victims by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(Non_White_prop =  sum(race != "W")/n())
+
+#This line just drops all non grouped by state data from this version of the dataframe
+By_State <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, date, is_geocoding_exact))
+```
+
+```{r}
+summary(By_State)
+```
+```{r}
+#Here is an example of what I am trying to do
+chisq.test(By_State$stbcp)
+
+#I get a p-value of 1
+
+#chisq.test(By_State$sbc) This command wont run, because sbc isnt positive (it is a series of 0's and 1's)
+
+#How would I run a chisq test to see whether or not there is a siginficant difference between the states body camera proportions ?
+
+```
+

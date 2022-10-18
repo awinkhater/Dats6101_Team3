@@ -190,7 +190,7 @@ head(By_State)
 ```
 Explanation:
 
-I made two new datasets. One grouped by State, one grouped by Region.
+I made two new datasets. One grouped by State, one grouped by Region.4
 ```{r}
 #a bar graph showing number of fatal police shootings AND proportions of body cameras being on by region (too many states to show on a bar graph like this)
 ggplot(fp, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Incidents", title = "Regional Police Shootings Colored by Body Camera Proportions")
@@ -205,9 +205,14 @@ qqnorm(By_State$stbcp)
 ggplot(By_State, aes(x=state, y= stbcp, label=state)) + geom_point(shape=6, color="violet")+ labs(x = "State", y="Body Camera Proportion", title = "Body Camera On Proportion By US State") + geom_text(hjust=1, vjust=-0.6)
 
 #This is kind of a mess so lets try grouping by regions on the next graph
-ggplot(By_Region, aes(x=regions, y= rgbcp, label=regions)) + geom_point(shape=8, color="navy")+ labs(x = "Region", y="Body Camera Proportion", title = "Body Camera On Proportion By US Region") +  geom_text(hjust=1, vjust=-0.6)
+#ggplot(By_Region, aes(x=regions, y= rgbcp, label=regions)) + geom_point(shape=8, color="navy")+ labs(x = "Region", y="Body Camera Proportion", title = "Body Camera On Proportion #By US Region") +  geom_text(hjust=1, vjust=-0.6)
+```
 
-``` 
+
+```{r}
+
+```
+
 ```{r}
 summary(By_State)
 
@@ -216,8 +221,7 @@ summary(By_State)
 ```{r}
 #Some statistical testing that I need to tinker more with next week
 
-two.way <- aov(stbcp ~ (age.avg + Non_White_prop + gen.p + smi.p + flee.p + MoD.p + att.p+armed.p), data=sfp)
-summary(two.way)
+
 ```
 
 
@@ -227,13 +231,7 @@ itwo.way <- aov(stbcp ~ ((age.avg * Non_White_prop * gen.p) + (smi.p * flee.p * 
 summary(itwo.way) 
 ```
 ```{r}
-#install.packages("AICcmodavg")
-library(AICcmodavg)
 
-model.set <- list( two.way, itwo.way)
-model.names <- c( "two.way", "interaction")
-
-aictab(model.set, modnames = model.names)
 ```
 
 ```{r}
@@ -244,6 +242,7 @@ mean(rfp$rgbcp)
 ```
 
 ```{r}
-h
+head(By_State)
+
 ```
 
