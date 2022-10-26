@@ -1,18 +1,30 @@
 ---
-title: "Test"
-output: html_document
-date: "2022-09-20"
+title: "Midterm EDA: Group 3"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
+# some of common options (and the defaults) are: 
+# include=T, eval=T, echo=T, results='hide'/'asis'/'markup',..., collapse=F, warning=T, message=T, error=T, cache=T, fig.width=6, fig.height=4, fig.dim=c(6,4) #inches, fig.align='left'/'center','right', 
+# knitr::opts_chunk$set(warning = F, results = "markup", message = F)
+# knitr::opts_chunk$set(warning = F, results = "hide", message = F)
+# knitr::opts_chunk$set(include = F)
+# knitr::opts_chunk$set(echo = TRUE)
+options(scientific=T, digits = 3) 
+# options(scipen=9, digits = 3) 
+# ‘scipen’: integer. A penalty to be applied when deciding to print numeric values in fixed or exponential notation.  Positive values bias towards fixed and negative towards scientific notation: fixed notation will be preferred unless it is more than ‘scipen’ digits wider.
+# use scipen=999 to prevent scientific notation at all times
 ```
+From 2015- 2022, in response to a deep lack of reporting within government sources, The Washington Post compiled a database of every fatal police shooting in the United States.We are interested in exploring this data, specifically as it shows the differences between US States.
 
-## R Markdown
+### Setting the Data Up
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+First we call our packages: dplyr and ggplot2 as well as reading our data:
 
 ```{r}
 #Calling Packages
@@ -22,7 +34,7 @@ library(ggplot2)
 
 fp1<- data.frame(read.csv("FPS22.csv"))
 ```
-
+Then we remove the null values from our dataset
 ```{r}
 #Cleaning null values from dataset
 fp <- na.omit(fp1) # Method 1 - Remove NA
@@ -30,14 +42,15 @@ fp <- na.omit(fp1) # Method 1 - Remove NA
 
 ```
 
-
+After Accounting for Null Values: The dataset we are working with has 6574 observations. There is a sample row of the data as well
 ```{r}
 #Getting row count and latest incident
+print("Number of observations:") 
 nrow(fp)
-
-max(fp$date)
+head(fp, 1)
 ```
-
+### Basic Stats
+He are some basic stats:
 ```{r}
 #test stats
 str(fp)
@@ -98,51 +111,55 @@ fp$regions <- as.factor(ifelse(( fp$state=="CA"| fp$state=="WA" | fp$state=="OR"
 sfp <- fp %>%
    group_by(state) %>%
    mutate(stbcp =  sum(body_camera==1)/n())
+#This is a numeric proportion of the Men by state
 sfp <- sfp %>%
    group_by(state) %>%
    mutate(gen.p =  sum(gender=="M")/n())
-
+#This is a numeric proportion of sings_of_mental_illness by state
 sfp <- sfp %>%
    group_by(state) %>%
    mutate(smi.p =  sum(signs_of_mental_illness==TRUE)/n())
-
+#This is a numeric proportion of fleeing victims by state
 sfp <- sfp %>%
    group_by(state) %>%
    mutate(flee.p =  sum(flee=="fleeing")/n())
-
+#This is a numeric proportion of attackers by state
 sfp <- sfp %>%
    group_by(state) %>%
    mutate(att.p =  sum(threat_level== "attack")/n())
+#This is a numeric proportion of armed victims by state
 sfp <- sfp %>%
    group_by(state) %>%
    mutate(armed.p =  sum(armed != "unarmed")/n())
+#This is a numeric proportion of suspects being shot (as opposed to tasered) by state
 sfp <- sfp %>%
    group_by(state) %>%
    mutate(MoD.p =  sum(manner_of_death == "shot")/n())
+#This is the average age by state
 sfp <- sfp %>%
    group_by(state) %>%
    mutate(age.avg =  sum(age)/n())
+#This is variable is for later analysis (maybe for the final) and is the proportion of non-white victims by state
 sfp <- sfp %>%
    group_by(state) %>%
    mutate(Non_White_prop =  sum(race != "W")/n())
 
-
-
-By_State <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, regions, date, is_geocoding_exact))
-
-
+#This line just drops all non grouped by state data from this version of the dataframe
+By_State <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, date, is_geocoding_exact))
 
 summary(By_State)
-
-
-
-
-
 ```
+
+
+
+
+
+
+
 ```{r}
 rfp <- fp %>%
    group_by(regions) %>%
-   mutate(rgbcp =  sum(body_camera==1)/n())
+   mutate(rgbcp =  sum(body_camera==TRUE)/n())
 
 rfp <- sfp %>%
    group_by(regions) %>%
@@ -209,9 +226,7 @@ ggplot(By_State, aes(x=state, y= stbcp, label=state)) + geom_point(shape=6, colo
 ```
 
 
-```{r}
 
-```
 
 ```{r}
 summary(By_State)
@@ -243,6 +258,22 @@ mean(rfp$rgbcp)
 
 ```{r}
 head(By_State)
+
+```
+
+```{r}
+test<- By_State
+
+cat3 <- test %>% mutate(proportion=cut(stbcp, breaks=c(0, 0.10, 0.2, 0.3, Inf),labels = c("low", "medium", "high", "very high")))
+
+summary(cat3$stbcp)
+cat3$state <- as.factor(cat3$state)
+cat3$stbcp <- as.factor(cat3$stbcp)
+
+contable= table(cat3$state, cat3$stbcp)
+#print(contable)
+
+chisq.test(contable)
 
 ```
 
