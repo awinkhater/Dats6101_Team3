@@ -76,21 +76,33 @@ ggplot(fp, aes(x=state, fill=state, color=state)) + geom_histogram(stat="count")
 ```
 ### Reshaping the Data for State Comparison
 
+We are particularly interested in using this data to view differences between US States and Regions.
+
+The Regions:
+NW (North West): CA, WA, OR, NV, ID, UT, MT, CO, WY, AK
+SW (South West): NM, AZ, TX, OK, HI
+MW (Mid West): IL, WI, IN, MI, MN, MO, IA, KS, ND, SD, NE ,OH
+SE(South East): GA, AL, MS, LA, TN, NC, SC, FL, AR, WV, DC, VA
+NE (North East): NY, RI, MD, VT, PA, ME, NH, NJ, CT, MA
+
+
 ```{r}
 #Initial Creation of Regional Subgroups and tests that they cover everything. DO NOT MODIFY. THIS WAS SUPER HARD TO MAKE.
 NW <- subset(fp, state=="CA"| state=="WA" | state=="OR" | state== "NV"| state=="ID"| state=="UT"|state=="MT"|state=="CO"| state=="WY"| state=="AK")
+print("Incidents in NW:")
 nrow(NW)
 SW <- subset(fp, state== "NM"| state=="AZ"| state== "TX"| state=="OK"| state== "HI")
+print("Incidents in SW:")
 nrow(SW)
 MW <- subset(fp, state== "IL"| state=="WI"| state=="IN"| state=="MI"| state== "MN"| state== "MO"| state== "IA"| state=="KS"| state=="ND"| state== "SD"| state=="NE"| state=="OH")
+print("Incidents in MW:")
 nrow(MW)
 SE <- subset(fp, state == "GA"| state=="AL"| state== "MS"| state=="LA"| state=="TN"| state=="NC"| state=="SC"| state=="FL"| state== "AR"|state=="WV"| state=="DC"| state=="VA"| state=="KY"| state=="DE")
+print("Incidents in SE:")
 nrow(SE)
 NE <- subset(fp, state=="NY"| state== "MD"| state=="RI"| state== "VT"| state=="PA"| state=="ME"| state== "NH"| state=="NJ"| state=="CT"| state=="MA")
+print("Incidents in NE:")
 nrow(NE)
-
-(nrow(NE)+nrow(SE) +nrow(MW) +nrow(SW) + nrow(NW))
-nrow(fp)
 ```
 ```{r}
 table(fp$race)
@@ -242,7 +254,7 @@ summary(By_State)
 
 ```
 
-
+### SMART Question (DO NOT MESS WITH)
 ```{r}
 
 itwo.way <- aov(stbcp ~ ((age.avg * Non_White_prop * gen.p) + (smi.p * flee.p * MoD.p * att.p * armed.p)), data=sfp)
