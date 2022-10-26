@@ -1,12 +1,12 @@
 ---
-title: "Midterm EDA: Group 3"
+title: "Midterm EDA: Group 7"
 date: "`r Sys.Date()`"
 output:
   pdf_document: default
   word_document: default
   html_document: default
 ---
-
+### Introduction
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 # some of common options (and the defaults) are: 
@@ -51,28 +51,31 @@ head(fp, 1)
 ```
 ### Basic Stats
 He are some basic stats:
+
+Structure:
 ```{r}
 #test stats
 str(fp)
+```
 
+Means and Median for Numeric Variables (Age):
+```{r}
 mean(fp$age, na.rm= TRUE)
 median(fp$age)
 
-
 ```
+#Frequency Graphs for Categorical Variables:
+
 ```{r}
-#First 7 names Printed 
-count=1
-for (i in fp$name){
-  if (i== "Brock Nichols"){
-    break}
-  else {
-    print (i)}
-    print(count)
-    count= count+1
-} 
+ggplot(fp, aes(x=race,fill=race, color=race)) + geom_histogram(stat="count") + labs(x = "Race: Unknown, Asian, Black, Hispanic, Native, Other, White", y="Number of Incidents", title = "Race Frequency Histogram")
+ggplot(fp, aes(x=gender, fill=gender, color=gender)) + geom_histogram(stat="count") + labs(x = "Gender", y="Number of Incidents", title = "Gender Frequency Histogram")
+ggplot(fp, aes(x= manner_of_death, fill=manner_of_death, color=manner_of_death)) + geom_histogram(stat="count") + labs(x = "Manner of Death", y="Number of Incidents", title = "Manner of Death Frequency Histogram")
+ggplot(fp, aes(x=threat_level, fill=threat_level, color=threat_level)) + geom_histogram(stat="count") + labs(x = "Threat Level", y="Number of Incidents", title = "Threat Level Frequency Histogram")
+ggplot(fp, aes(x=state, fill=state, color=state)) + geom_histogram(stat="count") + labs(x = "State", y="Number of Incidents", title = "State Frequency Histogram")
 
 ```
+### Reshaping the Data for State Comparison
+
 ```{r}
 #Initial Creation of Regional Subgroups and tests that they cover everything. DO NOT MODIFY. THIS WAS SUPER HARD TO MAKE.
 NW <- subset(fp, state=="CA"| state=="WA" | state=="OR" | state== "NV"| state=="ID"| state=="UT"|state=="MT"|state=="CO"| state=="WY"| state=="AK")
