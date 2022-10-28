@@ -61,7 +61,7 @@ library(forecast)
 **Interesting Finding 1 : California has the highest police shootings, and highest suspects shot in California are Hispanic and not White/Black.
 We looked at the total deaths in each state by race and following are some of the insights:
 
-1)We see that police has shot the most people in California - a total of 330, followed by Texas with a total of 190 and then Florida with 124 deaths.
+1)We see that police has shot the most people in California - a total of 885, followed by Texas with a total of 553 and then Florida with 427 deaths.
 2)These results are consistent with the relative population of these states. Highest being California, then Texas  and Florida .
 3)We also observe that the highest number of deaths is for Hispanic in California, whereas in Texas and Florida there are more deaths amongst White.
 
@@ -264,8 +264,8 @@ levels(summary_table$race) <- c("", "Asian", "Black", "Hispanic", "Native Americ
 #Print the table
 print(summary_table)
 ```
-**Interesting Pattern 6 - Suprisingly there is no seasonaility across year or months in police shootings
-We looked into the monthly trend for two years and used ARIMA to forecast the crime for next four months. Since, there is not much seasonality into the police shootings, even the forecast predicts average shootings for the next four months with a very wide confidence interval.
+**Interesting Pattern 6 - Suprisingly there is seasonaility across year or months in police shootings
+We looked into the monthly trend for 12 years and used ARIMA to forecast the crime for next four months. Since, there is seasonality into the police shootings, even the forecast predicts average/high shootings for the next four months with a wide confidence interval.
 ```{r}
 #Summarizing the data at year month level and plotting the trend line
 police %>%
