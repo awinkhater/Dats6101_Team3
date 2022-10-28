@@ -105,11 +105,6 @@ print("Incidents in NE:")
 nrow(NE)
 ```
 ```{r}
-table(fp$race)
-```
-
-
-```{r}
 #Implementation of the subgroups as a new factor called "regions". PLEASE PLEASE DO NOT MODIFY. THIS TOOK FOREVER
 fp$regions <- as.factor(ifelse(( fp$state=="CA"| fp$state=="WA" | fp$state=="OR" | fp$state== "NV"| fp$state=="ID"| fp$state=="UT"|fp$state=="MT"|fp$state=="CO"| fp$state=="WY"| fp$state=="AK"), 'NW',
                      ifelse((fp$state== "NM"| fp$state=="AZ"| fp$state== "TX"| fp$state=="OK"| fp$state== "HI"), 'SW', 
@@ -162,15 +157,8 @@ sfp <- sfp %>%
 #This line just drops all non grouped by state data from this version of the dataframe
 By_State <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, date, is_geocoding_exact))
 
-summary(By_State)
+
 ```
-
-
-
-
-
-
-
 ```{r}
 rfp <- fp %>%
    group_by(regions) %>%
@@ -207,22 +195,21 @@ rfp <- sfp %>%
 
 
 By_Region <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, regions, date, is_geocoding_exact))
-
-
-
-summary(By_Region)
-
-
 ```
+We have created two subdata sets by grouping our data by state and by reigion (for graphical purposes). Here is the structure of both:
+
 
 ```{r}
 #Just some tests on the new sub dataset
-mean(By_State$stbcp)
-head(By_State)
-```
-Explanation:
+summary(By_State)
+summary(By_Region)
 
-I made two new datasets. One grouped by State, one grouped by Region.4
+```
+As you can see, the groups are identical, besides their grouping.
+
+## SMART QUESTION
+
+
 ```{r}
 #a bar graph showing number of fatal police shootings AND proportions of body cameras being on by region (too many states to show on a bar graph like this)
 ggplot(fp, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Incidents", title = "Regional Police Shootings Colored by Body Camera Proportions")
