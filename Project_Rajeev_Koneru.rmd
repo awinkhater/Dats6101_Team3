@@ -140,7 +140,7 @@ data_by_rg <- police %>%
 
 #Plotting Data
 ggplot(data_by_rg, aes(x = race, y = No_of_deaths, fill = gender)) + 
-  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity",position = "dodge") + 
   labs (x = 'Race', y = 'Number of deaths') +
   ggtitle('Deaths by race and gender') +
   scale_x_discrete(labels=c('Asian',
@@ -157,7 +157,7 @@ ggplot(data_by_rg, aes(x = race, y = No_of_deaths, fill = gender)) +
 Interesting Finding 4 - Higher % of unarmed Black suspects were shot than any other race
 We looked at the distribution of deaths by Race and top 5 armed categories. Following are some key observations:
 
-1)Around ~11% of the Black suspects were unarmed whereas only ~6% of the White suspects were unarmed
+1)Around ~11% of the Black suspects were unarmed whereas only ~6% of the White suspects were unarmed.
 Guns are the most popular weapon across all the races except for Asians (Asian suspects have a higher proportion of Knives)
 
 
