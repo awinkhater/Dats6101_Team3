@@ -1,10 +1,18 @@
 ---
+<<<<<<< Updated upstream
 title: "Midterm EDA: Group 7"
 date: "`r Sys.Date()`"
 output:
   pdf_document: default
   word_document: default
   html_document: default
+=======
+title: "Midterm Exploratory Data Analysis"
+output:
+  pdf_document: default
+  html_document: default
+date: "2022-09-20"
+>>>>>>> Stashed changes
 ---
 ### Introduction
 ```{r setup, include=FALSE, warning=FALSE}
