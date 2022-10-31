@@ -7,7 +7,7 @@ output:
   html_document: default
 ---
 ### Introduction
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 # some of common options (and the defaults) are: 
 # include=T, eval=T, echo=T, results='hide'/'asis'/'markup',..., collapse=F, warning=T, message=T, error=T, cache=T, fig.width=6, fig.height=4, fig.dim=c(6,4) #inches, fig.align='left'/'center','right', 
@@ -74,15 +74,20 @@ ggplot(fp, aes(x=threat_level, fill=threat_level, color=threat_level)) + geom_hi
 ggplot(fp, aes(x=state, fill=state, color=state)) + geom_histogram(stat="count") + labs(x = "State", y="Number of Incidents", title = "State Frequency Histogram")
 
 ```
-### Reshaping the Data for State Comparison
+###Reshaping the Data for State Comparison
 
 We are particularly interested in using this data to view differences between US States and Regions.
 
 The Regions:
+
 NW (North West): CA, WA, OR, NV, ID, UT, MT, CO, WY, AK
+
 SW (South West): NM, AZ, TX, OK, HI
+
 MW (Mid West): IL, WI, IN, MI, MN, MO, IA, KS, ND, SD, NE ,OH
+
 SE(South East): GA, AL, MS, LA, TN, NC, SC, FL, AR, WV, DC, VA
+
 NE (North East): NY, RI, MD, VT, PA, ME, NH, NJ, CT, MA
 
 
@@ -196,72 +201,85 @@ rfp <- sfp %>%
 
 By_Region <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, regions, date, is_geocoding_exact))
 ```
-We have created two subdata sets by grouping our data by state and by reigion (for graphical purposes). Here is the structure of both:
+We have created two sub datasets by grouping our data by state and by reigion (for graphical purposes). Here is the structure of both:
 
 
 ```{r}
 #Just some tests on the new sub dataset
+print("By_State:")
 summary(By_State)
+print("By Region:")
 summary(By_Region)
 
 ```
 As you can see, the groups are identical, besides their grouping.
 
-## SMART QUESTION
 
+
+
+### SMART Question and Answer
+ Within our dataset of police shootings from 2015 to 2020 in the United States, is there a significant difference between the states? 
+ 
+First let's take a look at our data after it has been grouped by state and reorganized into the following variables:
+
+- state: State of Observation
+
+- region: Region of Observation
+
+- stbcp: State Body Camera On Proportion 
+
+- genp.p: proportion of male identified shooting victims by state
+
+- smi.p: proportion of shooting victims by state with a documented sign of mental illness
+
+- flee.p: proportion of shooting victims by state that we fleeing
+
+- att.p: proportion of shooting victims by state that we attacking
+
+- armed.p: proportion of shooting victims by state that were not unarmed
+
+- MoD.p: proportion of shooting victims by state who where shot (rather than shot and tased)
+
+- age.avg: average age by state
+
+- Non_White_prop: Proportion of shooting vicitms by state that were not identified as white/caucasian
+
+```{r}
+head(By_State)
+summary(By_State)
+```
+We now would like to check our data for normality:
+
+```{r}
+
+#Normality check of proportions of body cameras being on by state
+qqnorm(By_State$stbcp)
+#Seems Normal
+```
+Because the plot is relatively linear, we can conclude this data is close enough to normality for our purpose.
+
+Now let us look at the body camera proportions by state:
 
 ```{r}
 #a bar graph showing number of fatal police shootings AND proportions of body cameras being on by region (too many states to show on a bar graph like this)
 ggplot(fp, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Incidents", title = "Regional Police Shootings Colored by Body Camera Proportions")
 
-#Normality check of proportions of body cameras being on by state
-qqnorm(By_State$stbcp)
-#Seems Normal
-
-```
-```{r}
 #Scatter Plot of Body Camera Proportion by State
 ggplot(By_State, aes(x=state, y= stbcp, label=state)) + geom_point(shape=6, color="violet")+ labs(x = "State", y="Body Camera Proportion", title = "Body Camera On Proportion By US State") + geom_text(hjust=1, vjust=-0.6)
 
-#This is kind of a mess so lets try grouping by regions on the next graph
-#ggplot(By_Region, aes(x=regions, y= rgbcp, label=regions)) + geom_point(shape=8, color="navy")+ labs(x = "Region", y="Body Camera Proportion", title = "Body Camera On Proportion #By US Region") +  geom_text(hjust=1, vjust=-0.6)
 ```
 
-
-
-
+And finally, let us check out the mean body camera on proportion off all states:
 ```{r}
-summary(By_State)
-
+mean(By_State$stbcp)
 ```
+And now let us do a chi-square test to see if there is a siginficant difference between the proportions of each state. 
 
-```{r}
-#Some statistical testing that I need to tinker more with next week
+Our Null Hypothesis: There is no significant differences between US States in the proportion of body cameras being turned on during police shootings
 
+Alternative Hypothesis: There is a significant difference between US State in the proportion of body cameras being turned on during police shootings
 
-```
-
-### SMART Question (DO NOT MESS WITH)
-```{r}
-
-itwo.way <- aov(stbcp ~ ((age.avg * Non_White_prop * gen.p) + (smi.p * flee.p * MoD.p * att.p * armed.p)), data=sfp)
-summary(itwo.way) 
-```
-```{r}
-
-```
-
-```{r}
-# Use sfp to call dataset grouped by states, call rfp dataset grouped by regions, and fp
-
-mean(rfp$rgbcp)
-
-```
-
-```{r}
-head(By_State)
-
-```
+Significance Level: alpha= 0.05
 
 ```{r}
 test<- By_State
@@ -278,4 +296,6 @@ contable= table(cat3$state, cat3$stbcp)
 chisq.test(contable)
 
 ```
+With a p-value of 2e-16, we easily pass our signficance level of alpha=0.05 and have shown that there exists significant differences between different states proportions of body camera usage during fatal poilce shootings.
 
+For Further Analysis: We intend to delve into why there are differences and research what factors may explain these differences between states.
