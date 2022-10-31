@@ -1,0 +1,631 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Fried Chicken - Intro to Data Science overview},
+  pdfauthor={GWU},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Fried Chicken - Intro to Data Science overview}
+\author{GWU}
+\date{2022-10-31}
+
+\begin{document}
+\maketitle
+
+\hypertarget{fried-chicken-pricing}{%
+\section{Fried Chicken Pricing}\label{fried-chicken-pricing}}
+
+\hypertarget{the-beginning}{%
+\subsection{The beginning}\label{the-beginning}}
+
+At a \href{https://www.yelp.com}{yelp-highly-rated} chicken place one
+summer, I was waiting for my order, which took \textbf{forever}
+(exaggerated). Without any other better things to do, I re-studied the
+menu there, trying to understand the pricing structure. See photo:\\
+\includegraphics{DataAnalysis_FriedChicken.jpg}
+
+I was wondering to myself tons of questions: how can I get the best
+deal? What is the cost per wing, and cost per drum? Does the restaurant
+use a formula to determine the pricing?
+
+Bugger! ``I am \emph{cursed}. Shouldn't have come here. I might not get
+out of here alive\ldots{}'' I thought at the time.
+
+You can see the set prices in the photo. We will need to re-format our
+data, from this \emph{wide} format (often in pivot and summary tables),
+to a flat, \emph{long} format here. Let us practice our Markdown skill
+at the same time to tabulate them:
+
+\begin{longtable}[]{@{}ccc@{}}
+\toprule()
+Wings & Drums & Price \\
+\midrule()
+\endhead
+5 & 0 & 6.69 \\
+10 & 0 & 12.99 \\
+15 & 0 & 17.99 \\
+20 & 0 & 23.99 \\
+40 & 0 & 45.99 \\
+0 & 3 & 6.69 \\
+0 & 5 & 10.99 \\
+0 & 10 & 19.99 \\
+0 & 15 & 29.99 \\
+3 & 2 & 7.99 \\
+7 & 4 & 16.99 \\
+12 & 6 & 27.99 \\
+20 & 9 & 43.99 \\
+\bottomrule()
+\end{longtable}
+
+Let us now enter these as a dataframe in R.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# korean{-}fried{-}chicken{-}wing pricing}
+\NormalTok{kfcw }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{wing=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{5}\NormalTok{,}\DecValTok{10}\NormalTok{,}\DecValTok{15}\NormalTok{,}\DecValTok{20}\NormalTok{,}\DecValTok{40}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DecValTok{7}\NormalTok{,}\DecValTok{12}\NormalTok{,}\DecValTok{20}\NormalTok{), }\AttributeTok{drum=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{10}\NormalTok{,}\DecValTok{15}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{4}\NormalTok{,}\DecValTok{6}\NormalTok{,}\DecValTok{9}\NormalTok{), }\AttributeTok{price=}\FunctionTok{c}\NormalTok{(}\FloatTok{6.69}\NormalTok{,}\FloatTok{12.99}\NormalTok{,}\FloatTok{17.99}\NormalTok{,}\FloatTok{23.99}\NormalTok{,}\FloatTok{45.99}\NormalTok{,}\FloatTok{6.69}\NormalTok{,}\FloatTok{10.99}\NormalTok{,}\FloatTok{19.99}\NormalTok{,}\FloatTok{29.99}\NormalTok{,}\FloatTok{7.99}\NormalTok{,}\FloatTok{16.99}\NormalTok{,}\FloatTok{27.99}\NormalTok{,}\FloatTok{43.99}\NormalTok{) )}
+\end{Highlighting}
+\end{Shaded}
+
+So there are 13 data points in our dataset. (Notice the use of inline R
+codes here.)
+
+\hypertarget{exploratory-data-analysis-eda}{%
+\subsection{Exploratory Data Analysis
+(EDA)}\label{exploratory-data-analysis-eda}}
+
+There are a bit of things we typically look at for EDA.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Basic statistics
+
+  \begin{itemize}
+  \tightlist
+  \item
+    mean, s.d., median, range (four spaces at the start of line for
+    proper sub-list indentation)
+  \end{itemize}
+\item
+  Simple correlations and tests
+
+  \begin{itemize}
+  \tightlist
+  \item
+    correlation matrix if applicable
+  \item
+    z-test, t-test, anova test if applicable
+  \item
+    chi-squared test if applicable
+  \end{itemize}
+\item
+  Normality
+
+  \begin{itemize}
+  \tightlist
+  \item
+    QQ-plot
+  \item
+    boxplot
+  \item
+    histogram
+  \item
+    Shapiro-Wilk test
+  \item
+    \ldots{}
+  \end{itemize}
+\end{enumerate}
+
+\hypertarget{basic-statistics}{%
+\subsubsection{Basic statistics}\label{basic-statistics}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# str(kfcw)}
+\FunctionTok{summary}\NormalTok{(kfcw)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+  wing           drum           price     
+\end{verbatim}
+
+Min. :-5.0 Min. : 0.00 Min. : 6.7\\
+1st Qu.: 0.0 1st Qu.: 0.00 1st Qu.:11.0\\
+Median : 7.0 Median : 3.00 Median :18.0\\
+Mean : 9.4 Mean : 4.15 Mean :20.9\\
+3rd Qu.:15.0 3rd Qu.: 6.00 3rd Qu.:28.0\\
+Max. :40.0 Max. :15.00 Max. :46.0
+
+When I ran this the first time, the minimum number of wings is
+\textbf{negative 5}. That's obviously a mistake. Have an action plan to
+fix such non-sensible or missing values. For me, it's just getting some
+more coffee. After I fixed it, re-run the EDA, and all looks good now.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{kfcw[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OtherTok{=}\DecValTok{5}  \CommentTok{\# equal sign "=" and assignment operator "\textless{}{-}" are interchangeable in R}
+\CommentTok{\# structure of the data frame kfcw}
+\CommentTok{\# str(kfcw)}
+\FunctionTok{summary}\NormalTok{(kfcw)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+  wing           drum           price     
+\end{verbatim}
+
+Min. : 0.0 Min. : 0.00 Min. : 6.7\\
+1st Qu.: 0.0 1st Qu.: 0.00 1st Qu.:11.0\\
+Median : 7.0 Median : 3.00 Median :18.0\\
+Mean :10.2 Mean : 4.15 Mean :20.9\\
+3rd Qu.:15.0 3rd Qu.: 6.00 3rd Qu.:28.0\\
+Max. :40.0 Max. :15.00 Max. :46.0
+
+\hypertarget{tests-correlation-anova}{%
+\subsubsection{Tests (Correlation, ANOVA,
+\ldots)}\label{tests-correlation-anova}}
+
+Since the features/variables are all numerical (quantitative), it makes
+most sense to check their linear correlations.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(}\StringTok{"corrplot"}\NormalTok{)}
+\NormalTok{corrmatrix }\OtherTok{=} \FunctionTok{cor}\NormalTok{(kfcw)  }\CommentTok{\# more detailed pair{-}wise correlation test can be obtained from cor.test(kfcw$wing,kfcw$price) etc}
+\FunctionTok{corrplot.mixed}\NormalTok{(corrmatrix, }
+               \AttributeTok{title=}\StringTok{"Correlation Matrix for Chicken Meal Price"}\NormalTok{,}
+               \AttributeTok{mar=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{) }\CommentTok{\# fixes the position of title}
+\NormalTok{               )}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RMD-Fried-Chicken-1_files/figure-latex/corr-1.pdf}
+
+It is good to see that price has a decent correlation with both wing and
+drum, with wing seems to have a higher correlation. It is also great
+that drum and wing do not have too strong a correlation between them.
+Imagine if each drum I buy, I always will be thrown with 2 dog bones, I
+will have a hard time knowing if I am really paying for the drum or the
+dog bones. This is called a problem of collinearity. (We'll check with
+VIF.)
+
+\hypertarget{normality-checktest}{%
+\subsubsection{Normality check/test}\label{normality-checktest}}
+
+It is usually best if all the variables (numerical ones) are normally
+distributed. This usually does not happen, but we would still like to
+know overall the distribution is bell-shaped, and not too awkward.
+
+\hypertarget{qq-plot}{%
+\paragraph{QQ-plot}\label{qq-plot}}
+
+We can first check the QQ-plots for each variable by itself. A straight
+line means normal distribution.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{qqnorm}\NormalTok{(kfcw}\SpecialCharTok{$}\NormalTok{price, }\AttributeTok{main =} \StringTok{"Price Q{-}Q Plot"}\NormalTok{, }\AttributeTok{ylab=}\StringTok{"Price Quantiles ($)"}\NormalTok{) }
+\FunctionTok{qqline}\NormalTok{(kfcw}\SpecialCharTok{$}\NormalTok{price)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RMD-Fried-Chicken-1_files/figure-latex/normality_qqplot-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{qqnorm}\NormalTok{(kfcw}\SpecialCharTok{$}\NormalTok{wing, }\AttributeTok{main =} \StringTok{"Wing Q{-}Q Plot"}\NormalTok{, }\AttributeTok{ylab=}\StringTok{"Wing{-}count Quantiles"}\NormalTok{) }
+\FunctionTok{qqline}\NormalTok{(kfcw}\SpecialCharTok{$}\NormalTok{wing)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RMD-Fried-Chicken-1_files/figure-latex/normality_qqplot-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{qqnorm}\NormalTok{(kfcw}\SpecialCharTok{$}\NormalTok{drum, }\AttributeTok{main =} \StringTok{"Drum Q{-}Q Plot"}\NormalTok{, }\AttributeTok{ylab=}\StringTok{"Drum{-}count Quantiles"}\NormalTok{) }
+\FunctionTok{qqline}\NormalTok{(kfcw}\SpecialCharTok{$}\NormalTok{drum)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RMD-Fried-Chicken-1_files/figure-latex/normality_qqplot-3.pdf}
+
+The data values are not close to normal distribution, but with only 13
+data points, that is expected, and it's probably okay.
+
+\hypertarget{boxplot}{%
+\paragraph{Boxplot}\label{boxplot}}
+
+Next we can check the boxplots for a rough visual.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# We will learn to use the more powerful ggplot soon, instead of this generic boxplot function}
+\FunctionTok{boxplot}\NormalTok{(kfcw, }\AttributeTok{col=}\FunctionTok{c}\NormalTok{(}\StringTok{"red"}\NormalTok{,}\StringTok{"blue"}\NormalTok{,}\StringTok{"green"}\NormalTok{), }\AttributeTok{ylab=}\StringTok{"count or price($)"}\NormalTok{, }\AttributeTok{main=}\StringTok{"Boxplots for the three variables"}\NormalTok{)}
+\FunctionTok{axis}\NormalTok{(}\AttributeTok{side =} \DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RMD-Fried-Chicken-1_files/figure-latex/normality_boxplot-1.pdf}
+
+Same conclusion: they do not look like normal, but we'll take it.
+
+\hypertarget{histogram}{%
+\paragraph{Histogram}\label{histogram}}
+
+Now histograms:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# We will learn to use the more powerful ggplot soon, instead of this generic hist function for histograms}
+\NormalTok{barcolors }\OtherTok{=} \FunctionTok{c}\NormalTok{(}\StringTok{"green"}\NormalTok{, }\StringTok{"violet"}\NormalTok{, }\StringTok{"orange"}\NormalTok{, }\StringTok{"blue"}\NormalTok{, }\StringTok{"pink"}\NormalTok{, }\StringTok{"red"}\NormalTok{, }\StringTok{"yellow"}\NormalTok{, }\StringTok{"cyan"}\NormalTok{)}
+\FunctionTok{hist}\NormalTok{(kfcw}\SpecialCharTok{$}\NormalTok{price, }\AttributeTok{main =} \StringTok{"Histogram for Price distribution"}\NormalTok{, }\AttributeTok{xlab=}\StringTok{"Price ($)"}\NormalTok{, }\AttributeTok{col=}\NormalTok{barcolors, }\AttributeTok{breaks =} \DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RMD-Fried-Chicken-1_files/figure-latex/normality_histogram-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{hist}\NormalTok{(kfcw}\SpecialCharTok{$}\NormalTok{wing, }\AttributeTok{main =} \StringTok{"Histogram for Wing{-}count"}\NormalTok{, }\AttributeTok{xlab=}\StringTok{"Wing Count"}\NormalTok{, }\AttributeTok{col=}\NormalTok{barcolors, }\AttributeTok{breaks =} \DecValTok{6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RMD-Fried-Chicken-1_files/figure-latex/normality_histogram-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{hist}\NormalTok{(kfcw}\SpecialCharTok{$}\NormalTok{drum, }\AttributeTok{main =} \StringTok{"Histogram for Drum{-}count"}\NormalTok{, }\AttributeTok{xlab=}\StringTok{"Drum Count"}\NormalTok{, }\AttributeTok{col=}\NormalTok{barcolors, }\AttributeTok{breaks =} \DecValTok{6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RMD-Fried-Chicken-1_files/figure-latex/normality_histogram-3.pdf}
+
+\hypertarget{shapiro-wilk-test}{%
+\paragraph{Shapiro-Wilk test}\label{shapiro-wilk-test}}
+
+And finally, using shapiro-wilk test:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{priceshapiro }\OtherTok{=} \FunctionTok{shapiro.test}\NormalTok{(kfcw}\SpecialCharTok{$}\NormalTok{price)}
+\NormalTok{wingshapiro }\OtherTok{=} \FunctionTok{shapiro.test}\NormalTok{(kfcw}\SpecialCharTok{$}\NormalTok{wing)}
+\NormalTok{drumshapiro }\OtherTok{=} \FunctionTok{shapiro.test}\NormalTok{(kfcw}\SpecialCharTok{$}\NormalTok{drum)}
+\end{Highlighting}
+\end{Shaded}
+
+The Shapiro-Wilk test p-value on \texttt{price} is 0.129.\\
+The Shapiro-Wilk test p-value on \texttt{wing} is 0.019.\\
+The Shapiro-Wilk test p-value on \texttt{drum} is 0.03.\\
+We'll learn to interpret these soon.
+
+\hypertarget{linear-model}{%
+\subsection{Linear Model}\label{linear-model}}
+
+Now if those passed the smell test, we can try build some models. Linear
+model is first to come to mind. We will model the price with wing and
+drum as the two independent variables (also called features).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# build a simple linear model (least square fit) of price as a function of everything else.}
+\NormalTok{chicklm }\OtherTok{=} \FunctionTok{lm}\NormalTok{(price }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{data=}\NormalTok{kfcw)}
+\FunctionTok{summary}\NormalTok{(chicklm)}
+\end{Highlighting}
+\end{Shaded}
+
+Call: lm(formula = price \textasciitilde{} ., data = kfcw)
+
+Residuals: Min 1Q Median 3Q Max -1.3066 -0.3005 -0.0471 0.1524 1.8448
+
+Coefficients: Estimate Std. Error t value
+Pr(\textgreater\textbar t\textbar)\\
+(Intercept) 0.7775 0.5038 1.54 0.15\\
+wing 1.1630 0.0255 45.67 6.1e-13 \textbf{\emph{ drum 2.0120 0.0620 32.44
+1.8e-11 }} --- Signif. codes: 0 `\emph{\textbf{' 0.001 '}' 0.01 '}' 0.05
+`.' 0.1 ' ' 1
+
+Residual standard error: 0.939 on 10 degrees of freedom Multiple
+R-squared: 0.996, Adjusted R-squared: 0.995 F-statistic: 1.16e+03 on 2
+and 10 DF, p-value: 1.43e-12
+
+As we can see, the R\(^2\) (using \(\LaTeX\) formatting here) value of
+the linear model is 0.9957, which shows the prices are set with rather
+strict per-piece-structure.
+
+If we use the (default 95\%) confidence intervals of the coefficients as
+shown here:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{coeffconfint }\OtherTok{=} \FunctionTok{confint.lm}\NormalTok{(chicklm) }
+\NormalTok{coeffconfint}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+         2.5 % 97.5 %
+\end{verbatim}
+
+(Intercept) -0.345 1.90 wing 1.106 1.22 drum 1.874 2.15
+
+\hypertarget{findings}{%
+\subsubsection{Findings}\label{findings}}
+
+We find that:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Each piece of wing cost about \$1.11 to \$1.22
+\item
+  Each piece of drum stick cost about \$1.87 to \$2.15
+\item
+  The intercept of about \$-0.345 to \$1.9, or average of \$0.78
+  probably represent the base per-order or box/bag charge.
+\end{enumerate}
+
+Check:\\
+We should always check for multi-collinearity in linear models. Here are
+the \textbf{Variance Inflation factors VIF}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(}\StringTok{"faraway"}\NormalTok{) }\CommentTok{\# faraway library is one of them has a vif function}
+\CommentTok{\# VIF check the collinearity issues between different variables/features in a (linear) model}
+\FunctionTok{vif}\NormalTok{(chicklm)}
+\end{Highlighting}
+\end{Shaded}
+
+wing drum 1.19 1.19 With VIF values less than 5, we can safely conclude
+there is not much collinearity concerns in the dataset.
+
+\hypertarget{plot-3d}{%
+\subsubsection{Plot 3D}\label{plot-3d}}
+
+Visual is always king in data science. Let's get a bit fancy.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(}\StringTok{"plot3D"}\NormalTok{)}
+\CommentTok{\# reference from http://www.sthda.com/english/wiki/impressive{-}package{-}for{-}3d{-}and{-}4d{-}graph{-}r{-}software{-}and{-}data{-}visualization}
+\CommentTok{\# x, y, z variables}
+\NormalTok{x }\OtherTok{\textless{}{-}}\NormalTok{ kfcw}\SpecialCharTok{$}\NormalTok{wing}
+\NormalTok{y }\OtherTok{\textless{}{-}}\NormalTok{ kfcw}\SpecialCharTok{$}\NormalTok{drum}
+\NormalTok{z }\OtherTok{\textless{}{-}}\NormalTok{ kfcw}\SpecialCharTok{$}\NormalTok{price}
+\CommentTok{\# Compute the linear regression (z = ax + by + d)}
+\CommentTok{\# chicklm \textless{}{-} lm(z \textasciitilde{} x + y)}
+\CommentTok{\# predict values on regular xy grid}
+\NormalTok{grid.lines }\OtherTok{=} \DecValTok{20}
+\NormalTok{x.pred }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\FunctionTok{min}\NormalTok{(x), }\FunctionTok{max}\NormalTok{(x), }\AttributeTok{length.out =}\NormalTok{ grid.lines)}
+\NormalTok{y.pred }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\FunctionTok{min}\NormalTok{(y), }\FunctionTok{max}\NormalTok{(y), }\AttributeTok{length.out =}\NormalTok{ grid.lines)}
+\NormalTok{xy }\OtherTok{\textless{}{-}} \FunctionTok{expand.grid}\NormalTok{( }\AttributeTok{wing =}\NormalTok{ x.pred, }\AttributeTok{drum =}\NormalTok{y.pred)}
+\NormalTok{z.pred }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{predict.lm}\NormalTok{(chicklm, }\AttributeTok{newdata =}\NormalTok{ xy), }\AttributeTok{nrow =}\NormalTok{ grid.lines, }\AttributeTok{ncol =}\NormalTok{ grid.lines)}
+\CommentTok{\# fitted points for droplines to surface}
+\NormalTok{fitpoints }\OtherTok{\textless{}{-}} \FunctionTok{predict.lm}\NormalTok{(chicklm)}
+\CommentTok{\# scatter plot with regression plane}
+\FunctionTok{scatter3D}\NormalTok{(x, y, z, }\AttributeTok{pch =} \DecValTok{18}\NormalTok{, }\AttributeTok{cex =} \DecValTok{2}\NormalTok{, }\AttributeTok{theta =} \DecValTok{5}\NormalTok{, }\AttributeTok{phi =} \DecValTok{20}\NormalTok{, }\AttributeTok{ticktype =} \StringTok{"detailed"}\NormalTok{, }\AttributeTok{xlab =} \StringTok{"wing"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"drum"}\NormalTok{, }\AttributeTok{zlab =} \StringTok{"price"}\NormalTok{,  }\AttributeTok{surf =} \FunctionTok{list}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x.pred, }\AttributeTok{y =}\NormalTok{ y.pred, }\AttributeTok{z =}\NormalTok{ z.pred, }\AttributeTok{facets =} \ConstantTok{NA}\NormalTok{, }\AttributeTok{fit =}\NormalTok{ fitpoints), }\AttributeTok{main =} \StringTok{"Chicken Price Analysis"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RMD-Fried-Chicken-1_files/figure-latex/3dscatter2-1.pdf}
+
+\hypertarget{conclusion}{%
+\section{Conclusion}\label{conclusion}}
+
+So what is the best deal???
+
+\hypertarget{first-bite}{%
+\subsection{First bite}\label{first-bite}}
+
+Let me compare the predicted values from the model with the actual
+values. In other words, look at the residual values.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{kfcw}\SpecialCharTok{$}\NormalTok{fitval }\OtherTok{=}\NormalTok{ chicklm}\SpecialCharTok{$}\NormalTok{fitted.values}
+\NormalTok{kfcw}\SpecialCharTok{$}\NormalTok{residuals }\OtherTok{=}\NormalTok{ chicklm}\SpecialCharTok{$}\NormalTok{residuals}
+\NormalTok{kfcw}
+\end{Highlighting}
+\end{Shaded}
+
+wing drum price fitval residuals 1 5 0 6.69 6.59 0.0976 2 10 0 12.99
+12.41 0.5827 3 15 0 17.99 18.22 -0.2322 4 20 0 23.99 24.04 -0.0471 5 40
+0 45.99 47.30 -1.3066 6 0 3 6.69 6.81 -0.1236 7 0 5 10.99 10.84 0.1524 8
+0 10 19.99 20.90 -0.9077 9 0 15 29.99 30.96 -0.9678 10 3 2 7.99 8.29
+-0.3005 11 7 4 16.99 16.97 0.0235 12 12 6 27.99 26.81 1.1846 13 20 9
+43.99 42.15 1.8448
+
+Ah, the residual is most negative with the 40-wing combo at -\$1.31.
+That saves me a can of soda. I should go for that and kill myself.
+
+But if I am wiser, and insist on having a one-person portion:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  5-piece wing is at +\$0.10 (paying a dime too much!) - Not good.
+\item
+  3-piece drum is at -\$0.12, saving a dozen pennies, sounds good.
+\item
+  The 3-wing-2-drum deal (at -\$0.30) is the best value for me!
+\end{enumerate}
+
+\hypertarget{double-dip}{%
+\subsection{Double dip}\label{double-dip}}
+
+Hold on! If we plan to do this regularly, shouldn't we inspect the
+percentage savings instead?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{kfcw}\SpecialCharTok{$}\NormalTok{res\_2\_p }\OtherTok{=}\NormalTok{ chicklm}\SpecialCharTok{$}\NormalTok{residuals}\SpecialCharTok{/}\NormalTok{kfcw}\SpecialCharTok{$}\NormalTok{price}\SpecialCharTok{*}\DecValTok{100}
+\NormalTok{kfcw}
+\end{Highlighting}
+\end{Shaded}
+
+wing drum price fitval residuals res\_2\_p 1 5 0 6.69 6.59 0.0976 1.458
+2 10 0 12.99 12.41 0.5827 4.486 3 15 0 17.99 18.22 -0.2322 -1.291 4 20 0
+23.99 24.04 -0.0471 -0.196 5 40 0 45.99 47.30 -1.3066 -2.841 6 0 3 6.69
+6.81 -0.1236 -1.848 7 0 5 10.99 10.84 0.1524 1.386 8 0 10 19.99 20.90
+-0.9077 -4.541 9 0 15 29.99 30.96 -0.9678 -3.227 10 3 2 7.99 8.29
+-0.3005 -3.761 11 7 4 16.99 16.97 0.0235 0.139 12 12 6 27.99 26.81
+1.1846 4.232 13 20 9 43.99 42.15 1.8448 4.194
+
+The new metric here tells me:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  The 10-drum deal at -4.5\% is best percentage-wise.
+\item
+  The 3-wing-2-drum deal at -3.76\% is next.
+\end{enumerate}
+
+To me, putting all these different metrics and criteria together, the
+3-wing-2-drum is my winner.
+
+\textbf{Case closed. Mic dropped.}
+
+\hypertarget{confession}{%
+\subsection{Confession}\label{confession}}
+
+Oh wait\ldots{} I forgot that I am a pescatarian (vegetarian and fish)
+for over a decade! I just have these cravings for wings once in a while.
+What if I add a sin-ful parameter as a penalty term, how much should I
+order next time to minimize my sin (Root-Mean-Squared-Sinfulness).
+
+To be continued\ldots{}
+
+But yes, the wings there were really really good. Totally worth the
+wait.
+
+\hypertarget{reference}{%
+\section{Reference}\label{reference}}
+
+APA Style preferred
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Yelp
+\item
+  Google
+\item
+  My wallet
+\end{enumerate}
+
+\end{document}
