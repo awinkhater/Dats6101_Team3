@@ -1,0 +1,311 @@
+---
+title: "Project R"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+date: "2022-10-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+police<- data.frame(read.csv("FPS22.csv")) 
+```
+```{R}
+police <- (police %>% filter(race != ''))
+police <- (police %>% filter(gender != ''))
+str(police)
+ncol(police)
+nrow(police)
+summary(police$date)
+##
+class(police$date)
+police$date <- as.Date(police$date, "%m/%d/%Y")
+police$date <- as.Date(police$date, "%m/%d/%Y")
+police$month <- format(police$date, format = "%m")
+police$year <- format(police$date, format = "%Y")
+police$month <- format(police$date, format = "%m")
+police$year <- format(police$date, format = "%Y")
+```
+
+```{r}
+library(plotly)
+library(ggplot2)
+library(ggthemes)
+library(tidyverse)
+library(dplyr)
+library(forecast)
+
+```
+
+** Geospatial Analysis 
+Interesting Finding 1 : California has the highest police shootings, and highest suspects shot in California are Hispanic and not White/Black.
+We looked at the total deaths in each state by race and following are some of the insights:
+
+1)We see that police has shot the most people in California - a total of 885, followed by Texas with a total of 553 and then Florida with 427 deaths.
+2)These results are consistent with the relative population of these states. Highest being California, then Texas  and Florida .
+3)We also observe that the highest number of deaths is for Hispanic in California, whereas in Texas and Florida there are more deaths amongst White. **
+
+```{r}
+#Filtering the data by race and states and summarizing it
+police_sr <- police %>%
+  filter(!race == "") %>%
+  group_by(state, race) %>%
+  summarise(deaths = n())
+  
+#Spreading the data to get deaths by race
+spread_sr <- spread(police_sr, race, deaths)
+
+#Getting the total number of deaths per state
+spread_sr$Total <- rowSums(spread_sr[,-1], na.rm = TRUE)
+
+#Check the results if needed
+# head(spread_sr)
+
+#Data setup for hovering on the map
+sr_data <- spread_sr
+sr_data$hover <- with(sr_data, paste("Asian", A, '<br>',
+                                     "Black",B,'<br>',
+                                     "Hispanic",H,'<br>',
+                                     "Native American",N,'<br>',
+                                     "Other",O,'<br>',
+                                     "White",W,'<br>',
+                                     "Total Deaths", `Total`))
+#Map specifications
+graph <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('white')
+)
+
+#Plotting the graph
+plot_ly(spread_sr, z = spread_sr$Total, text = sr_data$hover, locations = sr_data$state, type = 'choropleth',
+        locationmode = 'USA-states', color = spread_sr$Total, colors = 'Reds',
+        colorbar = list(title = "Counts ")) %>%
+        layout(title = 'Number of people shot dead by race per State<br>(Hover for breakdown by race)', geo = graph)
+
+
+```
+** Race/Age/Gender Analysis
+Interesting Finding 2 - Black people shot were relatively younger compared to other race.
+We are looking at the age of the suspect shot vs their race. The observations are as follows:
+
+1)We see from the boxplot below, that the median age for Black that have been shot is 29 years.
+2)White have relatively higher median age of 35 years whereas Asian have the highest median age of around 38 years.
+
+
+```{r}
+#Filtering the data by age and race
+police %>%
+  filter(!is.na(age) & race != '') %>% #Remove blanks and NAs
+  
+  #Box plots
+  ggplot (aes(x=race, y=age)) +
+  geom_boxplot(aes(color = race)) +
+
+  #Axes labels and titles
+  labs(x = "Suspects' Race", y = "Suspecs' Age", 
+       title = "Distribution of Suspects' Age across Race") +
+  scale_x_discrete(labels=c('White',
+                            'Other',
+                            'Native American',
+                            'Hispanic',
+                            'Black',
+                            'Asian')) +
+  coord_flip() +
+  theme_bw() +
+  theme(legend.position = "none")
+
+
+```
+**Interesting Finding 3 - Hardly any female death shootings has been observed
+We looked at the deaths by race and gender and following are some of the insights:
+
+1)Maximum number of suspects shot were males and there were very few females.
+2)Maximum number of suspects shot were White, however this does not necessarily mean that higher proportion of white popultion is shot. These are absolute numbers and they are high as white have a significantly large population compared to other race.
+
+
+```{r}
+#Filtering the data by race and gender
+data_by_rg <- police %>%
+                      filter(race != "") %>%
+                      filter(gender != "") %>%
+                        group_by(race, gender) %>%
+                         summarize(No_of_deaths = n())
+
+#Plotting Data
+ggplot(data_by_rg, aes(x = race, y = No_of_deaths, fill = gender)) + 
+  geom_bar(stat = "identity",position = "dodge") + 
+  labs (x = 'Race', y = 'Number of deaths') +
+  ggtitle('Deaths by race and gender') +
+  scale_x_discrete(labels=c('Asian',
+                            'Black',
+                            'Hispanic',
+                            'Native American',
+                            'Other',
+                            'White')) +
+  theme_few()
+
+
+```
+** Suspect's Condition
+Interesting Finding 4 - Higher % of unarmed Black suspects were shot than any other race
+We looked at the distribution of deaths by Race and top 5 armed categories. Following are some key observations:
+
+1)Around ~9% of the Black suspects were unarmed whereas only ~6% of the White suspects were unarmed,
+Guns are the most popular weapon across all the races except for Asians (Asian suspects have a higher proportion of Knives)
+
+
+
+```{r}
+# Finding the top 5 arms used by suspects 
+top_5_arms <- police %>%
+                group_by(armed) %>%
+                summarise(num_arms = n()) %>%
+                arrange(desc(num_arms)) %>%
+                head(5)
+
+#Filtering the data by top 5 arms found
+race_armed_data <- police %>%
+    filter(race != '') %>%
+    mutate(armed_mod = ifelse(armed %in% c('gun', 'knife', 'unarmed', 'vehicle', 'undetermined'), as.character(armed), 'Other')) %>%
+    group_by(race, armed_mod) %>%
+    summarise(Deaths = n())
+
+# Spreading the data 
+race_armed_data_spr <- race_armed_data %>%
+    spread(armed_mod, Deaths) 
+
+#Replacing missing values with 0
+race_armed_data_spr[is.na(race_armed_data_spr)] <- 0 
+
+print("% distribution of deaths by Armed Category in each Race")
+
+
+```
+```{r}
+#Printing the data
+summary_table <- cbind(as.data.frame(race_armed_data_spr[,1]), as.data.frame(round(race_armed_data_spr[,-1]/rowSums(race_armed_data_spr[,-1])*100, 2)))
+
+#Renaming the race values
+levels(summary_table$race) <- c("", "Asian", "Black", "Hispanic", "Native American", "Other", "White")
+
+#Print the table
+print(summary_table)
+
+
+```
+**Graph : For better visualization, plotting the above results from the table in a stacked bar chart below
+```{r}
+#Plotting the above table in a stacked bar
+ggplot(race_armed_data, aes(x = race, y = Deaths, fill = armed_mod)) + 
+  geom_bar(stat = "identity",position = "dodge") + 
+  labs (x = 'Race', y = 'Number of deaths') +
+  ggtitle('How were suspects/victims armed by Race') +
+  scale_x_discrete(labels=c('Asian',
+                            'Black',
+                            'Hispanic',
+                            'Native American',
+                            'Other',
+                            'White')) + 
+   theme_few() 
+
+
+
+```
+Interesting Finding 5 - Higher proportion of Asians were not fleeing but still shot
+We looked at the distribution of deaths by suspects’ race and whether they were trying to flee or not. Following are some of the interesting observations:
+
+1)Only 53% of the Black suspects shot were not fleeing whereas 71% of the Asian suspects who were shot were not trying to flee
+2)Car seems to be the most popular method of fleeing among White suspects whereas for Black suspects (16%), most popular method of fleeing was by foot (19%)
+
+
+```{r}
+#Filtering the data and summarizing it  
+race_flee_data <- police %>%
+    filter(race != '') %>%
+    group_by(race, flee) %>%
+    summarise(Deaths = n()) %>%
+    spread(flee, Deaths) 
+
+#Replacing the missing values with 0
+race_flee_data[is.na(race_flee_data)] <- 0 
+
+print("% distribution of deaths by suspects' status (Fleeing or not fleeing) by Race")
+
+
+
+```
+```{r}
+#Printing the table
+summary_table <- cbind(as.data.frame(race_flee_data[,1]), as.data.frame(round(race_flee_data[,-1]/rowSums(race_flee_data[,-1])*100, 2)))
+
+#Renaming the race values
+levels(summary_table$race) <- c("", "Asian", "Black", "Hispanic", "Native American", "Other", "White")
+
+#Print the table
+print(summary_table)
+```
+**Time Series Analysis
+Interesting Pattern 6 - Suprisingly there is seasonaility across year or months in police shootings
+We looked into the monthly trend for 8 years and used ARIMA to forecast the crime for next four months. Since, there is seasonality into the police shootings, even the forecast predicts average shootings for the next four months with a wide confidence interval.
+```{r}
+#Summarizing the data at year month level and plotting the trend line
+police %>%
+   mutate(year_month = format(as.Date(date, '%d-%m-%Y'),"%Y_%m")) %>%
+   group_by(year_month) %>%
+   summarise(n = n()) %>%
+   
+   #Plot the line  
+   ggplot(aes(x = year_month, y = n, group = 1)) +
+   geom_line(color = "blue") +
+   geom_point(color = "red") +
+
+   #Axes labels and titles
+   labs(x = "Year and Month of death occurrence",
+       y = "Number of deaths",
+       title = "Number of deaths Vs. Year and Month of death occurrence") +
+   scale_x_discrete(breaks =
+     levels(as.factor(format(as.Date(police$date, '%d-%m-%Y'),"%Y_%m")))[c(T, rep(F, 11))]) +
+   theme_bw()
+
+
+```
+
+```{r}
+#Number crimes
+num_crimes <- police %>%
+   mutate(year_month = format(as.Date(date, '%d-%m-%Y'),"%Y_%m")) %>%
+   group_by(year_month) %>%
+   summarise(n = n()) %>%
+   select(n)
+
+#Converting num_crimes in to time series object
+crime_ts <- ts(num_crimes)
+
+#Fitting the best arima model
+model <- auto.arima(crime_ts, stepwise = FALSE, approximation = FALSE)
+
+#Predict next 3 months based on the model created
+predict <- model %>% forecast(level = c(95), h = 5)
+
+#Plot the graph
+print(predict %>%
+       autoplot() +
+       labs(x = "Year and Month from  2015 to 2022",
+            y = "Number of deaths",
+            title = paste0("Death due to police shooting forecast for the next four months")) +
+            theme_bw())
+
+
+```
+
+
+
+
+
