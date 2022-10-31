@@ -1,18 +1,10 @@
 ---
-<<<<<<< Updated upstream
 title: "Midterm EDA: Group 7"
 date: "`r Sys.Date()`"
 output:
   pdf_document: default
   word_document: default
   html_document: default
-=======
-title: "Midterm Exploratory Data Analysis"
-output:
-  pdf_document: default
-  html_document: default
-date: "2022-09-20"
->>>>>>> Stashed changes
 ---
 ### Introduction
 ```{r setup, include=FALSE, warning=FALSE}
@@ -28,7 +20,9 @@ options(scientific=T, digits = 3)
 # ‘scipen’: integer. A penalty to be applied when deciding to print numeric values in fixed or exponential notation.  Positive values bias towards fixed and negative towards scientific notation: fixed notation will be preferred unless it is more than ‘scipen’ digits wider.
 # use scipen=999 to prevent scientific notation at all times
 ```
-From 2015- 2022, in response to a deep lack of reporting within government sources, The Washington Post compiled a database of every fatal police shooting in the United States.We are interested in exploring this data, specifically as it shows the differences between US States.
+In response to a severe lack of reporting within government sources, The Washington Post compiled a database of every fatal police shooting in the United States from 2015-2022. We are interested in exploring this data, specifically as it relates to differences between U.S. states and regions.
+
+This exploratory data analysis is divided into five parts: first, we organize the data; second, we perform some basic statistical analyses; third, we reshape the data for state- and region-based comparative analyses; fourth, we ask a SMART research question about our data and attempt to answer this question. 
 
 ### Setting the Data Up
 
