@@ -7,7 +7,7 @@ output:
   html_document: default
 ---
 ### Introduction
-```{r setup, include=FALSE, warning=FALSE}
+```{r setup, include = FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 # some of common options (and the defaults) are: 
 # include=T, eval=T, echo=T, results='hide'/'asis'/'markup',..., collapse=F, warning=T, message=T, error=T, cache=T, fig.width=6, fig.height=4, fig.dim=c(6,4) #inches, fig.align='left'/'center','right', 
@@ -28,7 +28,7 @@ First we call our packages: dplyr and ggplot2 as well as reading our data:
 
 ```{r}
 #Calling Packages
-library(dplyr)
+library(dplyr, quietly = TRUE)
 
 library(ggplot2)
 
@@ -49,6 +49,7 @@ print("Number of observations:")
 nrow(fp)
 head(fp, 1)
 ```
+
 ### Basic Stats
 He are some basic stats:
 
@@ -74,7 +75,8 @@ ggplot(fp, aes(x=threat_level, fill=threat_level, color=threat_level)) + geom_hi
 ggplot(fp, aes(x=state, fill=state, color=state)) + geom_histogram(stat="count") + labs(x = "State", y="Number of Incidents", title = "State Frequency Histogram")
 
 ```
-###Reshaping the Data for State Comparison
+
+### Reshaping the Data for Grouped State Comparison
 
 We are particularly interested in using this data to view differences between US States and Regions.
 
@@ -273,16 +275,18 @@ And finally, let us check out the mean body camera on proportion off all states:
 ```{r}
 mean(By_State$stbcp)
 ```
-And now let us do a chi-square test to see if there is a siginficant difference between the proportions of each state. 
+And now let us do a chi-square test to see if there is a significant difference between the proportions of each state. 
 
-Our Null Hypothesis: There is no significant differences between US States in the proportion of body cameras being turned on during police shootings
+\(H_{0}\): There is no significant differences between US States in the proportion of body cameras being turned on during police shootings
 
-Alternative Hypothesis: There is a significant difference between US State in the proportion of body cameras being turned on during police shootings
+\(H_{A}\): There is a significant difference between US State in the proportion of body cameras being turned on during police shootings
 
-Significance Level: alpha= 0.05
+Significance Level: \( \alpha = 0.05" \)
 
 ```{r}
+
 test<- By_State
+#Setting 
 
 cat3 <- test %>% mutate(proportion=cut(stbcp, breaks=c(0, 0.10, 0.2, 0.3, Inf),labels = c("low", "medium", "high", "very high")))
 
@@ -293,7 +297,7 @@ cat3$stbcp <- as.factor(cat3$stbcp)
 contable= table(cat3$state, cat3$stbcp)
 #print(contable)
 
-chisq.test(contable)
+suppressWarnings({chisq.test(contable)})
 
 ```
 With a p-value of 2e-16, we easily pass our signficance level of alpha=0.05 and have shown that there exists significant differences between different states proportions of body camera usage during fatal poilce shootings.
