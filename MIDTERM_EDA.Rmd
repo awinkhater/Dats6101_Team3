@@ -6,7 +6,9 @@ output:
   word_document: default
   html_document: default
 ---
+
 ### Introduction
+
 ```{r setup, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 # some of common options (and the defaults) are: 
@@ -22,45 +24,51 @@ options(scientific=T, digits = 3)
 ```
 In response to a severe lack of reporting within government sources, The Washington Post compiled a database of every fatal police shooting in the United States from 2015-2022. We are interested in exploring this data, specifically as it relates to differences between U.S. states and regions.
 
-This exploratory data analysis is divided into five parts: first, we organize the data; second, we perform some basic statistical analyses; third, we reshape the data for state- and region-based comparative analyses; fourth, we ask a SMART research question about our data and attempt to answer this question. 
+This exploratory data analysis is divided into four main parts: first, we organize the data; second, we perform some basic statistical analyses; third, we reshape the data for state- and region-based comparative analyses; fourth, we ask a SMART research question about our data and attempt to answer this question. 
 
-### Setting the Data Up
+### Part 1: Setting Up the Data
 
-First we call our packages: dplyr and ggplot2 as well as reading our data:
+First we call our packages: dplyr and ggplot2. Then we read the data set that comes from a csv file called FPS22.csv.
 
 ```{r}
-#Calling Packages
+#Calling packages
 library(dplyr)
 
 library(ggplot2)
 
+#Reading the data set
 fp1<- data.frame(read.csv("FPS22.csv"))
 ```
-Then we remove the null values from our dataset
+
+Then we remove the null values from our data set.
+
 ```{r}
-#Cleaning null values from dataset
-fp <- na.omit(fp1) # Method 1 - Remove NA
-
-
+#Cleaning null values from data set
+fp <- na.omit(fp1)
 ```
 
-After Accounting for Null Values: The dataset we are working with has 6574 observations. There is a sample row of the data as well
+After accounting for null values, the data set we are working with has 6,574 observations. Below we have provided a sample row of the data.
+
 ```{r}
 #Getting row count and latest incident
 print("Number of observations:") 
 nrow(fp)
 head(fp, 1)
 ```
-### Basic Stats
-He are some basic stats:
 
-Structure:
+### Part 2: Basic Statistics
+
+We provide some basic statistics about 2015-2022 fatal police shootings in the United States, using information from the Washington Post data set.
+
+The data set's structure is as follows:
+
 ```{r}
 #test stats
 str(fp)
 ```
 
-Means and Median for Numeric Variables (Age):
+Means and median for numeric variables (using age of the victim):
+
 ```{r}
 mean(fp$age, na.rm= TRUE)
 median(fp$age)
