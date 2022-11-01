@@ -101,6 +101,7 @@ ggplot(fp1, aes(x= manner_of_death, fill=manner_of_death, color=manner_of_death)
 ggplot(fp1, aes(x=threat_level, fill=threat_level, color=threat_level)) + geom_bar(stat="count") + labs(x = "Threat Level", y="Number of Incidents", title = "Threat Level Frequency Histogram")
 ```
 ##AGE Distribution
+#this histogram show the distribution of age of death across the entire victim population, the highest number of death occurrs to victim during the age of 20 to 40
 ```{r}
 #age
 ggplot(fp1, aes(x=age)) + geom_histogram( binwidth =0.6,aes(fill = ..count..))+scale_fill_gradient('Count',low='blue',high='red') 
