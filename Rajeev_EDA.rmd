@@ -1,0 +1,645 @@
+---
+title: "Midterm EDA: Group 7"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+### Introduction
+```{r setup, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# some of common options (and the defaults) are: 
+# include=T, eval=T, echo=T, results='hide'/'asis'/'markup',..., collapse=F, warning=T, message=T, error=T, cache=T, fig.width=6, fig.height=4, fig.dim=c(6,4) #inches, fig.align='left'/'center','right', 
+# knitr::opts_chunk$set(warning = F, results = "markup", message = F)
+# knitr::opts_chunk$set(warning = F, results = "hide", message = F)
+# knitr::opts_chunk$set(include = F)
+# knitr::opts_chunk$set(echo = TRUE)
+options(scientific=T, digits = 3) 
+# options(scipen=9, digits = 3) 
+# ‘scipen’: integer. A penalty to be applied when deciding to print numeric values in fixed or exponential notation.  Positive values bias towards fixed and negative towards scientific notation: fixed notation will be preferred unless it is more than ‘scipen’ digits wider.
+# use scipen=999 to prevent scientific notation at all times
+```
+From 2015- 2022, in response to a deep lack of reporting within government sources, The Washington Post compiled a database of every fatal police shooting in the United States.We are interested in exploring this data, specifically as it shows the differences between US States.
+
+### Setting the Data Up
+
+First we call our packages: dplyr and ggplot2 as well as reading our data:
+
+```{r}
+#Calling Packages
+
+library(plotly)
+library(ggplot2)
+library(ggthemes)
+library(tidyverse)
+library(dplyr)
+library(forecast)
+library(ggalluvial)
+
+```
+```{r}
+fp1<- data.frame(read.csv("FPS22.csv"))
+```
+Then we remove the null values from our dataset
+```{r}
+#Cleaning null values from dataset
+fp1 <- (fp1 %>% filter(race != ''))
+fp1 <- (fp1 %>% filter(gender != ''))
+camera_no <- fp1 %>% filter(body_camera != TRUE)
+camera_yes <- fp1 %>% filter(body_camera != FALSE)
+fp <- na.omit(fp1)
+str(fp1)
+ncol(fp1)
+nrow(fp1)
+summary(fp1$date)
+##
+class(fp1$date)
+fp1$date <- as.Date(fp1$date, "%m/%d/%Y")
+fp1$date <- as.Date(fp1$date, "%m/%d/%Y")
+fp1$month <- format(fp1$date, format = "%m")
+fp1$year <- format(fp1$date, format = "%Y")
+fp1$month <- format(fp1$date, format = "%m")
+fp1$year <- format(fp1$date, format = "%Y")
+
+
+```
+
+After Accounting for Null Values: The dataset we are working with has 6574 observations. There is a sample row of the data as well
+```{r}
+#Getting row count and latest incident
+print("Number of observations:") 
+nrow(fp1)
+head(fp1, 1)
+```
+### Basic Stats
+He are some basic stats:
+
+Structure:
+```{r}
+#test stats
+str(fp1)
+```
+
+Means and Median for Numeric Variables (Age):
+```{r}
+mean(fp$age, na.rm= TRUE)
+median(fp$age)
+```
+#Frequency Graphs for Categorical Variables:
+
+```{r}
+ggplot(fp1, aes(x=race,fill=race, color=race)) + geom_histogram(stat="count") + labs(x = "Race: Unknown, Asian, Black, Hispanic, Native, Other, White", y="Number of Incidents", title = "Race Frequency Histogram")
+```
+```{r}
+ggplot(fp1, aes(x=gender, fill=gender, color=gender)) + geom_histogram(stat="count") + labs(x = "Gender", y="Number of Incidents", title = "Gender Frequency Histogram")
+```
+```{r}
+ggplot(fp1, aes(x= manner_of_death, fill=manner_of_death, color=manner_of_death)) + geom_histogram(stat="count") + labs(x = "Manner of Death", y="Number of Incidents", title = "Manner of Death Frequency Histogram")
+```
+```{r}
+ggplot(fp1, aes(x=threat_level, fill=threat_level, color=threat_level)) + geom_bar(stat="count") + labs(x = "Threat Level", y="Number of Incidents", title = "Threat Level Frequency Histogram")
+```
+##AGE Distribution
+```{r}
+#age
+ggplot(fp1, aes(x=age)) + geom_histogram( binwidth =0.6,aes(fill = ..count..))+scale_fill_gradient('Count',low='blue',high='red') 
+```
+
+##Geospatial Analysis 
+Interesting Finding 1 : California has the highest police shootings, and highest suspects shot in California are Hispanic and not White/Black.
+We looked at the total deaths in each state by race and following are some of the insights:
+
+1)We see that police has shot the most people in California - a total of 885, followed by Texas with a total of 553 and then Florida with 427 deaths.
+2)These results are consistent with the relative population of these states. Highest being California, then Texas  and Florida .
+3)We also observe that the highest number of deaths is for Hispanic in California, whereas in Texas and Florida there are more deaths amongst White.
+```{r}
+#Filtering the data by race and states and summarizing it
+police_sr <- fp1 %>%
+  filter(!race == "") %>%
+  group_by(state, race) %>%
+  summarise(deaths = n())
+  
+#Spreading the data to get deaths by race
+spread_sr <- spread(police_sr, race, deaths)
+
+#Getting the total number of deaths per state
+spread_sr$Total <- rowSums(spread_sr[,-1], na.rm = TRUE)
+
+#Check the results if needed
+# head(spread_sr)
+
+#Data setup for hovering on the map
+sr_data <- spread_sr
+sr_data$hover <- with(sr_data, paste("Asian", A, '<br>',
+                                     "Black",B,'<br>',
+                                     "Hispanic",H,'<br>',
+                                     "Native American",N,'<br>',
+                                     "Other",O,'<br>',
+                                     "White",W,'<br>',
+                                     "Total Deaths", `Total`))
+#Map specifications
+graph <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('white')
+)
+
+#Plotting the graph
+plot_ly(spread_sr, z = spread_sr$Total, text = sr_data$hover, locations = sr_data$state, type = 'choropleth',
+        locationmode = 'USA-states', color = spread_sr$Total, colors = 'Reds',
+        colorbar = list(title = "Counts ")) %>%
+        layout(title = 'Number of people shot dead by race per State<br>(Hover for breakdown by race)', geo = graph)
+
+```
+##Race/Age/Gender Analysis
+Interesting Finding 2 - Black people shot were relatively younger compared to other race.
+We are looking at the age of the suspect shot vs their race. The observations are as follows:
+
+1)We see from the boxplot below, that the median age for Black that have been shot is 29 years.
+2)White have relatively higher median age of 35 years whereas Asian have the highest median age of around 38 years.
+3)signs of mental illness appear more frequently within 30s while the distribution of ages above 50 are more larger for people showing signs of mental illness.
+##
+```{r}
+#Filtering the data by age and race
+fp1 %>%
+  filter(!is.na(age) & race != '') %>% #Remove blanks and NAs
+  
+  #Box plots
+  ggplot (aes(x=race, y=age)) +
+  geom_boxplot(aes(color = race)) +
+
+  #Axes labels and titles
+  labs(x = "Suspects' Race", y = "Suspecs' Age", 
+       title = "Distribution of Suspects' Age across Race") +
+  scale_x_discrete(labels=c('White',
+                            'Other',
+                            'Native American',
+                            'Hispanic',
+                            'Black',
+                            'Asian')) +
+  coord_flip() +
+  theme_bw() +
+  theme(legend.position = "none")
+
+
+```
+###age against signs of mentall illness
+```{r}
+#age against signs of mentall illness
+ggplot(fp1, aes(x=signs_of_mental_illness, y=age, fill=signs_of_mental_illness))+ geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))
+# signs of mental illness appear more frequently within 30s while the distribution of ages above 50 are more larger for people showing signs of mental illness.
+```
+##Interesting Finding 3 - Hardly any female death shootings has been observed
+We looked at the deaths by race and gender and following are some of the insights:
+
+1)Maximum number of suspects shot were males and there were very few females.
+2)Maximum number of suspects shot were White, however this does not necessarily mean that higher proportion of white popultion is shot. These are absolute numbers and they are high as white have a significantly large population compared to other race.
+
+```{r}
+#Filtering the data by race and gender
+data_by_rg <- fp1 %>%
+                      filter(race != "") %>%
+                      filter(gender != "") %>%
+                        group_by(race, gender) %>%
+                         summarize(No_of_deaths = n())
+
+#Plotting Data
+ggplot(data_by_rg, aes(x = race, y = No_of_deaths, fill = gender)) + 
+  geom_bar(stat = "identity",position = "dodge") + 
+  labs (x = 'Race', y = 'Number of deaths') +
+  ggtitle('Deaths by race and gender') +
+  scale_x_discrete(labels=c('Asian',
+                            'Black',
+                            'Hispanic',
+                            'Native American',
+                            'Other',
+                            'White')) +
+  theme_few()
+
+```
+## Suspect's Condition
+Interesting Finding 4 - Higher % of unarmed Black suspects were shot than any other race
+We looked at the distribution of deaths by Race and top 5 armed categories. Following are some key observations:
+
+1)Around ~9% of the Black suspects were unarmed whereas only ~6% of the White suspects were unarmed,
+Guns are the most popular weapon across all the races except for Asians (Asian suspects have a higher proportion of Knives)
+```{r}
+# Finding the top 5 arms used by suspects 
+top_5_arms <- fp1 %>%
+                group_by(armed) %>%
+                summarise(num_arms = n()) %>%
+                arrange(desc(num_arms)) %>%
+                head(5)
+
+#Filtering the data by top 5 arms found
+race_armed_data <- fp1 %>%
+    filter(race != '') %>%
+    mutate(armed_mod = ifelse(armed %in% c('gun', 'knife', 'unarmed', 'vehicle', 'undetermined'), as.character(armed), 'Other')) %>%
+    group_by(race, armed_mod) %>%
+    summarise(Deaths = n())
+
+# Spreading the data 
+race_armed_data_spr <- race_armed_data %>%
+    spread(armed_mod, Deaths) 
+
+#Replacing missing values with 0
+race_armed_data_spr[is.na(race_armed_data_spr)] <- 0 
+
+print("% distribution of deaths by Armed Category in each Race")
+```
+
+```{r}
+#Printing the data
+summary_table <- cbind(as.data.frame(race_armed_data_spr[,1]), as.data.frame(round(race_armed_data_spr[,-1]/rowSums(race_armed_data_spr[,-1])*100, 2)))
+
+#Renaming the race values
+levels(summary_table$race) <- c("", "Asian", "Black", "Hispanic", "Native American", "Other", "White")
+
+#Print the table
+print(summary_table)
+
+```
+##Graph : For better visualization, plotting the above results from the table in a stacked bar chart below
+```{r}
+#Plotting the above table in a stacked bar
+ggplot(race_armed_data, aes(x = race, y = Deaths, fill = armed_mod)) + 
+  geom_bar(stat = "identity",position = "dodge") + 
+  labs (x = 'Race', y = 'Number of deaths') +
+  ggtitle('How were suspects/victims armed by Race') +
+  scale_x_discrete(labels=c('Asian',
+                            'Black',
+                            'Hispanic',
+                            'Native American',
+                            'Other',
+                            'White')) + 
+   theme_few() 
+```
+##Interesting Finding 5 - Higher proportion of Asians were not fleeing but still shot
+We looked at the distribution of deaths by suspects’ race and whether they were trying to flee or not. Following are some of the interesting observations:
+
+1)Only 53% of the Black suspects shot were not fleeing whereas 71% of the Asian suspects who were shot were not trying to flee
+2)Car seems to be the most popular method of fleeing among White suspects whereas for Black suspects (16%), most popular method of fleeing was by foot (19%)
+
+```{r}
+#Filtering the data and summarizing it  
+race_flee_data <- fp1 %>%
+    filter(race != '') %>%
+    group_by(race, flee) %>%
+    summarise(Deaths = n()) %>%
+    spread(flee, Deaths) 
+
+#Replacing the missing values with 0
+race_flee_data[is.na(race_flee_data)] <- 0 
+
+print("% distribution of deaths by suspects' status (Fleeing or not fleeing) by Race")
+
+
+```
+```{r}
+#Printing the table
+summary_table <- cbind(as.data.frame(race_flee_data[,1]), as.data.frame(round(race_flee_data[,-1]/rowSums(race_flee_data[,-1])*100, 2)))
+
+#Renaming the race values
+levels(summary_table$race) <- c("", "Asian", "Black", "Hispanic", "Native American", "Other", "White")
+
+#Print the table
+print(summary_table)
+class(summary_table)
+#
+#ggplot(summary_table,aes(x = summary_table)) + geom_bar()
+```
+
+```{r}
+by_race <- fp1 %>%
+  group_by(race, year) %>% # group by race then year
+  summarise(count=n())
+```
+```{r}
+plot1 <- ggplot(by_race, aes(x=year, y=count, alluvium=race)) +
+  theme_bw() +
+  geom_alluvium(aes(fill = race), 
+                color = "white",
+                width = .1, 
+                alpha = .9,
+                decreasing = FALSE) +
+  scale_fill_brewer(palette = "Set1") +
+  scale_fill_discrete(name = "Race") +
+  theme_minimal(base_size = 12) +
+  ggtitle("Police shootings by race each year from 2015-2022\n") +
+  ylab("Number of Shootings") +
+  xlab("Year") +
+  labs(caption = "Source: The Washington Post")
+print(plot1)
+```
+##Time Series Analysis
+Interesting Pattern 6 - Suprisingly there is seasonaility across year or months in police shootings
+We looked into the monthly trend for 8 years and used ARIMA to forecast the crime for next four months. Since, there is seasonality into the police shootings, even the forecast predicts average shootings for the next four months with a wide confidence interval.
+```{r}
+#Summarizing the data at year month level and plotting the trend line
+fp1 %>%
+   mutate(year_month = format(as.Date(date, '%d-%m-%Y'),"%Y_%m")) %>%
+   group_by(year_month) %>%
+   summarise(n = n()) %>%
+   
+   #Plot the line  
+   ggplot(aes(x = year_month, y = n, group = 1)) +
+   geom_line(color = "blue") +
+   geom_point(color = "red") +
+
+   #Axes labels and titles
+   labs(x = "Year and Month of death occurrence",
+       y = "Number of deaths",
+       title = "Number of deaths Vs. Year and Month of death occurrence") +
+   scale_x_discrete(breaks =
+     levels(as.factor(format(as.Date(fp1$date, '%d-%m-%Y'),"%Y_%m")))[c(T, rep(F, 11))]) +
+   theme_bw()
+
+
+```
+
+```{r}
+#Number crimes
+num_crimes <- fp1 %>%
+   mutate(year_month = format(as.Date(date, '%d-%m-%Y'),"%Y_%m")) %>%
+   group_by(year_month) %>%
+   summarise(n = n()) %>%
+   select(n)
+
+#Converting num_crimes in to time series object
+crime_ts <- ts(num_crimes)
+
+#Fitting the best arima model
+model <- auto.arima(crime_ts, stepwise = FALSE, approximation = FALSE)
+
+#Predict next 3 months based on the model created
+predict <- model %>% forecast(level = c(95), h = 5)
+
+#Plot the graph
+print(predict %>%
+       autoplot() +
+       labs(x = "Year and Month from  2015 to 2022",
+            y = "Number of deaths",
+            title = paste0("Death due to police shooting forecast for the next four months")) +
+            theme_bw())
+
+
+```
+###Reshaping the Data for State Comparison
+
+We are particularly interested in using this data to view differences between US States and Regions.
+
+The Regions:
+
+NW (North West): CA, WA, OR, NV, ID, UT, MT, CO, WY, AK
+
+SW (South West): NM, AZ, TX, OK, HI
+
+MW (Mid West): IL, WI, IN, MI, MN, MO, IA, KS, ND, SD, NE ,OH
+
+SE(South East): GA, AL, MS, LA, TN, NC, SC, FL, AR, WV, DC, VA
+
+NE (North East): NY, RI, MD, VT, PA, ME, NH, NJ, CT, MA
+
+
+```{r}
+#Initial Creation of Regional Subgroups and tests that they cover everything. DO NOT MODIFY. THIS WAS SUPER HARD TO MAKE.
+NW <- subset(fp1, state=="CA"| state=="WA" | state=="OR" | state== "NV"| state=="ID"| state=="UT"|state=="MT"|state=="CO"| state=="WY"| state=="AK")
+print("Incidents in NW:")
+nrow(NW)
+SW <- subset(fp1, state== "NM"| state=="AZ"| state== "TX"| state=="OK"| state== "HI")
+print("Incidents in SW:")
+nrow(SW)
+MW <- subset(fp1, state== "IL"| state=="WI"| state=="IN"| state=="MI"| state== "MN"| state== "MO"| state== "IA"| state=="KS"| state=="ND"| state== "SD"| state=="NE"| state=="OH")
+print("Incidents in MW:")
+nrow(MW)
+SE <- subset(fp1, state == "GA"| state=="AL"| state== "MS"| state=="LA"| state=="TN"| state=="NC"| state=="SC"| state=="FL"| state== "AR"|state=="WV"| state=="DC"| state=="VA"| state=="KY"| state=="DE")
+print("Incidents in SE:")
+nrow(SE)
+NE <- subset(fp1, state=="NY"| state== "MD"| state=="RI"| state== "VT"| state=="PA"| state=="ME"| state== "NH"| state=="NJ"| state=="CT"| state=="MA")
+print("Incidents in NE:")
+nrow(NE)
+```
+```{r}
+#Implementation of the subgroups as a new factor called "regions". PLEASE PLEASE DO NOT MODIFY. THIS TOOK FOREVER
+fp1$regions <- as.factor(ifelse(( fp1$state=="CA"| fp1$state=="WA" | fp1$state=="OR" | fp1$state== "NV"| fp1$state=="ID"| fp1$state=="UT"|fp1$state=="MT"|fp1$state=="CO"| fp1$state=="WY"| fp1$state=="AK"), 'NW',
+                     ifelse((fp1$state== "NM"| fp1$state=="AZ"| fp1$state== "TX"| fp1$state=="OK"| fp1$state== "HI"), 'SW', 
+                     ifelse((fp1$state== "IL"| fp1$state=="WI"| fp1$state=="IN"| fp1$state=="MI"| fp1$state== "MN"| fp1$state== "MO"| fp1$state== "IA"| fp1$state=="KS"| fp1$state=="ND"| fp1$state== "SD"| fp1$state=="NE"| fp1$state=="OH"), 'MW', 
+                     ifelse(( fp1$state=="NY"| fp1$state== "MD"| fp1$state=="RI"| fp1$state== "VT"| fp1$state=="PA"| fp1$state=="ME"| fp1$state== "NH"| fp1$state=="NJ"| fp1$state=="CT"| fp1$state=="MA"), 'NE', 'SE')))))
+
+```
+
+
+```{r}
+#Defining 2 new datasets. These show all the variables (with some modification) by state. PLEASE DO NOT MODIFY. THIS WAS HARD AS HELL.
+#Still working on it
+
+sfp <- fp1 %>%
+   group_by(state) %>%
+   mutate(stbcp =  sum(body_camera==1)/n())
+#This is a numeric proportion of the Men by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(gen.p =  sum(gender=="M")/n())
+#This is a numeric proportion of sings_of_mental_illness by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(smi.p =  sum(signs_of_mental_illness==TRUE)/n())
+#This is a numeric proportion of fleeing victims by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(flee.p =  sum(flee=="fleeing")/n())
+#This is a numeric proportion of attackers by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(att.p =  sum(threat_level== "attack")/n())
+#This is a numeric proportion of armed victims by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(armed.p =  sum(armed != "unarmed")/n())
+#This is a numeric proportion of suspects being shot (as opposed to tasered) by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(MoD.p =  sum(manner_of_death == "shot")/n())
+#This is the average age by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(age.avg =  sum(age)/n())
+#This is variable is for later analysis (maybe for the final) and is the proportion of non-white victims by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(Non_White_prop =  sum(race != "W")/n())
+
+#This line just drops all non grouped by state data from this version of the dataframe
+By_State <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, date, is_geocoding_exact))
+
+
+```
+```{r}
+rfp <- fp1 %>%
+   group_by(regions) %>%
+   mutate(rgbcp =  sum(body_camera==TRUE)/n())
+
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(gen.p =  sum(gender=="M")/n())
+
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(smi.p =  sum(signs_of_mental_illness==TRUE)/n())
+
+rfp <- rfp %>%
+   group_by(regions) %>%
+   mutate(flee.p =  sum(flee=="fleeing")/n())
+
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(att.p =  sum(threat_level== "attack")/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(armed.p =  sum(armed != "unarmed")/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(MoD.p =  sum(manner_of_death == "shot")/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(age.avg =  sum(age)/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(Non_White_prop =  sum(race != "W")/n())
+
+
+
+By_Region <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, regions, date, is_geocoding_exact))
+```
+We have created two sub datasets by grouping our data by state and by reigion (for graphical purposes). Here is the structure of both:
+
+
+```{r}
+#Just some tests on the new sub dataset
+print("By_State:")
+summary(By_State)
+print("By Region:")
+summary(By_Region)
+
+```
+As you can see, the groups are identical, besides their grouping.
+
+
+
+
+### SMART Question and Answer
+ Within our dataset of fp1 shootings from 2015 to 2020 in the United States, is there a significant difference between the states? 
+ 
+First let's take a look at our data after it has been grouped by state and reorganized into the following variables:
+
+- state: State of Observation
+
+- region: Region of Observation
+
+- stbcp: State Body Camera On Proportion 
+
+- genp.p: proportion of male identified shooting victims by state
+
+- smi.p: proportion of shooting victims by state with a documented sign of mental illness
+
+- flee.p: proportion of shooting victims by state that we fleeing
+
+- att.p: proportion of shooting victims by state that we attacking
+
+- armed.p: proportion of shooting victims by state that were not unarmed
+
+- MoD.p: proportion of shooting victims by state who where shot (rather than shot and tased)
+
+- age.avg: average age by state
+
+- Non_White_prop: Proportion of shooting vicitms by state that were not identified as white/caucasian
+
+```{r}
+head(By_State)
+summary(By_State)
+```
+We now would like to check our data for normality:
+
+```{r}
+
+#Normality check of proportions of body cameras being on by state
+qqnorm(By_State$stbcp)
+#Seems Normal
+```
+Because the plot is relatively linear, we can conclude this data is close enough to normality for our purpose.
+
+Now let us look at the body camera proportions by state:
+
+```{r}
+#a bar graph showing number of fatal police shootings AND proportions of body cameras being on by region (too many states to show on a bar graph like this)
+ggplot(fp1, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Incidents", title = "Regional Police Shootings Colored by Body Camera Proportions")
+```
+## count of body camera = TRUE and count of body camera = FALSE
+```{r}
+print(count(camera_yes,body_camera))
+print(count(camera_no,body_camera))
+```
+## number of Peope shot when Police not wearing camera
+```{r}
+ggplot(camera_no, aes(x =body_camera)) + geom_bar(aes(fill = race),position = "dodge") +
+  labs(x = "No Camera",title = "number of Peope shot when Police not wearing camera")
+
+```
+
+
+
+##number of Peope shot when Police wearing camera
+
+
+```{r}
+ggplot(camera_yes, aes(x =body_camera)) + geom_bar(aes(fill = race),position = "dodge") +
+  labs(x = "Yes Camera",title = "number of Peope shot when Police wearing camera")
+```
+
+
+
+##Scatter Plot of Body Camera Proportion by Region
+
+
+```{r}
+#Scatter Plot of Body Camera Proportion by Region
+pl <- ggplot(data=By_State,aes(x = regions,y=stbcp))
+
+pl + geom_point(aes(colour =stbcp,size=4)) + scale_colour_gradient(high='red',low = "blue")
+
+```
+
+And finally, let us check out the mean body camera on proportion off all states:
+```{r}
+mean(By_State$stbcp)
+```
+And now let us do a chi-square test to see if there is a siginficant difference between the proportions of each state. 
+
+Our Null Hypothesis: There is no significant differences between US States in the proportion of body cameras being turned on during police shootings
+
+Alternative Hypothesis: There is a significant difference between US State in the proportion of body cameras being turned on during police shootings
+
+Significance Level: alpha= 0.05
+
+```{r}
+test<- By_State
+
+cat3 <- test %>% mutate(proportion=cut(stbcp, breaks=c(0, 0.10, 0.2, 0.3, Inf),labels = c("low", "medium", "high", "very high")))
+
+summary(cat3$stbcp)
+cat3$state <- as.factor(cat3$state)
+cat3$stbcp <- as.factor(cat3$stbcp)
+
+contable= table(cat3$state, cat3$stbcp)
+#print(contable)
+
+chisq.test(contable)
+
+```
+With a p-value of 2e-16, we easily pass our signficance level of alpha=0.05 and have shown that there exists significant differences between different states proportions of body camera usage during fatal poilce shootings.
+
+For Further Analysis: We intend to delve into why there are differences and research what factors may explain these differences between states.
+
+
