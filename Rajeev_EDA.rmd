@@ -89,7 +89,7 @@ median(fp$age)
 #Frequency Graphs for Categorical Variables:
 
 ```{r}
-ggplot(fp1, aes(x=race,fill=race, color=race)) + geom_histogram(stat="count") + labs(x = "Race: Unknown, Asian, Black, Hispanic, Native, Other, White", y="Number of Incidents", title = "Race Frequency Histogram")
+ggplot(fp1, aes(x=race,fill=race, color=race)) + geom_histogram(stat="count") + labs(x = "Race: Asian, Black, Hispanic, Native, Other, White", y="Number of Incidents", title = "Race Frequency Histogram")
 ```
 ```{r}
 ggplot(fp1, aes(x=gender, fill=gender, color=gender)) + geom_histogram(stat="count") + labs(x = "Gender", y="Number of Incidents", title = "Gender Frequency Histogram")
