@@ -618,11 +618,29 @@ mean(By_State$stbcp)
 ```
 And now let us do a chi-square test to see if there is a siginficant difference between the proportions of each state. 
 
-Our Null Hypothesis: There is no significant differences between US States in the proportion of body cameras being turned on during police shootings
+To meet the conditions of a Chi-Square Test: We must satisfy four things:
 
-Alternative Hypothesis: There is a significant difference between US State in the proportion of body cameras being turned on during police shootings
+1.Both Variables are Categorical:
+ We can check this off because “state” and “body camera” are
 
-Significance Level: alpha= 0.05
+2. Independent Observations:
+	We know our observations to be 	independent as none of them meaningfully 	increase the probability of others (within the 	scope of this project)
+
+3. Mutually Exclusive Categories:
+	Satisfied
+
+4. Expected value of cells should be 5 or greater in at least 80% of cells.
+	We can see in our previous graphs that all our states have at least n=33 observations and the mean of stbcp is 0.144. So for the smallest number of state observations (AK) 
+  0.144*33= 4.752
+
+The rest of the states all have larger observation numbers (next smallest is 39), so we can say that 80%  of our data easily passes this threshold of 5
+
+	
+\(H_{0}\): There is no significant differences between US States in the proportion of body cameras being turned on during police shootings
+
+\(H_{A}\): There is a significant difference between US State in the proportion of body cameras being turned on during police shootings
+
+Significance Level: \( \alpha = 0.05" \)
 
 ```{r}
 test<- By_State
@@ -637,6 +655,7 @@ contable= table(cat3$state, cat3$stbcp)
 #print(contable)
 
 chisq.test(contable)
+suppressWarnings({chisq.test(contable)})
 
 ```
 With a p-value of 2e-16, we easily pass our signficance level of alpha=0.05 and have shown that there exists significant differences between different states proportions of body camera usage during fatal poilce shootings.

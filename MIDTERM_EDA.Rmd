@@ -264,7 +264,7 @@ Now let us look at the body camera proportions by state:
 
 ```{r}
 #a bar graph showing number of fatal police shootings AND proportions of body cameras being on by region (too many states to show on a bar graph like this)
-ggplot(fp, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Incidents", title = "Regional Police Shootings Colored by Body Camera Proportions")
+ggplot(fp, aes(x = state, y = frequency(state), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Incidents", title = "Regional Police Shootings Colored by Body Camera Proportions")
 
 #Scatter Plot of Body Camera Proportion by State
 ggplot(By_State, aes(x=state, y= stbcp, label=state)) + geom_point(shape=6, color="violet")+ labs(x = "State", y="Body Camera Proportion", title = "Body Camera On Proportion By US State") + geom_text(hjust=1, vjust=-0.6)
@@ -274,6 +274,7 @@ ggplot(By_State, aes(x=state, y= stbcp, label=state)) + geom_point(shape=6, colo
 And finally, let us check out the mean body camera on proportion off all states:
 ```{r}
 mean(By_State$stbcp)
+
 ```
 And now let us do a chi-square test to see if there is a significant difference between the proportions of each state. 
 
@@ -303,3 +304,12 @@ suppressWarnings({chisq.test(contable)})
 With a p-value of 2e-16, we easily pass our signficance level of alpha=0.05 and have shown that there exists significant differences between different states proportions of body camera usage during fatal poilce shootings.
 
 For Further Analysis: We intend to delve into why there are differences and research what factors may explain these differences between states.
+```{r}
+table(By_State$state, By_State$stbcp)
+```
+```{r}
+#a bar graph showing number of fatal police shootings AND proportions of body cameras being on by region (too many states to show on a bar graph like this)
+ggplot(fp, aes(x = state, y = frequency(state), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Incidents", title = "Regional Police Shootings Colored by Body Camera Proportions")
+
+```
+
