@@ -3,9 +3,9 @@ title: "Midterm EDA: Group 7"
 author: "Alex Khater, Rajeev Koneru, and Cora Martin"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
-  word_document: default
   html_document: default
+  word_document: default
+  pdf_document: default
 ---
 
 ### Introduction
@@ -141,45 +141,7 @@ Hover over the map below to see the breakdown of fatal police shootings, divided
 
 3) We also observe that the highest number of deaths is for Hispanic people in California, whereas in Texas and Florida there are more fatal shootings of White people.
 
-```{r}
-#Filtering the data by race and states and summarizing it
-police_sr <- fp %>%
-  filter(!race == "") %>%
-  group_by(state, race) %>%
-  summarise(deaths = n())
-  
-#Spreading the data to get deaths by race
-spread_sr <- spread(police_sr, race, deaths)
 
-#Getting the total number of deaths per state
-spread_sr$Total <- rowSums(spread_sr[,-1], na.rm = TRUE)
-
-#Check the results if needed
-# head(spread_sr)
-
-#Data setup for hovering on the map
-sr_data <- spread_sr
-sr_data$hover <- with(sr_data, paste("Asian", A, '<br>',
-                                     "Black",B,'<br>',
-                                     "Hispanic",H,'<br>',
-                                     "Native American",N,'<br>',
-                                     "Other",O,'<br>',
-                                     "White",W,'<br>',
-                                     "Total Deaths", `Total`))
-#Map specifications
-graph <- list(
-  scope = 'usa',
-  projection = list(type = 'albers usa'),
-  showlakes = TRUE,
-  lakecolor = toRGB('white')
-)
-
-#Plotting the graph
-plot_ly(spread_sr, z = spread_sr$Total, text = sr_data$hover, locations = sr_data$state, type = 'choropleth',
-        locationmode = 'USA-states', color = spread_sr$Total, colors = 'Reds',
-        colorbar = list(title = "Counts ")) %>%
-        layout(title = 'Number of Victims of Police Violence by Race per State<br>(Hover over the map for a breakdown by race)', geo = graph)
-```
 
 
 #### Figure 7
