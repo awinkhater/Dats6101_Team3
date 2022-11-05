@@ -3,9 +3,9 @@ title: "Midterm EDA: Group 7"
 author: "Alex Khater, Rajeev Koneru, and Cora Martin"
 date: "`r Sys.Date()`"
 output:
-  html_document: default
-  word_document: default
   pdf_document: default
+  word_document: default
+  html_document: default
 ---
 
 ### Introduction
@@ -97,12 +97,16 @@ ggplot(fp, aes(x=age)) + geom_histogram( binwidth =0.6,aes(fill = ..count..))+sc
 
 #### Figure 2
 
+Frequency graph for the race of victims of police violence:
+
 ```{r}
 ggplot(fp, aes(x=race,fill=race, color=race)) + geom_histogram(stat="count") + labs(x = "Race: Unknown, Asian, Black, Hispanic, Native, Other, White", y="Number of Deaths", title = "Race Frequency Histogram")
 ```
 
 
 #### Figure 3
+
+Frequency graph for the gender of victims of police violence:
 
 ```{r}
 ggplot(fp, aes(x=gender, fill=gender, color=gender)) + geom_histogram(stat="count") + labs(x = "Gender", y="Number of Deaths", title = "Gender Frequency Histogram")
@@ -111,12 +115,16 @@ ggplot(fp, aes(x=gender, fill=gender, color=gender)) + geom_histogram(stat="coun
 
 #### Figure 4
 
+Frequency graph for the manner of death of victims of police violence:
+
 ```{r}
 ggplot(fp, aes(x= manner_of_death, fill=manner_of_death, color=manner_of_death)) + geom_histogram(stat="count") + labs(x = "Manner of Death", y="Number of Deaths", title = "Manner of Death Frequency Histogram")
 ```
 
 
 #### Figure 5
+
+Frequency graph for the threat level of victims of police violence:
 
 ```{r}
 ggplot(fp, aes(x=threat_level, fill=threat_level, color=threat_level)) + geom_histogram(stat="count") + labs(x = "Threat Level", y="Number of Deaths", title = "Threat Level Frequency Histogram")
@@ -215,10 +223,10 @@ If we look at the age of each victim against the status of their mental health, 
 ggplot(fp, aes(x=signs_of_mental_illness, y=age, fill=signs_of_mental_illness))+ geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)) + labs(x = "Sign of Mental Illness", y="Age", title = "Status of Mental Wellbeing during Fatal Shooting by Age of Victim")
 ```
 
-We also looked at the death by race and gender, coming up with the following insight: individuals across all races that were shot and killed by police were more often men.
-
 
 #### Figure 9
+
+We also looked at the death by race and gender, coming up with the following insight: individuals across all races that were shot and killed by police were more often men.
 
 ```{r}
 #Filtering the data by race and gender
@@ -243,7 +251,10 @@ ggplot(data_by_rg, aes(x = race, y = No_of_deaths, fill = gender)) +
 
 ```
 
-We then looked at the distribution of deaths by race and the top 5 armed categories. We discovered that around 9% of the Black victims were unarmed whereas only approximately 6% of the White victims were unarmed. Guns were the most used weapon across all races except for Asian individuals. Asian victims were more often weilding knives.
+
+#### Figure 10 
+
+We then looked at the distribution of deaths by race and the top 5 armed categories. We discovered that around 9% of the Black victims were unarmed whereas only approximately 6% of the White victims were unarmed. Guns were the most used weapon across all races except for Asian individuals. Asian victims were more often wielding knives.
 
 ```{r}
 # Finding the top 5 arms used by suspects 
@@ -282,7 +293,9 @@ print(summary_table)
 ```
 
 
-#### Figure 10
+#### Figure 11
+
+The following graph illustrates the deaths per year by race from 2015-2022:
 
 ```{r}
 #Plotting the above table in a stacked bar
@@ -346,7 +359,9 @@ by_race <- fp %>%
 ```
 
 
-#### Figure 11
+#### Figure 12
+
+This graph shows the victims of police violence by race over time (2015-2022):
 
 ```{r}
 plot1 <- ggplot(by_race, aes(x=year, y=count, alluvium=race)) +
@@ -365,10 +380,10 @@ plot1 <- ggplot(by_race, aes(x=year, y=count, alluvium=race)) +
 print(plot1)
 ```
 
-Surprisingly, there is seasonality across year or months in police shootings. We looked into the monthly trend over 8 years and used ARIMA to forecast the likely number of police shootings over the next four months. The forecast predicts average shootings for the next four months with a wide confidence interval.
 
+#### Figure 13
 
-#### Figure 12
+Surprisingly, there is seasonality across years or months in police shootings. We looked into the monthly trend over 8 years and used ARIMA to forecast the likely number of police shootings over the next four months.
 
 ```{r}
 #Summarizing the data at year month level and plotting the trend line
@@ -392,7 +407,9 @@ fp %>%
 ```
 
 
-#### Figure 13
+#### Figure 14
+
+The forecast predicts average shootings for the next four months with a wide confidence interval.
 
 ```{r}
 #Number crimes
@@ -580,13 +597,13 @@ state   |   State of observation
 region   |   Region of observation
 stbcp   |   Body camera on proportion by state
 genp.p   |   Proportion of male victims by state
-smi.p   |   Proportion of shooting victims by state with signs of mental illness
-flee.p   |   Proportion of shooting victims by state the were fleeing
-att.p   |   Proportion of shooting victims by state that were attacking
-armed.p   |   Proportion of shooting victims by state that were armed
-MoD.p   |   Proportion of shooting victims by state that were shot
+smi.p   |   Proportion of victims by state with signs of mental illness
+flee.p   |   Proportion of victims by state the were fleeing
+att.p   |   Proportion of victims by state that were attacking
+armed.p   |   Proportion of victims by state that were armed
+MoD.p   |   Proportion of victims by state that were shot
 age.avg   |   Average age by state
-Non_White_Prop   |   Proportion of non-White shooting victims by state
+Non_White_Prop   |   Proportion of non-White victims by state
 
 The state data subgroup can be summarized as follows:
 
@@ -602,7 +619,7 @@ summary(By_Region)
 ```
 
 
-#### Figure 14
+#### Figure 15
 
 We will now check our data for normality:
 
@@ -612,10 +629,10 @@ qqnorm(By_State$stbcp)
 #Seems normal
 ```
 
-
-#### Figure 15
-
 Because the plot is relatively linear, we can conclude this data is close enough to normality for our purpose. 
+
+
+#### Figure 16
 
 Now let us look at the body camera proportions by state. In the below bar graph, TRUE signifies a police body camera that was on, while FALSE indicates the body camera was off:
 
@@ -640,7 +657,7 @@ print(count(camera_no,body_camera))
 ```
 
 
-#### Figure 16
+#### Figure 17
 
 The below graph illustrates the number of victims shot and killed by race when a body camera was off:
 
@@ -650,7 +667,7 @@ ggplot(camera_no, aes(x =body_camera)) + geom_bar(aes(fill = race),position = "d
 ```
 
 
-#### Figure 17
+#### Figure 18
 
 The below graph illustrates the number of victims shot and killed by race when a body camera was on:
 
@@ -660,7 +677,7 @@ ggplot(camera_yes, aes(x =body_camera)) + geom_bar(aes(fill = race),position = "
 ```
 
 
-#### Figure 18
+#### Figure 19
 
 This scatter plot shows the proportion of fatal shootings when cameras were on by state (the variable stbcp). Each point on the graph depicts a state's proportion of shootings where the police body camera was turned on during the incident). We can see that there is very little variation in Southwest, and many differences among states in the Midwest.
 
