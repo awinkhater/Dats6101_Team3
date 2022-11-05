@@ -688,7 +688,7 @@ suppressWarnings({chisq.test(contable)})
 
 With a p-value of 2e-16, we easily pass our significance level of alpha=0.05 and have shown that there exists significant differences between different states' proportions of body camera usage during fatal police shootings.
 
-This exploratory data analysis has shows that there is significant difference in the level body camera usage in police shootings between states and regions in the United States. We intend to delve into the reasons why there are differences and research what factors may explain these differences between states. This will require understanding state laws and policies regarding the use of police body cameras. We must also understand the police force consequences for turning off body cameras during police activity in different states.
+This exploratory data analysis has shown that there is significant difference in the level of body camera usage in police shootings between states and regions in the United States. We intend to delve into the reasons why there are differences and research what factors may explain these differences between states. This will require understanding state laws and policies regarding the use of police body cameras. We must also understand the police force consequences for turning off body cameras during police activity in different states.
 
 Studying the use of body cameras in police work is an important topic of study for data-driven policy research in the United States. We hope to be able to apply this correlation between the U.S. state of observation and whether the body camera was on or off during the shooting to state policy on body cameras during police work. 
 
