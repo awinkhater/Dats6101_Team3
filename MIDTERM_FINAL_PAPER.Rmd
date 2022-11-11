@@ -1,0 +1,251 @@
+---
+title: "The Effectiveness of State Body Camera Policy"
+author: "Alex Khater, Rajeev Koneru, and Cora Martin"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+### Introduction
+
+```{r setup, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# some of common options (and the defaults) are: 
+# include=T, eval=T, echo=T, results='hide'/'asis'/'markup',..., collapse=F, warning=T, message=T, error=T, cache=T, fig.width=6, fig.height=4, fig.dim=c(6,4) #inches, fig.align='left'/'center','right', 
+# knitr::opts_chunk$set(warning = F, results = "markup", message = F)
+# knitr::opts_chunk$set(warning = F, results = "hide", message = F)
+# knitr::opts_chunk$set(include = F)
+# knitr::opts_chunk$set(echo = FALSE)
+options(scientific=T, digits = 3) 
+# options(scipen=9, digits = 3) 
+# ‘scipen’: integer. A penalty to be applied when deciding to print numeric values in fixed or exponential notation.  Positive values bias towards fixed and negative towards scientific notation: fixed notation will be preferred unless it is more than ‘scipen’ digits wider.
+# use scipen=999 to prevent scientific notation at all times
+always_allow_html = TRUE
+```
+
+```{r}
+#Calling Packages
+library(dplyr, quietly = TRUE)
+library(ggplot2)
+library(plotly)
+library(ggthemes)
+library(tidyverse)
+library(forecast)
+library(ggalluvial)
+
+#Reading the data set
+fp1<- data.frame(read.csv("FPS22.csv"))
+```
+
+```{r}
+#Cleaning null values from data set
+fp <- na.omit(fp1)
+```
+
+In a 2014 investigation, The Washington Post reported that the FBI had been under-counting fatal police shootings by more than half. An eighteen year-old Michael Brown was killed by police in St. Louis, Missouri, shining a light on the issue of police brutality in the United States. Relying on news, social media, and police reports, the Washington Post compiled a comprehensive list of police shootings from 2015 to 2022 to amend the issue of under-counting police killings of civilians. Police brutality stems from a lack of accountability. The police force is consistently protected from the consequences of violence, regardless of the use of such tools of accountability as police body cameras. We studied the use of body cameras in police shootings to understand whether the use of body cameras was more common in one state over another. More specifically, we asked: within our data set of 6,574 observations of police shootings from 2015 to 2022 in the United States, is there a correlation between the U.S. state of observation and whether a body camera was turned on during the shooting? We found that the use of body cameras during fatal police shootings certainly varies by state, pointing to the conclusion that state policy plays a role in whether body cameras are turned on during active police duty.
+
+This data set includes information on every fatal police shooting from January 1, 2015 to the present. It is updated regularly by the Washington Post. Some of the Post’s key findings from the data set include: 
+
+1. Overall, police nationwide kill approximately 1,000 civilians annually.
+
+2. Black people are killed by police at a higher rate than White people. In absolute numbers, the White population is killed most often by police. Black people, accounting for less than 13 percent of the population, are killed more than twice the rate of White people.
+
+3. The majority of victims are male and between the ages of 20 and 40 years.
+
+4. Police shootings occur in every state. In cities, they are more frequent. The states with the highest rates of shootings (considering state population) are New Mexico, Alaska, and Oklahoma. 
+
+These findings are the result of previous research by the Washington Post. One of the data set’s limitations is  the absence of data on populations at the time of the observation. This information would be valuable for any type of racial injustice analysis. The research we gathered through the EDA began with very basic analyses: 
+
+```{r}
+ggplot(fp, aes(x=age)) + geom_histogram( binwidth =0.6,aes(fill = ..count..))+scale_fill_gradient('Count',low='blue',high='red') + labs(x = "Age of Victim", y="Number of Deaths", title = "Age Frequency Histogram")
+```
+
+```{r}
+ggplot(fp, aes(x=race,fill=race, color=race)) + geom_histogram(stat="count") + labs(x = "Race: Unknown, Asian, Black, Hispanic, Native, Other, White", y="Number of Deaths", title = "Race Frequency Histogram")
+```
+
+```{r}
+ggplot(fp, aes(x=gender, fill=gender, color=gender)) + geom_histogram(stat="count") + labs(x = "Gender", y="Number of Deaths", title = "Gender Frequency Histogram")
+```
+
+```{r}
+ggplot(fp, aes(x= manner_of_death, fill=manner_of_death, color=manner_of_death)) + geom_histogram(stat="count") + labs(x = "Manner of Death", y="Number of Deaths", title = "Manner of Death Frequency Histogram")
+```
+
+```{r}
+ggplot(fp, aes(x=threat_level, fill=threat_level, color=threat_level)) + geom_histogram(stat="count") + labs(x = "Threat Level", y="Number of Deaths", title = "Threat Level Frequency Histogram")
+```
+
+These basic univariate analyses were created to better understand the data set and to identify any interesting patterns that emerged. We began doing more complex multivariate analyses and noting any interesting findings:
+
+Hover over the map below to see the breakdown of fatal police shootings, divided by the race of the victim. We looked at the total number of deaths in each state by race and following are some of the insights:
+
+1. We see that the state with the highest level of victims of police violence is California with a total of 885 victims, followed by Texas with a total of 553 and then Florida with 427.
+
+2. These results are consistent with the populations of these states, with the highest being California, then Texas, and then Florida.
+
+3. We also observe that the highest number of deaths is for Hispanic people in California, whereas in Texas and Florida there are more fatal shootings of White people.
+
+```{r}
+#Filtering the data by race and states and summarizing it
+police_sr <- fp %>%
+  filter(!race == "") %>%
+  group_by(state, race) %>%
+  summarise(deaths = n())
+  
+#Spreading the data to get deaths by race
+spread_sr <- spread(police_sr, race, deaths)
+
+#Getting the total number of deaths per state
+spread_sr$Total <- rowSums(spread_sr[,-1], na.rm = TRUE)
+
+#Check the results if needed
+# head(spread_sr)
+
+#Data setup for hovering on the map
+sr_data <- spread_sr
+sr_data$hover <- with(sr_data, paste("Asian", A, '<br>',
+                                     "Black",B,'<br>',
+                                     "Hispanic",H,'<br>',
+                                     "Native American",N,'<br>',
+                                     "Other",O,'<br>',
+                                     "White",W,'<br>',
+                                     "Total Deaths", `Total`))
+#Map specifications
+graph <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('white')
+)
+
+#Plotting the graph
+plot_ly(spread_sr, z = spread_sr$Total, text = sr_data$hover, locations = sr_data$state, type = 'choropleth',
+        locationmode = 'USA-states', color = spread_sr$Total, colors = 'Reds',
+        colorbar = list(title = "Counts ")) %>%
+        layout(title = 'Number of Victims of Police Violence by Race per State<br>(Hover over the map for a breakdown by race)', geo = graph)
+```
+
+Then we looked at the age of the suspect shot, as well as their race. We made the following observations:
+
+1) We see from the boxplot below that the median age for Black people that have been killed by police is 29 years.
+
+2) White people have a relatively higher median age of 35 years whereas Asian people have the highest median age of around 38 years.
+
+```{r}
+#Filtering the data by age and race
+fp %>%
+  filter(!is.na(age) & race != '') %>% #Remove blanks and NAs
+  
+  #Box plots
+  ggplot (aes(x=race, y=age)) +
+  geom_boxplot(aes(color = race)) +
+
+  #Axes labels and titles
+  labs(x = "Race of Victim", y = "Age of Victim", 
+       title = "Distribution of Victims' Age across Race") +
+  scale_x_discrete(labels=c('White',
+                            'Other',
+                            'Native American',
+                            'Hispanic',
+                            'Black',
+                            'Asian')) +
+  coord_flip() +
+  theme_bw() +
+  theme(legend.position = "none")
+```
+
+If we look at the age of each victim against the status of their mental health, we can make the following observation: signs of mental illness appear more frequently within the 30s age range while death by police for people age 50 and above are more common for people showing signs of mental illness.
+
+```{r}
+#Age against signs of mental illness
+ggplot(fp, aes(x=signs_of_mental_illness, y=age, fill=signs_of_mental_illness))+ geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)) + labs(x = "Sign of Mental Illness", y="Age", title = "Status of Mental Wellbeing during Fatal Shooting by Age of Victim")
+```
+
+We also looked at the death by race and gender, coming up with the following insight: individuals across all races that were shot and killed by police were more often men.
+
+```{r}
+#Filtering the data by race and gender
+data_by_rg <- fp %>%
+                      filter(race != "") %>%
+                      filter(gender != "") %>%
+                        group_by(race, gender) %>%
+                         summarize(No_of_deaths = n())
+
+#Plotting Data
+ggplot(data_by_rg, aes(x = race, y = No_of_deaths, fill = gender)) + 
+  geom_bar(stat = "identity",position = "dodge") + 
+  labs (x = 'Race', y = 'Number of Deaths') +
+  ggtitle('Deaths by Race and Gender') +
+  scale_x_discrete(labels=c('Asian',
+                            'Black',
+                            'Hispanic',
+                            'Native American',
+                            'Other',
+                            'White')) +
+  theme_few()
+
+```
+
+We then looked at the distribution of deaths by race and the top 5 armed categories. We discovered that around 9% of the Black victims were unarmed whereas only approximately 6% of the White victims were unarmed. Guns were the most used weapon across all races except for Asian individuals. Asian victims were more often wielding knives.
+
+```{r}
+# Finding the top 5 arms used by suspects 
+top_5_arms <- fp %>%
+                group_by(armed) %>%
+                summarise(num_arms = n()) %>%
+                arrange(desc(num_arms)) %>%
+                head(5)
+
+#Filtering the data by top 5 arms found
+race_armed_data <- fp %>%
+    filter(race != '') %>%
+    mutate(armed_mod = ifelse(armed %in% c('gun', 'knife', 'unarmed', 'vehicle', 'undetermined'), as.character(armed), 'Other')) %>%
+    group_by(race, armed_mod) %>%
+    summarise(Deaths = n())
+
+# Spreading the data 
+race_armed_data_spr <- race_armed_data %>%
+    spread(armed_mod, Deaths) 
+
+#Replacing missing values with 0
+race_armed_data_spr[is.na(race_armed_data_spr)] <- 0 
+```
+
+The following graph illustrates the deaths per year by race from 2015-2022:
+
+```{r}
+#Plotting the above table in a stacked bar
+ggplot(race_armed_data, aes(x = race, y = Deaths, fill = armed_mod)) + 
+  geom_bar(stat = "identity",position = "dodge") + 
+  labs (x = 'Race', y = 'Number of Deaths') +
+  ggtitle('Whether Victims were Armed by Race') +
+  scale_x_discrete(labels=c('Asian',
+                            'Black',
+                            'Hispanic',
+                            'Native American',
+                            'Other',
+                            'White')) + 
+   theme_few() 
+```
+
+We looked at the distribution of deaths by suspects’ race and whether they were trying to flee or not. The following are some of our most interesting observations:
+
+1) Only 53% of Black victims shot were not fleeing whereas 71% of the Asian victims who were shot were not trying to flee.
+
+2) The car is the most popular method of fleeing among White victims whereas for Black victims, the most popular method of fleeing was by foot. 
+
+```{r}
+#Filtering the data and summarizing it  
+race_flee_data <- fp %>%
+    filter(race != '') %>%
+    group_by(race, flee) %>%
+    summarise(Deaths = n()) %>%
+    spread(flee, Deaths) 
+
+#Replacing the missing values with 0
+race_flee_data[is.na(race_flee_data)] <- 0 
+```
+
