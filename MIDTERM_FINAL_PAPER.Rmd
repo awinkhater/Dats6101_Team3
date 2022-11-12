@@ -309,7 +309,7 @@ Within our data set of 6,574 observations of police shootings from 2015 to 2022 
 
 After performing the technical analysis needed to assert that body camera use varies by state, there is still valuable information we need to find a link between state policy on body cameras and the rate at which body cameras are turned on during fatal shootings. The remainder of this paper will attempt to bridge quantitative analysis using the Washington Post data set with qualitative information on state body camera policy. We will also look into funding by state for police work to see if there is a strong correlation between the amount of police funding and the rate at which body cameras are turned on during fatal shootings. 
 
-### Part I: Technical Analysis
+### Part I: Quantitative Analysis
 
 ```{r}
 #Implementation of the subgroups as a new factor called "regions".
@@ -464,7 +464,7 @@ With a p-value of less 2e-16, we easily pass our significance level of alpha=0.0
 
 Studying the use of body cameras in police work is an important topic of study for data-driven policy research in the United States. We hope to be able to apply this correlation between the U.S. state of observation and whether the body camera was on or off during the shooting to state policy on body cameras during police work.
 
-### Part II: Results
+### Part II: Qualitative Analysis
 
 We have the visualization, as well as the Chi-square test, to confirm that there is a significant difference in stbcp (the proportion of shootings when a police body camera was turned on by state). Let us now look at the rankings by state of stbcp, from most to least likely of having a body camera on during a police shooting.
 
@@ -589,24 +589,158 @@ Wyoming   |   0.000
 
 Here we can see that the states with the highest number of observations where the police body camera was turned on include DC, Vermont, and Nevada. The states with the lowest number include Pennsylvania, Maine, and Wyoming--Maine and Wyoming having no recorded police shooting where a body camera was turned on. Let us now do a deep-dive into state policy on body cameras for these six states.
 
+The four most common state laws that govern body camera usage will guide our analysis of individual state policy. These laws are as follows: 
+
+1. Either a study group or pilot program on the use of body-worn cameras was used or was recommended by law. 
+
+2. Laws dictate where, when, and how, body cameras can be used during police activity.
+
+3. The public has access to police footage.
+
+4. There is a prescribed amount of time videos are stored before being discarded. 
+
+Although there are other laws which apply to body cameras, these are the four major laws specific to their use. We hypothesize that the applications of these laws will line up well with the stbcp scores we see for each state. We will also include information on the amount of money spent on policing per capita each state.
+
 #### District of Columbia
 
+DC stbcp score: 
 
+```{r}
+mean(DC$stbcp)
+```
+
+While DC does not have any requirement for a study group or pilot program, it does possess the three other laws. Before being issued a body camera, officers are required to be trained in their use. The only situation in which a police officer is prohibited from turning on his body camera is when engaging with students and minors. The 2015 Body-Worn Camera Program Amendment Act allows the mayor to release police footage for cases of public interest. The act also gives the police up to 40 days to respond to all Freedom of Information requests from the public to hand over footage (which of course police can respond that the footage is inaccessible). Finally, the police may retain footage for no more than 90 days unless the recordings serve as evidence. 
+
+DC spends $965 per capita on policing, the highest of any state in the United States by about double. This likely provides DC police with ample funds for police body cameras and their required training. 
 
 #### Vermont
 
+Vermont stbcp score: 
 
+```{r}
+mean(Vermont$stbcp)
+```
+
+Unlike in DC, Vermont did require its State Law Enforcement Advisory Board to produce a report using research methods like study groups to recommend procedures for the use of body cameras, storage time, and exemptions for the Public Records Act. However, there is still no law set in place which governs where and when police may use or not use their body cameras. Vermont's Law Enforcement Advisory Board Model Policy states that open records requests apply to all body camera recordings. If disputes arise between a public requester and the police department, the recording will be maintained until the dispute is settled. Finally, Vermont has very strict laws for the erasure of police recording. Only with permission from the State Archivist or under law can police body camera footage be erased.
+
+Vermont ranks very low on police spending with only $351 per capita put towards policing.
 
 #### Nevada
 
+Nevada stbcp score: 
 
+```{r}
+mean(Nevada$stbcp)
+```
+
+Similar to DC, Nevada has no legal requirement for a study group or pilot program like Vermont does. It does have pretty strict laws on the use of body cameras during active police work. Any officer who is frequently out in the field must be equipped with a body camera while on duty. Under law, the officer is required to turn on the camera when responding to a call or engaging in any confrontation between the police and the public. Under Nev.Rev.Stat. § 289.830, the camera may not be turned off until the investigation is complete. Any recording is subject to a public records request, but is only approved to be released on a case-by-case basis. The only requirement for video storage is that all recordings must be saved for at least fifteen days since the time of the incident.
+
+Nevada spends $477 per capita on policing. Among the 50 states plus DC, it ranks second in the best allocation of police resources, only behind Florida.  
 
 #### Pennsylvania
 
+Pennsylvania stbcp score: 
 
+```{r}
+mean(Pennsylvania$stbcp)
+```
+
+Pennsylvania requires municipalities to establish their own written policies regarding training on the proper use of body cameras, when the body cameras should be turned on, and all protocols for disciplinary conduct when such policies are violated. There is no state law governing how, where, and when body cameras are used. Civilians may request access to footage, and police are given 30 days from the time they recieve the request to either fulfill or deny it. However, all recordings containing evidence, information regarding a criminal charge, or confidential victim information are exempt from public requests. Footage is only saved if there is an active public request for it or it provides evidentiary value. 
+
+Pennsylvania spends $335 per capita on policing, which is the lowest we have seen in this analysis thus far. 
 
 #### Maine
 
+Maine stbcp score: 
 
+```{r}
+mean(Maine$stbcp)
+```
+
+Maine has zero laws governing the use of body cameras. In 2021, the Maine State Police began the process of allocating funds for the introduction of body cameras in police work. Its stbcp is 0 simply because police do not use body cameras at all.
+
+The state spends only $244 per capita on policing. Again, this is the lowest amount of money spent on policing we have seen. 
 
 #### Wyoming
+
+Wyoming stbcp score: 
+
+```{r}
+mean(Wyoming$stbcp)
+```
+
+Wyoming's sole law on access to police recordings is to prohibit public access except to the person in the recording. Officers are equipped with body cameras as of 2021. 
+
+The state spends $400 per capita on policing. Both Wyoming and Maine are ranked close to last on policing allocation of funds.
+
+If we are comparing the top 3 states for stbcp with the worst 3 states, as we have above, clearly there is a trend showing that rigorous state policy and funding corresponds with higher rates of body cameras turned on during fatal shootings. Now let's look at all states in relation to these four laws governing the use of body cameras and state funding for policing.
+
+State | stbcp | How many of the 4 laws does the state possess? | Police funding per capita
+:-: | :-: | :-: | :-:
+DC   |   0.409   |  3   |  $965
+Vermont   |   0.333   |  3   |  $351
+Nevada   |   0.330   |  3   |  $477
+Utah   |   0.307   |  3   |  $289
+Maryland   |   0.277   |  4   |  $503
+Connecticut   |   0.238   |  3   |  $363
+Iowa   |   0.225   |  0   |  $290
+Hawaii   |   0.212   |  1   |  $384
+Nebraska   |   0.200   |  4   |  $302
+Rhode Island   |   0.200   |  0   |  $485
+California   |   0.188   |  4   |  $564
+Idaho   |   0.185   |  1   |  $302
+Indiana   |   0.185   |  3   |  $238
+Oklahoma   |   0.212   |  2   |  $288
+Arizona   |   0.161   |  1   |  $401
+Alabama   |   0.160   |  0   |  $296
+New York   |   0.160   |  3   |  $570
+New Mexico   |   0.159   |  3   |  $365
+South Carolina   |   0.156   |  2   |  $275
+New Hampshire   |   0.150   |  4   |  $362
+Illinois   |   0.148   |  1   |  $448
+Wisconsin   |   0.146   |  3   |  $330
+Virginia   |   0.144   |  4   |  $316
+North Dakota   |   0.143   |  1   |  $337
+North Carolina   |   0.134   |  2   |  $345
+Michigan   |   0.133   |  2   |  $293
+Minnesota   |   0.133   |  2   |  $428
+Ohio   |   0.131   |  4   |  $347
+Texas   |   0.131   |  3   |  $323
+Kansas   |   0.130   |  1   |  $363
+Delaware   |   0.125   |  4   |  $401
+Colorado   |   0.123   |  3   |  $402
+Louisiana   |   0.119   |  2   |  $326
+Washington   |   0.103   |  4   |  $334
+Kentucky   |   0.103   |  1   |  $183
+Tennessee   |   0.101   |  1   |  $335
+Montana   |   0.100   |  0   |  $350
+New Jersey   |   0.100   |  3   |  $449
+Florida   |   0.0995   |  3   |  $470
+Georgia   |   0.0988   |  3   |  $287
+Alaska   |   0.0952   |  0   |  $555
+Arkansas   |   0.0787   |  2   |  $244
+Oregon   |   0.069   |  3   |  $376
+West Virginia   |   0.0678   |  0   |  $254
+South Dakota   |   0.0625   |  1   |  $259
+Missouri   |   0.037   |  1   |  $321
+Pennsylvania   |   0.0352   |  3   |  $335
+Maine   |   0.000   |  0   |  $244
+Wyoming   |   0.000   |  1   |  $400
+
+### Part III: Results and Conclusion
+
+While there does seem to be a trend of higher stbcp scores for states with more laws on body cameras and more funding for policing, we would need to perform more technical analysis to assert causality. Looking at the six case studies (DC, Vermont, Nevada, Pennsylvania, Maine, and Wyoming), we can easily see that more strict body camera laws and higher funding for policing correspond with the three states with the highest stbcp scores. However, when we look further into the list, we see states like Iowa with 0 laws governing body camera use but with a relatively high stbcp score. Before we can determine that state policy in DC, Vermont, and Nevada should be used as a model for body camera policy, more research is needed to consider all factors that may contribute to body cameras being turned on during a fatal shooting. 
+
+Studying the use of body cameras in police work is an important topic of study for data-driven policy research in the United States. We hope to be able to apply this correlation between the U.S. state of observation and whether the body camera was on or off during the shooting to state policy on body cameras. The relevancy of studying fatal shootings cannot be understated in the field of U.S. public policy. One limitation of this EDA is the lack of research on racial injustice and proportionality in fatal shootings by race. This will be an important facet of our future research if we continue to pursue this research topic. 
+
+### Part IV: Citations
+
+(1) 1,032 people have been shot and killed by police in the past year (November 10, 2022), The Washington Post. https://www.washingtonpost.com/graphics/investigations/police-shootings-database/
+
+(2) N.G. La Vigne, M. ulle, N. Erondu, D. Lawrence, L. Robin, T. Meko, B. Chartoff, D. Wood, Police Body-Worn Camera Legislation Tracker (July 14, 2022), The Urban Institute. https://apps.urban.org/features/body-camera-update/
+
+(3) J. Michtom, US Budget Analysis: Policing and Corrections Spending by State (October 21, 2022), Money Geek. https://www.moneygeek.com/living/state-policing-corrections-spending/
+
+(4) Wyoming Police Now Equipped with Body Cameras (February 19, 2021), What's Up Wyoming. https://www.whatsupwyoming.com/2021/02/wyoming-police-now-equipped-with-body-cameras/
+
+(5) What is the Status of Body Cameras in Maine? A Closer Look at the State's Laws (2021) Gov QA. https://www.govqa.com/status-of-body-cameras-in-maine/
