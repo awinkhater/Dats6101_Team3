@@ -346,7 +346,7 @@ print(summary_table)
 ```
 
 ```{r}
-class(fp1$date)
+class(fp$date)
 fp$date <- as.Date(fp$date, "%m/%d/%Y")
 fp$month <- format(fp$date, format = "%m")
 fp$year <- format(fp$date, format = "%Y")

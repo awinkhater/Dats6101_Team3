@@ -10,8 +10,8 @@ output:
 
 ### Introduction
 
-```{r setup, include=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, include=FALSE, warning=FALSE, fig.align="center"}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 # some of common options (and the defaults) are: 
 # include=T, eval=T, echo=T, results='hide'/'asis'/'markup',..., collapse=F, warning=T, message=T, error=T, cache=T, fig.width=6, fig.height=4, fig.dim=c(6,4) #inches, fig.align='left'/'center','right', 
 # knitr::opts_chunk$set(warning = F, results = "markup", message = F)
@@ -249,3 +249,364 @@ race_flee_data <- fp %>%
 race_flee_data[is.na(race_flee_data)] <- 0 
 ```
 
+After performing all of this exploratory data analysis, we decided we wanted to ask a state- and region-based question. Performing a more comparative analysis using this data set could help us understand why police shootings occur in some states over others. This required us to divide the data in a new way. For data visualization purposes, we chose to divide each state into regions. However, our main focus will rely on state-by-state comparative analysis. The following regional subsets include: 
+
+Northwest (NW) | Southwest (SW) | Midwest (MW) | Southeast (SE) | Northeast (NE)
+:-: | :-: | :-: | :-: | :-:
+California   |   New Mexico   |  Illinois   |  Georgia   |  New York
+Washington   |   Arizona   |  Wisconsin   |  Alabama   |  Rhode Island
+Oregon   |   Texas   |  Indiana   |  Mississippi   |  Maryland
+Nevada   |   Oklahoma   |  Michigan   |  Louisiana   |  Vermont
+Idaho   |   Hawaii   |  Minnesota   |  Tennessee   |  Pennsylvania
+Utah   |   -   |  Missouri   |  North Carolina   |  Maine
+Montana   |   -   |  Iowa   |  South  Carolina   |  New Hampshire
+Colorado   |   -   |  Kansas   |  Florida   |  New Jersey
+Wyoming   |   -   |  North Dakota   |  Arkansas   |  Connecticut
+Arkansas   |   -   |  South Dakota   |  West Virginia   |  Massachusetts
+Arkansas   |   -   |  Nebraska   |  DC   |  -
+   -     |   -   |  Ohio   |  Virginia   |     -
+
+
+Fatal shootings in the Northwest United States:
+
+```{r}
+#Initial creation of regional subgroups and tests that they cover everything.
+NW <- subset(fp, state=="CA"| state=="WA" | state=="OR" | state== "NV"| state=="ID"| state=="UT"|state=="MT"|state=="CO"| state=="WY"| state=="AK")
+nrow(NW)
+```
+
+Fatal shootings in the Southwest United States:
+
+```{r}
+SW <- subset(fp, state== "NM"| state=="AZ"| state== "TX"| state=="OK"| state== "HI")
+nrow(SW)
+```
+
+Fatal shootings in the Midwest United States:
+
+```{r}
+MW <- subset(fp, state== "IL"| state=="WI"| state=="IN"| state=="MI"| state== "MN"| state== "MO"| state== "IA"| state=="KS"| state=="ND"| state== "SD"| state=="NE"| state=="OH")
+nrow(MW)
+```
+
+Fatal shootings in the Southeast United States:
+
+```{r}
+SE <- subset(fp, state == "GA"| state=="AL"| state== "MS"| state=="LA"| state=="TN"| state=="NC"| state=="SC"| state=="FL"| state== "AR"|state=="WV"| state=="DC"| state=="VA"| state=="KY"| state=="DE")
+nrow(SE)
+```
+
+Fatal shootings in the Northeast United States:
+
+```{r}
+NE <- subset(fp, state=="NY"| state== "MD"| state=="RI"| state== "VT"| state=="PA"| state=="ME"| state== "NH"| state=="NJ"| state=="CT"| state=="MA")
+nrow(NE)
+```
+
+After dividing up the data set, we decided to spotlight the body camera variable. This column in the csv file asked whether the body camera was turned on or off during the fatal police shooting. The data was compiled from official police records, completed by the officers on site. In the Washington Post’s brief article introducing the data set and examining some of the most interesting findings, there was no mention of the body camera variable. This provided us an opportunity to create a relevant, meaningful research project on a little-studied aspect of police work. Our final research question is as follows: 
+
+Within our data set of 6,574 observations of police shootings from 2015 to 2022 in the United States, is there a correlation between the U.S. state of observation and whether a body camera was turned on during the shooting? 
+
+After performing the technical analysis needed to assert that body camera use varies by state, there is still valuable information we need to find a link between state policy on body cameras and the rate at which body cameras are turned on during fatal shootings. The remainder of this paper will attempt to bridge quantitative analysis using the Washington Post data set with qualitative information on state body camera policy. We will also look into funding by state for police work to see if there is a strong correlation between the amount of police funding and the rate at which body cameras are turned on during fatal shootings. 
+
+### Part I: Technical Analysis
+
+```{r}
+#Implementation of the subgroups as a new factor called "regions".
+fp$regions <- as.factor(ifelse(( fp$state=="CA"| fp$state=="WA" | fp$state=="OR" | fp$state== "NV"| fp$state=="ID"| fp$state=="UT"|fp$state=="MT"|fp$state=="CO"| fp$state=="WY"| fp$state=="AK"), 'NW',
+                     ifelse((fp$state== "NM"| fp$state=="AZ"| fp$state== "TX"| fp$state=="OK"| fp$state== "HI"), 'SW', 
+                     ifelse((fp$state== "IL"| fp$state=="WI"| fp$state=="IN"| fp$state=="MI"| fp$state== "MN"| fp$state== "MO"| fp$state== "IA"| fp$state=="KS"| fp$state=="ND"| fp$state== "SD"| fp$state=="NE"| fp$state=="OH"), 'MW', 
+                     ifelse(( fp$state=="NY"| fp$state== "MD"| fp$state=="RI"| fp$state== "VT"| fp$state=="PA"| fp$state=="ME"| fp$state== "NH"| fp$state=="NJ"| fp$state=="CT"| fp$state=="MA"), 'NE', 'SE')))))
+```
+
+```{r}
+#Defining 2 new data sets. These show all the variables (with some modification) by state.
+sfp <- fp %>%
+   group_by(state) %>%
+   mutate(stbcp =  sum(body_camera==1)/n())
+#This is a numeric proportion of the Men by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(gen.p =  sum(gender=="M")/n())
+#This is a numeric proportion of sings_of_mental_illness by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(smi.p =  sum(signs_of_mental_illness==TRUE)/n())
+#This is a numeric proportion of fleeing victims by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(flee.p =  sum(flee=="fleeing")/n())
+#This is a numeric proportion of attackers by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(att.p =  sum(threat_level== "attack")/n())
+#This is a numeric proportion of armed victims by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(armed.p =  sum(armed != "unarmed")/n())
+#This is a numeric proportion of suspects being shot (as opposed to tasered) by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(MoD.p =  sum(manner_of_death == "shot")/n())
+#This is the average age by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(age.avg =  sum(age)/n())
+#This is variable is for later analysis (maybe for the final) and is the proportion of non-white victims by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(Non_White_prop =  sum(race != "W")/n())
+
+#This line just drops all non grouped by state data from this version of the data frame
+By_State <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, date, is_geocoding_exact))
+```
+
+```{r}
+rfp <- fp %>%
+   group_by(regions) %>%
+   mutate(rgbcp =  sum(body_camera==TRUE)/n())
+
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(gen.p =  sum(gender=="M")/n())
+
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(smi.p =  sum(signs_of_mental_illness==TRUE)/n())
+
+rfp <- rfp %>%
+   group_by(regions) %>%
+   mutate(flee.p =  sum(flee=="fleeing")/n())
+
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(att.p =  sum(threat_level== "attack")/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(armed.p =  sum(armed != "unarmed")/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(MoD.p =  sum(manner_of_death == "shot")/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(age.avg =  sum(age)/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(Non_White_prop =  sum(race != "W")/n())
+
+By_Region <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, regions, date, is_geocoding_exact))
+```
+
+Number of fatal shootings where the body camera was on:
+
+```{r}
+camera_no <- fp %>% filter(body_camera != TRUE)
+camera_yes <- fp %>% filter(body_camera != FALSE)
+
+print(count(camera_yes,body_camera))
+```
+
+Number of fatal shootings where the body camera was off:
+
+```{r}
+print(count(camera_no,body_camera))
+```
+
+We created some figures to visualize body camera use by state and region. In the below bar graph, TRUE signifies a police body camera that was on, while FALSE indicates the body camera was off:
+
+```{r}
+#A bar graph showing the number of fatal police shootings AND proportions of body cameras being on by region (too many states to show on a bar graph like this)
+ggplot(fp, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Deaths", title = "Regional Police Shootings Colored by Body Camera Proportions")
+```
+
+A very important variable allowed us to study body camera use variation by state. This variable is stbcp, or the proportion of shootings when a police body camera was turned on by state. We first checked our data for normality. Because the plot below is relatively linear, we concluded this data is close enough to normality for our purposes. 
+
+```{r}
+#Normality check of proportions of body cameras being on by state
+qqnorm(By_State$stbcp)
+#Seems normal
+```
+
+This scatter plot below illustrates the comparative power of stbcp. Each point on the graph depicts a state's proportion of shootings where the police body camera was turned on during the incident. These data points also show an interesting regional variation. For example, we can see that there is very little variation in Southwest, and many differences among states in the Midwest.
+
+```{r}
+#Scatter Plot of Body Camera Proportion by Region
+pl <- ggplot(data=By_State,aes(x = regions,y=stbcp))
+
+pl + geom_point(aes(colour =stbcp,size=4)) + scale_colour_gradient(high='red',low = "blue")
+```
+
+We performed a chi-square test to understand whether there is a significant difference between the proportions of body cameras being on during fatal shootings each state. 
+
+\(H_{0}\): There is no significant differences between US States in the proportion of body cameras being turned on during police shootings
+
+\(H_{A}\): There is a significant difference between US State in the proportion of body cameras being turned on during police shootings
+
+Significance Level: \( \alpha = 0.05" \)
+
+```{r}
+test<- By_State
+#Setting 
+
+cat3 <- test %>% mutate(proportion=cut(stbcp, breaks=c(0, 0.10, 0.2, 0.3, Inf),labels = c("low", "medium", "high", "very high")))
+
+summary(cat3$stbcp)
+cat3$state <- as.factor(cat3$state)
+cat3$stbcp <- as.factor(cat3$stbcp)
+
+contable= table(cat3$state, cat3$stbcp)
+#print(contable)
+
+suppressWarnings({chisq.test(contable)})
+```
+
+With a p-value of less 2e-16, we easily pass our significance level of alpha=0.05 and have shown that there exists significant differences between different states' proportions of body camera usage during fatal police shootings. The challenge now becomes, what is causing this variation in state use of body cameras during active police work? We intend to delve into the reasons why there are differences and research what factors may explain these differences between states. This will require understanding state laws and policies regarding the use of police body cameras. We must also understand the police force consequences for turning off body cameras during police activity in different states.
+
+Studying the use of body cameras in police work is an important topic of study for data-driven policy research in the United States. We hope to be able to apply this correlation between the U.S. state of observation and whether the body camera was on or off during the shooting to state policy on body cameras during police work.
+
+### Part II: Results
+
+We have the visualization, as well as the Chi-square test, to confirm that there is a significant difference in stbcp (the proportion of shootings when a police body camera was turned on by state). Let us now look at the rankings by state of stbcp, from most to least likely of having a body camera on during a police shooting.
+
+```{r}
+Alabama <- subset(sfp, state=='AL')
+#mean(Alabama$stbcp)
+Alaska <- subset(sfp, state=='AK')
+#mean(Alaska$stbcp)
+Arizona <- subset(sfp, state=='AZ')
+#mean(Arizona$stbcp)
+Arkansas <- subset(sfp, state=='AR')
+#mean(Arkansas$stbcp)
+California <- subset(sfp, state=='CA')
+#mean(California$stbcp)
+Colorado <- subset(sfp, state=='CO')
+#mean(Colorado$stbcp)
+Connecticut <- subset(sfp, state=='CT')
+#mean(Connecticut$stbcp)
+Delaware <- subset(sfp, state=='DE')
+#mean(Delaware$stbcp)
+DC <- subset(sfp, state=='DC')
+#mean(DC$stbcp)
+Florida <- subset(sfp, state=='FL')
+#mean(Florida$stbcp)
+Hawaii <- subset(sfp, state=='HI')
+#mean(Hawaii$stbcp)
+Idaho <- subset(sfp, state=='ID')
+#mean(Idaho$stbcp)
+Illinois <- subset(sfp, state=='IL')
+#mean(Illinois$stbcp)
+Indiana <- subset(sfp, state=='IN')
+#mean(Indiana$stbcp)
+Iowa <- subset(sfp, state=='IA')
+#mean(Iowa$stbcp)
+Kansas <- subset(sfp, state=='KS')
+#mean(Kansas$stbcp)
+Maine <- subset(sfp, state=='ME')
+#mean(Maine$stbcp)
+Maryland <- subset(sfp, state=='MD')
+#mean(Maryland$stbcp)
+Massachusetts <- subset(sfp, state=='MA')
+#mean(Massachusetts$stbcp)
+Michigan <- subset(sfp, state=='MI')
+#mean(Michigan$stbcp)
+Minnesota <- subset(sfp, state=='MN')
+#mean(Minnesota$stbcp)
+Mississippi <- subset(sfp, state=='MI')
+#mean(Mississippi$stbcp)
+Missouri <- subset(sfp, state=='MO')
+#mean(Missouri$stbcp)
+Montana <- subset(sfp, state=='MT')
+#mean(Montana$stbcp)
+Nebraska <- subset(sfp, state=='NE')
+#mean(Nebraska$stbcp)
+Nevada <- subset(sfp, state=='NV')
+#mean(Nevada$stbcp)
+New_Hampshire <- subset(sfp, state=='NH')
+#mean(New_Hampshire$stbcp)
+New_Jersey <- subset(sfp, state=='NJ')
+#mean(New_Jersey$stbcp)
+New_Mexico <- subset(sfp, state=='NM')
+#mean(New_Mexico$stbcp)
+New_York <- subset(sfp, state=='NY')
+#mean(New_York$stbcp)
+North_Carolina <- subset(sfp, state=='NC')
+#mean(North_Carolina$stbcp)
+North_Dakota <- subset(sfp, state=='ND')
+#mean(North_Dakota$stbcp)
+Ohio <- subset(sfp, state=='OH')
+#mean(Ohio$stbcp)
+Oklahoma <- subset(sfp, state=='OK')
+#mean(Oklahoma$stbcp)
+Oregon <- subset(sfp, state=='OR')
+#mean(Oregon$stbcp)
+Pennsylvania <- subset(sfp, state=='PA')
+#mean(Pennsylvania$stbcp)
+Rhode_Island <- subset(sfp, state=='RI')
+#mean(Rhode_Island$stbcp)
+South_Carolina <- subset(sfp, state=='SC')
+#mean(South_Carolina$stbcp)
+South_Dakota <- subset(sfp, state=='SD')
+#mean(South_Dakota$stbcp)
+Tennessee <- subset(sfp, state=='TN')
+#mean(Tennessee$stbcp)
+Texas <- subset(sfp, state=='TX')
+#mean(Texas$stbcp)
+Utah <- subset(sfp, state=='UT')
+#mean(Utah$stbcp)
+Vermont <- subset(sfp, state=='VT')
+#mean(Vermont$stbcp)
+Virginia <- subset(sfp, state=='VA')
+#mean(Virginia$stbcp)
+Washington <- subset(sfp, state=='WA')
+#mean(Washington$stbcp)
+West_Virginia <- subset(sfp, state=='WV')
+#mean(West_Virginia$stbcp)
+Wisconsin <- subset(sfp, state=='WI')
+#mean(Wisconsin$stbcp)
+Wyoming <- subset(sfp, state=='WY')
+#mean(Wyoming$stbcp)
+```
+
+State | stbcp | State | stbcp | State | stbcp
+:-: | :-: | :-: | :-: | :-: | :-:
+DC   |   0.409   |  Vermont   |  0.333   |  Nevada   |  0.330
+Utah   |   0.307   |  Maryland   |  0.277   |  Connecticut   |  0.238
+Iowa   |   0.225   |  Hawaii   |  0.212   |  Nebraska   |  0.200
+Rhode Island   |   0.200   |  California   |  0.188   |  Idaho   |  0.185
+Indiana   |   0.185   |  Oklahoma   |  0.179   |  Arizona   |  0.161
+Alabama   |   0.160   |  New York   |  0.160   |  New Mexico   |  0.159
+South Carolina   |   0.156   |  New Hampshire   |  0.150   |  Illinois   |  0.148
+Wisconsin   |   0.146   |  Virginia   |  0.144   |  North Dakota   |  0.143
+North Carolina   |   0.134   |  Michigan   |  0.133   |  Minnesota   |  0.133
+Ohio   |   0.131   |  Texas   |  0.131   |  Kansas   |  0.130
+Delaware   |   0.125   |  Colorado   |  0.123   |  Louisiana   |  0.119
+Washington   |   0.103   |  Kentucky   |  0.103   |  Tennessee   |  0.101
+Montana   |   0.100   |  New Jersey   |  0.100   |  Florida   |  0.0995
+Georgia   |   0.0988   |  Alaska   |  0.0952   |  Arkansas   |  0.0787
+Oregon   |   0.069   |  West Virginia   |  0.0678   |  South Dakota   |  0.0625
+Missouri   |   0.037   |  Pennsylvania   |  0.0352   |  Maine   |  0.000
+Wyoming   |   0.000
+
+Here we can see that the states with the highest number of observations where the police body camera was turned on include DC, Vermont, and Nevada. The states with the lowest number include Pennsylvania, Maine, and Wyoming--Maine and Wyoming having no recorded police shooting where a body camera was turned on. Let us now do a deep-dive into state policy on body cameras for these six states.
+
+#### District of Columbia
+
+
+
+#### Vermont
+
+
+
+#### Nevada
+
+
+
+#### Pennsylvania
+
+
+
+#### Maine
+
+
+
+#### Wyoming
