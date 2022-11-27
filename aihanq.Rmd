@@ -1,0 +1,211 @@
+---
+title: "DATASHAPRETRACK"
+output: html_document
+date: "2022-11-27"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr, quietly = TRUE)
+#Reading the data set
+fp<- data.frame(read.csv("FPS22.csv"))
+fp <- (fp %>% filter(race != ''))
+fp <- (fp %>% filter(gender != ''))
+
+fp <- na.omit(fp)
+
+```
+
+```{r}
+#Creating new columns from existing columns
+fp$date <- as.Date(fp$date, "%m/%d/%Y")
+fp$date <- as.Date(fp$date, "%m/%d/%Y")
+fp$month <- format(fp$date, format = "%m")
+fp$year <- format(fp$date, format = "%Y")
+fp$month <- format(fp$date, format = "%m")
+fp$year <- format(fp$date, format = "%Y")
+
+```
+
+```{r}
+#Implementation of the subgroups as a new factor called "regions".
+fp$regions <- as.factor(ifelse(( fp$state=="CA"| fp$state=="WA" | fp$state=="OR" | fp$state== "NV"| fp$state=="ID"| fp$state=="UT"|fp$state=="MT"|fp$state=="CO"| fp$state=="WY"| fp$state=="AK"), 'NW',
+                     ifelse((fp$state== "NM"| fp$state=="AZ"| fp$state== "TX"| fp$state=="OK"| fp$state== "HI"), 'SW', 
+                     ifelse((fp$state== "IL"| fp$state=="WI"| fp$state=="IN"| fp$state=="MI"| fp$state== "MN"| fp$state== "MO"| fp$state== "IA"| fp$state=="KS"| fp$state=="ND"| fp$state== "SD"| fp$state=="NE"| fp$state=="OH"), 'MW', 
+                     ifelse(( fp$state=="NY"| fp$state== "MD"| fp$state=="RI"| fp$state== "VT"| fp$state=="PA"| fp$state=="ME"| fp$state== "NH"| fp$state=="NJ"| fp$state=="CT"| fp$state=="MA"), 'NE', 'SE')))))
+```
+```{r}
+
+
+
+```
+
+```{r}
+vspc <- c(477, 1030, 655, 422, 981, 664, 564, 774, 1337, 704, 491, 549, 576, 633, 407, 441, 553, 390, 526, 425, 842, 597, 550, 633, 446, 480, 608, 611, 756, 525, 691, 759, 904, 549, 574, 555, 487, 736, 665, 728, 431, 478, 515, 547,484, 588, 656, 608, 492, 604, 782 )
+fp %>% add_column(spendpc = NA)
+for (i in 1:nrow(fp)) {
+  if(fp$state[i] =="AL"){
+    fp$spendpc[i] <- vspc[1]
+  }
+   if(fp$state[i] =="AK"){
+    fp$spendpc[i] <- vspc[2]
+   }
+   if(fp$state[i] =="AZ"){
+    fp$spendpc[i] <- vspc[3]
+   }
+   if(fp$state[i] =="AR"){
+    fp$spendpc[i] <- vspc[4]
+   }
+   if(fp$state[i] =="CA"){
+    fp$spendpc[i] <- vspc[5]
+   }
+   if(fp$state[i] =="CO"){
+    fp$spendpc[i] <- vspc[6]
+    }
+    if(fp$state[i] =="CT"){
+    fp$spendpc[i] <- vspc[7]
+    }
+    if(fp$state[i] =="DE"){
+    fp$spendpc[i] <- vspc[8]
+    }
+    if(fp$state[i] =="DC"){
+    fp$spendpc[i] <- vspc[9]
+    }
+    if(fp$state[i] =="FL"){
+    fp$spendpc[i] <- vspc[10]
+    }
+    if(fp$state[i] =="GA"){
+    fp$spendpc[i] <- vspc[11]
+    } 
+    if(fp$state[i] =="HI"){
+    fp$spendpc[i] <- vspc[12]
+    }
+    if(fp$state[i] =="ID"){
+    fp$spendpc[i] <- vspc[13]
+    }
+    if(fp$state[i] =="IL"){
+    fp$spendpc[i] <- vspc[14]
+    }
+    if(fp$state[i] =="IN"){
+    fp$spendpc[i] <- vspc[15]
+    }
+    if(fp$state[i] =="IA"){
+    fp$spendpc[i] <- vspc[16]
+    }
+    if(fp$state[i] =="KS"){
+    fp$spendpc[i] <- vspc[17]
+    }
+    if(fp$state[i] =="KY"){
+    fp$spendpc[i] <- vspc[18]
+    }
+    if(fp$state[i] =="LA"){
+    fp$spendpc[i] <- vspc[19]
+    }
+    if(fp$state[i] =="ME"){
+    fp$spendpc[i] <- vspc[20]
+    }
+    if(fp$state[i] =="MD"){
+    fp$spendpc[i] <- vspc[21]
+    }
+    if(fp$state[i] =="MA"){
+    fp$spendpc[i] <- vspc[22]
+    }
+    if(fp$state[i] =="MI"){
+    fp$spendpc[i] <- vspc[23]
+    }
+    if(fp$state[i] =="MN"){
+    fp$spendpc[i] <- vspc[24]
+    }
+    if(fp$state[i] =="MS"){
+    fp$spendpc[i] <- vspc[25]
+    }
+    if(fp$state[i] =="MO"){
+    fp$spendpc[i] <- vspc[26]
+    }
+    if(fp$state[i] =="MT"){
+    fp$spendpc[i] <- vspc[27]
+    }
+    if(fp$state[i] =="NE"){
+    fp$spendpc[i] <- vspc[28]
+    }
+    if(fp$state[i] =="NV"){
+    fp$spendpc[i] <- vspc[29]
+    }
+    if(fp$state[i] =="NH"){
+    fp$spendpc[i] <- vspc[30]
+    }
+    if(fp$state[i] =="NJ"){
+    fp$spendpc[i] <- vspc[31]
+    }
+    if(fp$state[i] =="NM"){
+    fp$spendpc[i] <- vspc[32]
+    }
+    if(fp$state[i] =="NY"){
+    fp$spendpc[i] <- vspc[33]
+    }
+    if(fp$state[i] =="NC"){
+    fp$spendpc[i] <- vspc[34]
+    }
+    if(fp$state[i] =="ND"){
+    fp$spendpc[i] <- vspc[35]
+    }
+    if(fp$state[i] =="OH"){
+    fp$spendpc[i] <- vspc[36]
+    }
+    if(fp$state[i] =="OK"){
+    fp$spendpc[i] <- vspc[37]
+    }
+    if(fp$state[i] =="OR"){
+    fp$spendpc[i] <- vspc[38]
+    }
+    if(fp$state[i] =="PA"){
+    fp$spendpc[i] <- vspc[39]
+    }
+    if(fp$state[i] =="RI"){
+    fp$spendpc[i] <- vspc[40]
+    }
+    if(fp$state[i] =="SC"){
+    fp$spendpc[i] <- vspc[41]
+    }
+    if(fp$state[i] =="SD"){
+    fp$spendpc[i] <- vspc[42]
+    }
+    if(fp$state[i] =="TN"){
+    fp$spendpc[i] <- vspc[43]
+    }
+    if(fp$state[i] =="TX"){
+    fp$spendpc[i] <- vspc[44]
+    }
+    if(fp$state[i] =="UT"){
+    fp$spendpc[i] <- vspc[45]
+    }
+    if(fp$state[i] =="VT"){
+    fp$spendpc[i] <- vspc[46]
+    }
+    if(fp$state[i] =="VA"){
+    fp$spendpc[i] <- vspc[47]
+    }
+    if(fp$state[i] =="WA"){
+    fp$spendpc[i] <- vspc[48]
+    }
+    if(fp$state[i] =="WV"){
+    fp$spendpc[i] <- vspc[49]
+    }
+    if(fp$state[i] =="WI"){
+    fp$spendpc[i] <- vspc[50]
+    }
+    if(fp$state[i] =="WY"){
+    fp$spendpc[i] <- vspc[51]
+    }
+  
+  
+  
+  }
+
+
+head(fp) 
+```
+

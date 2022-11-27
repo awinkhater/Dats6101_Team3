@@ -53,7 +53,7 @@ fp <- (fp %>% filter(race != ''))
 fp <- (fp %>% filter(gender != ''))
 camera_no <- fp %>% filter(body_camera != TRUE)
 camera_yes <- fp %>% filter(body_camera != FALSE)
-fp1 <- na.omit(fp)
+fp <- na.omit(fp)
 ```
 
 After accounting for null values, the data set we are working with has 6,574 observations. Below we have provided a single sample observation:
@@ -511,6 +511,195 @@ fp$regions <- as.factor(ifelse(( fp$state=="CA"| fp$state=="WA" | fp$state=="OR"
                      ifelse(( fp$state=="NY"| fp$state== "MD"| fp$state=="RI"| fp$state== "VT"| fp$state=="PA"| fp$state=="ME"| fp$state== "NH"| fp$state=="NJ"| fp$state=="CT"| fp$state=="MA"), 'NE', 'SE')))))
 ```
 
+We also create some new columns for the Modeling Portion 
+```{r}
+#This is to make state level data for spending per capita
+vspc <- c(477, 1030, 655, 422, 981, 664, 564, 774, 1337, 704, 491, 549, 576, 633, 407, 441, 553, 390, 526, 425, 842, 597, 550, 633, 446, 480, 608, 611, 756, 525, 691, 759, 904, 549, 574, 555, 487, 736, 665, 728, 431, 478, 515, 547,484, 588, 656, 608, 492, 604, 782 )
+fp %>% add_column(spendpc = NA)
+for (i in 1:nrow(fp)) {
+  if(fp$state[i] =="AL"){
+    fp$spendpc[i] <- vspc[1]
+  }
+   if(fp$state[i] =="AK"){
+    fp$spendpc[i] <- vspc[2]
+   }
+   if(fp$state[i] =="AZ"){
+    fp$spendpc[i] <- vspc[3]
+   }
+   if(fp$state[i] =="AR"){
+    fp$spendpc[i] <- vspc[4]
+   }
+   if(fp$state[i] =="CA"){
+    fp$spendpc[i] <- vspc[5]
+   }
+   if(fp$state[i] =="CO"){
+    fp$spendpc[i] <- vspc[6]
+    }
+    if(fp$state[i] =="CT"){
+    fp$spendpc[i] <- vspc[7]
+    }
+    if(fp$state[i] =="DE"){
+    fp$spendpc[i] <- vspc[8]
+    }
+    if(fp$state[i] =="DC"){
+    fp$spendpc[i] <- vspc[9]
+    }
+    if(fp$state[i] =="FL"){
+    fp$spendpc[i] <- vspc[10]
+    }
+    if(fp$state[i] =="GA"){
+    fp$spendpc[i] <- vspc[11]
+    } 
+    if(fp$state[i] =="HI"){
+    fp$spendpc[i] <- vspc[12]
+    }
+    if(fp$state[i] =="ID"){
+    fp$spendpc[i] <- vspc[13]
+    }
+    if(fp$state[i] =="IL"){
+    fp$spendpc[i] <- vspc[14]
+    }
+    if(fp$state[i] =="IN"){
+    fp$spendpc[i] <- vspc[15]
+    }
+    if(fp$state[i] =="IA"){
+    fp$spendpc[i] <- vspc[16]
+    }
+    if(fp$state[i] =="KS"){
+    fp$spendpc[i] <- vspc[17]
+    }
+    if(fp$state[i] =="KY"){
+    fp$spendpc[i] <- vspc[18]
+    }
+    if(fp$state[i] =="LA"){
+    fp$spendpc[i] <- vspc[19]
+    }
+    if(fp$state[i] =="ME"){
+    fp$spendpc[i] <- vspc[20]
+    }
+    if(fp$state[i] =="MD"){
+    fp$spendpc[i] <- vspc[21]
+    }
+    if(fp$state[i] =="MA"){
+    fp$spendpc[i] <- vspc[22]
+    }
+    if(fp$state[i] =="MI"){
+    fp$spendpc[i] <- vspc[23]
+    }
+    if(fp$state[i] =="MN"){
+    fp$spendpc[i] <- vspc[24]
+    }
+    if(fp$state[i] =="MS"){
+    fp$spendpc[i] <- vspc[25]
+    }
+    if(fp$state[i] =="MO"){
+    fp$spendpc[i] <- vspc[26]
+    }
+    if(fp$state[i] =="MT"){
+    fp$spendpc[i] <- vspc[27]
+    }
+    if(fp$state[i] =="NE"){
+    fp$spendpc[i] <- vspc[28]
+    }
+    if(fp$state[i] =="NV"){
+    fp$spendpc[i] <- vspc[29]
+    }
+    if(fp$state[i] =="NH"){
+    fp$spendpc[i] <- vspc[30]
+    }
+    if(fp$state[i] =="NJ"){
+    fp$spendpc[i] <- vspc[31]
+    }
+    if(fp$state[i] =="NM"){
+    fp$spendpc[i] <- vspc[32]
+    }
+    if(fp$state[i] =="NY"){
+    fp$spendpc[i] <- vspc[33]
+    }
+    if(fp$state[i] =="NC"){
+    fp$spendpc[i] <- vspc[34]
+    }
+    if(fp$state[i] =="ND"){
+    fp$spendpc[i] <- vspc[35]
+    }
+    if(fp$state[i] =="OH"){
+    fp$spendpc[i] <- vspc[36]
+    }
+    if(fp$state[i] =="OK"){
+    fp$spendpc[i] <- vspc[37]
+    }
+    if(fp$state[i] =="OR"){
+    fp$spendpc[i] <- vspc[38]
+    }
+    if(fp$state[i] =="PA"){
+    fp$spendpc[i] <- vspc[39]
+    }
+    if(fp$state[i] =="RI"){
+    fp$spendpc[i] <- vspc[40]
+    }
+    if(fp$state[i] =="SC"){
+    fp$spendpc[i] <- vspc[41]
+    }
+    if(fp$state[i] =="SD"){
+    fp$spendpc[i] <- vspc[42]
+    }
+    if(fp$state[i] =="TN"){
+    fp$spendpc[i] <- vspc[43]
+    }
+    if(fp$state[i] =="TX"){
+    fp$spendpc[i] <- vspc[44]
+    }
+    if(fp$state[i] =="UT"){
+    fp$spendpc[i] <- vspc[45]
+    }
+    if(fp$state[i] =="VT"){
+    fp$spendpc[i] <- vspc[46]
+    }
+    if(fp$state[i] =="VA"){
+    fp$spendpc[i] <- vspc[47]
+    }
+    if(fp$state[i] =="WA"){
+    fp$spendpc[i] <- vspc[48]
+    }
+    if(fp$state[i] =="WV"){
+    fp$spendpc[i] <- vspc[49]
+    }
+    if(fp$state[i] =="WI"){
+    fp$spendpc[i] <- vspc[50]
+    }
+    if(fp$state[i] =="WY"){
+    fp$spendpc[i] <- vspc[51]
+    }
+  
+  
+  
+  }
+
+
+```
+```{r}
+#This is to acknowledge the states that (as of 2021) had a laws requiring officers to have the body cameras on during interactions with the public
+fp$bclaw <- NA
+for (i in 1:nrow(fp)) {
+  if(fp$state[i] =="MD"){
+    fp$bclaw[i] <- 1
+  }
+   if(fp$state[i] =="NJ"){
+    fp$bclaw[i] <- 1
+   }
+   if(fp$state[i] =="NM"){
+    fp$bclaw[i] <- 1
+   }
+   if(fp$state[i] =="SC"){
+    fp$bclaw[i] <- 1
+   }
+  else {
+    fp$bclaw[i] <- 0
+  }
+}
+```
+
+
 We then created two sub-data sets by grouping the data by state and by region for visualization purposes. The contents of both groups are identical, besides their grouping.
 
 ```{r}
@@ -733,4 +922,13 @@ With a p-value of 2e-16, we easily pass our significance level of alpha=0.05 and
 This exploratory data analysis has shown that there is significant difference in the level of body camera usage in police shootings between states and regions in the United States. We intend to delve into the reasons why there are differences and research what factors may explain these differences between states. This will require understanding state laws and policies regarding the use of police body cameras. We must also understand the police force consequences for turning off body cameras during police activity in different states.
 
 Studying the use of body cameras in police work is an important topic of study for data-driven policy research in the United States. We hope to be able to apply this correlation between the U.S. state of observation and whether the body camera was on or off during the shooting to state policy on body cameras during police work. 
+
+```{r}
+#FINAL PROJECT WORK: ADDING NEW COLUMNS OF DATA
+FD <- subset(By_State, (year== 2022| year==2021) )
+head(FD)
+```
+```{r}
+
+```
 
