@@ -926,9 +926,29 @@ Studying the use of body cameras in police work is an important topic of study f
 ```{r}
 #FINAL PROJECT WORK: ADDING NEW COLUMNS OF DATA
 FD <- subset(By_State, (year== 2022| year==2021) )
+FD$regions = factor(FD$regions)
 head(FD)
+nrow(FD)
 ```
 ```{r}
+lm1 <- lm(stbcp~ (spendpc + bclaw + regions + month), data=FD)
+summary(lm1)
+car::vif(lm1 )
+```
+```{r}
+lm2 <- lm(stbcp~ (spendpc), data=FD)
+summary(lm2)
 
 ```
-
+```{r}
+lm3 <- lm(stbcp~ (bclaw + regions), data=FD)
+summary(lm3)
+```
+```{r}
+lm4 <- lm(stbcp~ (spendpc + bclaw ), data=FD)
+summary(lm4)
+car::vif(lm4 )
+```
+#Swing 2020 Variable ??
+#Police Officer per state variable ??
+#(These are hard as hell to add, but I can do it)
