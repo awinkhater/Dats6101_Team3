@@ -698,6 +698,335 @@ for (i in 1:nrow(fp)) {
   }
 }
 ```
+Here we are adding data about the direction a state swung in the 2020 election (Negative = Swing to Trump, Positive = Swing to Biden)
+```{r}
+v2020 <- c(-25, -10, 0.31, -28, 29, 14, 87, 20, 19, -3,0.24, 29, -31, 17, -16, -8, -15, -26, -19, 9, 33, 33, 3, 7, -17, -15, -16, -19, 2, 7, 16, 11, 23, -1.3, -33, -8, -33, 16, 1.2, 21, -12, -26, -23,-6, -20, 34, 10, 19, -39, 0.63, -43  )
+
+fp %>% add_column(marg2020 = NA)
+for (i in 1:nrow(fp)) {
+  if(fp$state[i] =="AL"){
+    fp$marg2020[i] <- v2020[1]
+  }
+   if(fp$state[i] =="AK"){
+    fp$marg2020[i] <- v2020[2]
+   }
+   if(fp$state[i] =="AZ"){
+    fp$marg2020[i] <- v2020[3]
+   }
+   if(fp$state[i] =="AR"){
+    fp$marg2020[i] <- v2020[4]
+   }
+   if(fp$state[i] =="CA"){
+    fp$marg2020[i] <- v2020[5]
+   }
+   if(fp$state[i] =="CO"){
+    fp$marg2020[i] <- v2020[6]
+    }
+    if(fp$state[i] =="CT"){
+    fp$marg2020[i] <- v2020[7]
+    }
+    if(fp$state[i] =="DE"){
+    fp$marg2020[i] <- v2020[8]
+    }
+    if(fp$state[i] =="DC"){
+    fp$marg2020[i] <- v2020[9]
+    }
+    if(fp$state[i] =="FL"){
+    fp$marg2020[i] <- v2020[10]
+    }
+    if(fp$state[i] =="GA"){
+    fp$marg2020[i] <- v2020[11]
+    } 
+    if(fp$state[i] =="HI"){
+    fp$marg2020[i] <- v2020[12]
+    }
+    if(fp$state[i] =="ID"){
+    fp$marg2020[i] <- v2020[13]
+    }
+    if(fp$state[i] =="IL"){
+    fp$marg2020[i] <- v2020[14]
+    }
+    if(fp$state[i] =="IN"){
+    fp$marg2020[i] <- v2020[15]
+    }
+    if(fp$state[i] =="IA"){
+    fp$marg2020[i] <- v2020[16]
+    }
+    if(fp$state[i] =="KS"){
+    fp$marg2020[i] <- v2020[17]
+    }
+    if(fp$state[i] =="KY"){
+    fp$marg2020[i] <- v2020[18]
+    }
+    if(fp$state[i] =="LA"){
+    fp$marg2020[i] <- v2020[19]
+    }
+    if(fp$state[i] =="ME"){
+    fp$marg2020[i] <- v2020[20]
+    }
+    if(fp$state[i] =="MD"){
+    fp$marg2020[i] <- v2020[21]
+    }
+    if(fp$state[i] =="MA"){
+    fp$marg2020[i] <- v2020[22]
+    }
+    if(fp$state[i] =="MI"){
+    fp$marg2020[i] <- v2020[23]
+    }
+    if(fp$state[i] =="MN"){
+    fp$marg2020[i] <- v2020[24]
+    }
+    if(fp$state[i] =="MS"){
+    fp$marg2020[i] <- v2020[25]
+    }
+    if(fp$state[i] =="MO"){
+    fp$marg2020[i] <- v2020[26]
+    }
+    if(fp$state[i] =="MT"){
+    fp$marg2020[i] <- v2020[27]
+    }
+    if(fp$state[i] =="NE"){
+    fp$marg2020[i] <- v2020[28]
+    }
+    if(fp$state[i] =="NV"){
+    fp$marg2020[i] <- v2020[29]
+    }
+    if(fp$state[i] =="NH"){
+    fp$marg2020[i] <- v2020[30]
+    }
+    if(fp$state[i] =="NJ"){
+    fp$marg2020[i] <- v2020[31]
+    }
+    if(fp$state[i] =="NM"){
+    fp$marg2020[i] <- v2020[32]
+    }
+    if(fp$state[i] =="NY"){
+    fp$marg2020[i] <- v2020[33]
+    }
+    if(fp$state[i] =="NC"){
+    fp$marg2020[i] <- v2020[34]
+    }
+    if(fp$state[i] =="ND"){
+    fp$marg2020[i] <- v2020[35]
+    }
+    if(fp$state[i] =="OH"){
+    fp$marg2020[i] <- v2020[36]
+    }
+    if(fp$state[i] =="OK"){
+    fp$marg2020[i] <- v2020[37]
+    }
+    if(fp$state[i] =="OR"){
+    fp$marg2020[i] <- v2020[38]
+    }
+    if(fp$state[i] =="PA"){
+    fp$marg2020[i] <- v2020[39]
+    }
+    if(fp$state[i] =="RI"){
+    fp$marg2020[i] <- v2020[40]
+    }
+    if(fp$state[i] =="SC"){
+    fp$marg2020[i] <- v2020[41]
+    }
+    if(fp$state[i] =="SD"){
+    fp$marg2020[i] <- v2020[42]
+    }
+    if(fp$state[i] =="TN"){
+    fp$marg2020[i] <- v2020[43]
+    }
+    if(fp$state[i] =="TX"){
+    fp$marg2020[i] <- v2020[44]
+    }
+    if(fp$state[i] =="UT"){
+    fp$marg2020[i] <- v2020[45]
+    }
+    if(fp$state[i] =="VT"){
+    fp$marg2020[i] <- v2020[46]
+    }
+    if(fp$state[i] =="VA"){
+    fp$marg2020[i] <- v2020[47]
+    }
+    if(fp$state[i] =="WA"){
+    fp$marg2020[i] <- v2020[48]
+    }
+    if(fp$state[i] =="WV"){
+    fp$marg2020[i] <- v2020[49]
+    }
+    if(fp$state[i] =="WI"){
+    fp$marg2020[i] <- v2020[50]
+    }
+    if(fp$state[i] =="WY"){
+    fp$marg2020[i] <- v2020[51]
+    }
+  
+  
+  
+  }
+
+```
+Finally We will add a variable based on police officers per 100K citizens by state
+```{r}
+vle <- c(418.356, 604.3172, 507.1749, 455.5134, 378.4166, 416.7751, 406.803, 517.3799, 722, 439.7941,  487.2325,494.1445, 378.7875, 476.7941, 379.4256, 307.9675, 466.5578, 390.2951, 595.0071, 411.2744,619.3873,440.4483,359.6753,324.5891,487.8593,459.6233,435.4656, 412.0619, 409.9609, 419.7185, 532.2092, 506.5776, 630.0293, 438.4865, 392.6816, 395.1726, 410.4272, 283.7333, 462.605, 412.0791, 420.8136, 449.0854, 438.823, 479.3943, 299.0369, 321.71, 597.2275, 319.9674, 516.3705, 404.1405, 501.126)
+
+fp %>% add_column(le_per_100k = NA)
+for (i in 1:nrow(fp)) {
+  if(fp$state[i] =="AL"){
+    fp$le_per_100k[i] <- vle[1]
+  }
+   if(fp$state[i] =="AK"){
+    fp$le_per_100k[i] <- vle[2]
+   }
+   if(fp$state[i] =="AZ"){
+    fp$le_per_100k[i] <- vle[3]
+   }
+   if(fp$state[i] =="AR"){
+    fp$le_per_100k[i] <- vle[4]
+   }
+   if(fp$state[i] =="CA"){
+    fp$le_per_100k[i] <- vle[5]
+   }
+   if(fp$state[i] =="CO"){
+    fp$le_per_100k[i] <- vle[6]
+    }
+    if(fp$state[i] =="CT"){
+    fp$le_per_100k[i] <- vle[7]
+    }
+    if(fp$state[i] =="DE"){
+    fp$le_per_100k[i] <- vle[8]
+    }
+    if(fp$state[i] =="DC"){
+    fp$le_per_100k[i] <- vle[9]
+    }
+    if(fp$state[i] =="FL"){
+    fp$le_per_100k[i] <- vle[10]
+    }
+    if(fp$state[i] =="GA"){
+    fp$le_per_100k[i] <- vle[11]
+    } 
+    if(fp$state[i] =="HI"){
+    fp$le_per_100k[i] <- vle[12]
+    }
+    if(fp$state[i] =="ID"){
+    fp$le_per_100k[i] <- vle[13]
+    }
+    if(fp$state[i] =="IL"){
+    fp$le_per_100k[i] <- vle[14]
+    }
+    if(fp$state[i] =="IN"){
+    fp$le_per_100k[i] <- vle[15]
+    }
+    if(fp$state[i] =="IA"){
+    fp$le_per_100k[i] <- vle[16]
+    }
+    if(fp$state[i] =="KS"){
+    fp$le_per_100k[i] <- vle[17]
+    }
+    if(fp$state[i] =="KY"){
+    fp$le_per_100k[i] <- vle[18]
+    }
+    if(fp$state[i] =="LA"){
+    fp$le_per_100k[i] <- vle[19]
+    }
+    if(fp$state[i] =="ME"){
+    fp$le_per_100k[i] <- vle[20]
+    }
+    if(fp$state[i] =="MD"){
+    fp$le_per_100k[i] <- vle[21]
+    }
+    if(fp$state[i] =="MA"){
+    fp$le_per_100k[i] <- vle[22]
+    }
+    if(fp$state[i] =="MI"){
+    fp$le_per_100k[i] <- vle[23]
+    }
+    if(fp$state[i] =="MN"){
+    fp$le_per_100k[i] <- vle[24]
+    }
+    if(fp$state[i] =="MS"){
+    fp$le_per_100k[i] <- vle[25]
+    }
+    if(fp$state[i] =="MO"){
+    fp$le_per_100k[i] <- vle[26]
+    }
+    if(fp$state[i] =="MT"){
+    fp$le_per_100k[i] <- vle[27]
+    }
+    if(fp$state[i] =="NE"){
+    fp$le_per_100k[i] <- vle[28]
+    }
+    if(fp$state[i] =="NV"){
+    fp$le_per_100k[i] <- vle[29]
+    }
+    if(fp$state[i] =="NH"){
+    fp$le_per_100k[i] <- vle[30]
+    }
+    if(fp$state[i] =="NJ"){
+    fp$le_per_100k[i] <- vle[31]
+    }
+    if(fp$state[i] =="NM"){
+    fp$le_per_100k[i] <- vle[32]
+    }
+    if(fp$state[i] =="NY"){
+    fp$le_per_100k[i] <- vle[33]
+    }
+    if(fp$state[i] =="NC"){
+    fp$le_per_100k[i] <- vle[34]
+    }
+    if(fp$state[i] =="ND"){
+    fp$le_per_100k[i] <- vle[35]
+    }
+    if(fp$state[i] =="OH"){
+    fp$le_per_100k[i] <- vle[36]
+    }
+    if(fp$state[i] =="OK"){
+    fp$le_per_100k[i] <- vle[37]
+    }
+    if(fp$state[i] =="OR"){
+    fp$le_per_100k[i] <- vle[38]
+    }
+    if(fp$state[i] =="PA"){
+    fp$le_per_100k[i] <- vle[39]
+    }
+    if(fp$state[i] =="RI"){
+    fp$le_per_100k[i] <- vle[40]
+    }
+    if(fp$state[i] =="SC"){
+    fp$le_per_100k[i] <- vle[41]
+    }
+    if(fp$state[i] =="SD"){
+    fp$le_per_100k[i] <- vle[42]
+    }
+    if(fp$state[i] =="TN"){
+    fp$le_per_100k[i] <- vle[43]
+    }
+    if(fp$state[i] =="TX"){
+    fp$le_per_100k[i] <- vle[44]
+    }
+    if(fp$state[i] =="UT"){
+    fp$le_per_100k[i] <- vle[45]
+    }
+    if(fp$state[i] =="VT"){
+    fp$le_per_100k[i] <- vle[46]
+    }
+    if(fp$state[i] =="VA"){
+    fp$le_per_100k[i] <- vle[47]
+    }
+    if(fp$state[i] =="WA"){
+    fp$le_per_100k[i] <- vle[48]
+    }
+    if(fp$state[i] =="WV"){
+    fp$le_per_100k[i] <- vle[49]
+    }
+    if(fp$state[i] =="WI"){
+    fp$le_per_100k[i] <- vle[50]
+    }
+    if(fp$state[i] =="WY"){
+    fp$le_per_100k[i] <- vle[51]
+    }
+  
+  
+  
+  }
+```
 
 
 We then created two sub-data sets by grouping the data by state and by region for visualization purposes. The contents of both groups are identical, besides their grouping.
@@ -931,12 +1260,12 @@ head(FD)
 nrow(FD)
 ```
 ```{r}
-lm1 <- lm(stbcp~ (spendpc + bclaw + regions + month), data=FD)
+lm1 <- lm(stbcp~ (marg2020 + bclaw + regions), data=FD)
 summary(lm1)
 car::vif(lm1 )
 ```
 ```{r}
-lm2 <- lm(stbcp~ (spendpc), data=FD)
+lm2 <- lm(stbcp~ (marg2020), data=FD)
 summary(lm2)
 
 ```
@@ -945,10 +1274,8 @@ lm3 <- lm(stbcp~ (bclaw + regions), data=FD)
 summary(lm3)
 ```
 ```{r}
-lm4 <- lm(stbcp~ (spendpc + bclaw ), data=FD)
+lm4 <- lm(stbcp~ (spendpc+ bclaw ), data=FD)
 summary(lm4)
 car::vif(lm4 )
 ```
-#Swing 2020 Variable ??
-#Police Officer per state variable ??
-#(These are hard as hell to add, but I can do it)
+#THESE MODELS ARE NOT UP TO DATE PLEASE CHANGE THEM AND EXPERIMENT WITH RELEVANT VARIABLES
