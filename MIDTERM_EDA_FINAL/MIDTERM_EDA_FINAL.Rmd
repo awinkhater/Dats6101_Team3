@@ -1252,6 +1252,7 @@ This exploratory data analysis has shown that there is significant difference in
 
 Studying the use of body cameras in police work is an important topic of study for data-driven policy research in the United States. We hope to be able to apply this correlation between the U.S. state of observation and whether the body camera was on or off during the shooting to state policy on body cameras during police work. 
 
+## Final
 ```{r}
 #FINAL PROJECT WORK: ADDING NEW COLUMNS OF DATA
 FD <- subset(By_State, (year== 2022| year==2021) )
@@ -1260,22 +1261,28 @@ head(FD)
 nrow(FD)
 ```
 ```{r}
-lm1 <- lm(stbcp~ (marg2020 + bclaw + regions), data=FD)
+lm1 <- lm(stbcp~ (marg2020 + bclaw + regions + le_per_100k+ spendpc), data=FD)
 summary(lm1)
 car::vif(lm1 )
 ```
 ```{r}
-lm2 <- lm(stbcp~ (marg2020), data=FD)
+lm2 <- lm(stbcp~ (marg2020+bclaw+spendpc), data=FD)
 summary(lm2)
-
+car::vif(lm2)
 ```
 ```{r}
-lm3 <- lm(stbcp~ (bclaw + regions), data=FD)
+lm3 <- lm(stbcp~ (bclaw + spendpc), data=FD)
 summary(lm3)
 ```
 ```{r}
-lm4 <- lm(stbcp~ (spendpc+ bclaw ), data=FD)
+#Redo of lm1 but with an interaction
+lm4 <- lm(stbcp~ (marg2020 + bclaw + regions + le_per_100k+ spendpc + (spendpc*le_per_100k)), data=FD)
 summary(lm4)
 car::vif(lm4 )
 ```
-#THESE MODELS ARE NOT UP TO DATE PLEASE CHANGE THEM AND EXPERIMENT WITH RELEVANT VARIABLES
+```{r}
+lm5 <- lm(stbcp~ (bclaw + le_per_100k+ spendpc + (spendpc*le_per_100k)), data=FD)
+summary(lm5)
+car::vif(lm5 )
+```
+
