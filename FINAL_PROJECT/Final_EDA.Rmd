@@ -1,0 +1,1288 @@
+---
+title: "Midterm EDA: Group 7"
+author: "Alex Khater, Rajeev Koneru, and Cora Martin"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+---
+
+### Introduction
+
+```{r setup, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# some of common options (and the defaults) are: 
+# include=T, eval=T, echo=T, results='hide'/'asis'/'markup',..., collapse=F, warning=T, message=T, error=T, cache=T, fig.width=6, fig.height=4, fig.dim=c(6,4) #inches, fig.align='left'/'center','right', 
+# knitr::opts_chunk$set(warning = F, results = "markup", message = F)
+# knitr::opts_chunk$set(warning = F, results = "hide", message = F)
+# knitr::opts_chunk$set(include = F)
+# knitr::opts_chunk$set(echo = FALSE)
+options(scientific=T, digits = 3) 
+# options(scipen=9, digits = 3) 
+# ‘scipen’: integer. A penalty to be applied when deciding to print numeric values in fixed or exponential notation.  Positive values bias towards fixed and negative towards scientific notation: fixed notation will be preferred unless it is more than ‘scipen’ digits wider.
+# use scipen=999 to prevent scientific notation at all times
+always_allow_html = TRUE
+```
+
+In response to a severe lack of reporting within government sources, The Washington Post compiled a database of every fatal police shooting in the United States from 2015-2022. We are interested in exploring this data, specifically as it relates to differences between U.S. states and regions.
+
+This exploratory data analysis is divided into four main parts: first, we organize the data; second, we perform some basic statistical analyses; third, we reshape the data for state- and region-based comparative analyses; fourth, we ask a SMART research question about our data and attempt to answer this question. 
+
+### Part 1: Setting Up the Data
+
+First we call our packages. Then we read the data set that comes from a csv file called FPS22.csv.
+
+```{r}
+#Calling Packages
+library(dplyr, quietly = TRUE)
+library(ggplot2)
+library(plotly)
+library(ggthemes)
+library(tidyverse)
+library(forecast)
+library(ggalluvial)
+
+#Reading the data set
+fp<- data.frame(read.csv("FPS22.csv"))
+```
+
+```{r}
+#Cleaning null values from data set
+fp <- (fp %>% filter(race != ''))
+fp <- (fp %>% filter(gender != ''))
+camera_no <- fp %>% filter(body_camera != TRUE)
+camera_yes <- fp %>% filter(body_camera != FALSE)
+fp <- na.omit(fp)
+```
+
+After accounting for null values, the data set we are working with has 6,574 observations. Below we have provided a single sample observation:
+
+Name | Date | Manner of Death | Armed | Age | Gender | Race | City
+:-: | :-: | :-: | :-: | :-: | :-: | :-: | :-:
+ Tim Elliot   |   10/04/2022   |  Shot   |  Gun   |  53   |   M   |  A   |  Shelton
+
+
+State | Signs of Mental Illness | Threat Level | Flee | Body Camera | Longitude | Latitude | Is Geocoding Exact?
+:-: | :-: | :-: | :-: | :-: | :-: | :-: | :-:
+ WA   |   1   |  TRUE   |  Not fleeing   |  FALSE   |   -123   |  47.2   |  TRUE
+
+The total number of observations:
+```{r}
+#Getting row count and latest incident
+nrow(fp)
+```
+
+```{r}
+#Creating new columns from existing columns
+fp$date <- as.Date(fp$date, "%m/%d/%Y")
+fp$date <- as.Date(fp$date, "%m/%d/%Y")
+fp$month <- format(fp$date, format = "%m")
+fp$year <- format(fp$date, format = "%Y")
+fp$month <- format(fp$date, format = "%m")
+fp$year <- format(fp$date, format = "%Y")
+
+```
+
+### Part 2: Basic Statistics
+
+We provide some basic statistics about 2015-2022 fatal police shootings in the United States, using information from the Washington Post data set.
+
+Mean age of victims of police violence:
+
+```{r}
+mean(fp1$age, na.rm= TRUE)
+```
+
+Median age of victims of police violence:
+
+```{r}
+median(fp1$age)
+```
+
+
+#### Figure 1
+
+Frequency graph for the age of victims of police violence:
+
+```{r}
+ggplot(fp, aes(x=age)) + geom_histogram( binwidth =0.6,aes(fill = ..count..))+scale_fill_gradient('Count',low='blue',high='red') + labs(x = "Age of Victim", y="Number of Deaths", title = "Age Frequency Histogram")
+```
+
+
+#### Figure 2
+
+Frequency graph for the race of victims of police violence:
+
+```{r}
+ggplot(fp, aes(x=race,fill=race, color=race)) + geom_histogram(stat="count") + labs(x = "Race: Unknown, Asian, Black, Hispanic, Native, Other, White", y="Number of Deaths", title = "Race Frequency Histogram")
+```
+
+
+#### Figure 3
+
+Frequency graph for the gender of victims of police violence:
+
+```{r}
+ggplot(fp, aes(x=gender, fill=gender, color=gender)) + geom_histogram(stat="count") + labs(x = "Gender", y="Number of Deaths", title = "Gender Frequency Histogram")
+```
+
+
+#### Figure 4
+
+Frequency graph for the manner of death of victims of police violence:
+
+```{r}
+ggplot(fp, aes(x= manner_of_death, fill=manner_of_death, color=manner_of_death)) + geom_histogram(stat="count") + labs(x = "Manner of Death", y="Number of Deaths", title = "Manner of Death Frequency Histogram")
+```
+
+
+#### Figure 5
+
+Frequency graph for the threat level of victims of police violence:
+
+```{r}
+ggplot(fp, aes(x=threat_level, fill=threat_level, color=threat_level)) + geom_histogram(stat="count") + labs(x = "Threat Level", y="Number of Deaths", title = "Threat Level Frequency Histogram")
+```
+
+
+#### Figure 6
+
+Hover over the map below to see the breakdown of fatal police shootings, divided by the race of the victim. We looked at the total number of deaths in each state by race and following are some of the insights:
+
+1) We see that the state with the highest level of victims of police violence is California with a total of 885 victims, followed by Texas with a total of 553 and then Florida with 427.
+
+2) These results are consistent with the populations of these states, with the highest being California, then Texas, and then Florida.
+
+3) We also observe that the highest number of deaths is for Hispanic people in California, whereas in Texas and Florida there are more fatal shootings of White people.
+
+```{r}
+police_sr <- fp %>%
+  filter(!race == "") %>%
+  group_by(state, race) %>%
+  summarise(deaths = n())
+  
+#Spreading the data to get deaths by race
+spread_sr <- spread(police_sr, race, deaths)
+
+#Getting the total number of deaths per state
+spread_sr$Total <- rowSums(spread_sr[,-1], na.rm = TRUE)
+
+#Check the results if needed
+# head(spread_sr)
+
+#Data setup for hovering on the map
+sr_data <- spread_sr
+sr_data$hover <- with(sr_data, paste("Asian", A, '<br>',
+                                     "Black",B,'<br>',
+                                     "Hispanic",H,'<br>',
+                                     "Native American",N,'<br>',
+                                     "Other",O,'<br>',
+                                     "White",W,'<br>',
+                                     "Total Deaths", `Total`))
+#Map specifications
+graph <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('white')
+)
+
+#Plotting the graph
+plot_ly(spread_sr, z = spread_sr$Total, text = sr_data$hover, locations = sr_data$state, type = 'choropleth',
+        locationmode = 'USA-states', color = spread_sr$Total, colors = 'Reds',
+        colorbar = list(title = "Counts ")) %>%
+        layout(title = 'Number of people shot dead by race per State<br>(Hover for breakdown by race)', geo = graph)
+
+```
+
+
+
+#### Figure 7
+
+Now we look at the age of the suspect shot, as well as their race. We made the following observations:
+
+1) We see from the boxplot below that the median age for Black people that have been killed by police is 29 years.
+
+2) White people have a relatively higher median age of 35 years whereas Asian people have the highest median age of around 38 years.
+
+```{r}
+  #Box plots
+  ggplot (fp,aes(x=race, y=age)) +
+  geom_boxplot(aes(color = race)) +
+
+  #Axes labels and titles
+  labs(x = "Race of Victim", y = "Age of Victim", 
+       title = "Distribution of Victims' Age across Race") +
+  scale_x_discrete(labels=c('White',
+                            'Other',
+                            'Native American',
+                            'Hispanic',
+                            'Black',
+                            'Asian')) +
+  coord_flip() +
+  theme_bw() +
+  theme(legend.position = "none")
+```
+
+
+#### Figure 8
+
+If we look at the age of each victim against the status of their mental health, we can make the following observation: signs of mental illness appear more frequently within the 30s age range while death by police for people age 50 and above are more common for people showing signs of mental illness.
+
+```{r}
+#Age against signs of mental illness
+ggplot(fp, aes(x=signs_of_mental_illness, y=age, fill=signs_of_mental_illness)) + geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)) + labs(x = "Sign of Mental Illness", y="Age", title = "Status of Mental Wellbeing during Fatal Shooting by Age of Victim")
+```
+
+
+#### Figure 9
+
+We also looked at the death by race and gender, coming up with the following insight: individuals across all races that were shot and killed by police were more often men.
+
+```{r}
+#Filtering the data by race and gender
+data_by_rg <- fp %>%
+                      filter(race != "") %>%
+                      filter(gender != "") %>%
+                        group_by(race, gender) %>%
+                         summarize(No_of_deaths = n())
+
+#Plotting Data
+ggplot(data_by_rg, aes(x = race, y = No_of_deaths, fill = gender)) + 
+  geom_bar(stat = "identity",position = "dodge") + 
+  labs (x = 'Race', y = 'Number of Deaths') +
+  ggtitle('Deaths by Race and Gender') +
+  scale_x_discrete(labels=c('Asian',
+                            'Black',
+                            'Hispanic',
+                            'Native American',
+                            'Other',
+                            'White')) +
+  theme_few()
+
+```
+
+
+#### Figure 10 
+
+We then looked at the distribution of deaths by race and the top 5 armed categories. We discovered that around 9% of the Black victims were unarmed whereas only approximately 6% of the White victims were unarmed. Guns were the most used weapon across all races except for Asian individuals. Asian victims were more often wielding knives.
+
+```{r}
+# Finding the top 5 arms used by suspects 
+top_5_arms <- fp %>%
+                group_by(armed) %>%
+                summarise(num_arms = n()) %>%
+                arrange(desc(num_arms)) %>%
+                head(5)
+
+#Filtering the data by top 5 arms found
+race_armed_data <- fp %>%
+    filter(race != '') %>%
+    mutate(armed_mod = ifelse(armed %in% c('gun', 'knife', 'unarmed', 'vehicle', 'undetermined'), as.character(armed), 'Other')) %>%
+    group_by(race, armed_mod) %>%
+    summarise(Deaths = n())
+
+# Spreading the data 
+race_armed_data_spr <- race_armed_data %>%
+    spread(armed_mod, Deaths) 
+
+#Replacing missing values with 0
+race_armed_data_spr[is.na(race_armed_data_spr)] <- 0 
+```
+
+Distribution of Deaths by Armed Category and Race: 
+
+```{r}
+#Printing the data
+summary_table <- cbind(as.data.frame(race_armed_data_spr[,1]), as.data.frame(round(race_armed_data_spr[,-1]/rowSums(race_armed_data_spr[,-1])*100, 2)))
+
+#Renaming the race values
+levels(summary_table$race) <- c("", "Asian", "Black", "Hispanic", "Native American", "Other", "White")
+
+#Print the table
+print(summary_table)
+```
+
+
+#### Figure 11
+
+The following graph illustrates the deaths per year by race from 2015-2022:
+
+```{r}
+#Plotting the above table in a stacked bar
+ggplot(race_armed_data, aes(x = race, y = Deaths, fill = armed_mod)) + 
+  geom_bar(stat = "identity",position = "dodge") + 
+  labs (x = 'Race', y = 'Number of Deaths') +
+  ggtitle('Whether Victims were Armed by Race') +
+  scale_x_discrete(labels=c('Asian',
+                            'Black',
+                            'Hispanic',
+                            'Native American',
+                            'Other',
+                            'White')) + 
+   theme_few() 
+```
+
+We looked at the distribution of deaths by suspects’ race and whether they were trying to flee or not. The following are some of our most interesting observations:
+
+1) Only 53% of Black victims shot were not fleeing whereas 71% of the Asian victims who were shot were not trying to flee.
+
+2) The car is the most popular method of fleeing among White victims whereas for Black victims, the most popular method of fleeing was by foot. 
+
+```{r}
+#Filtering the data and summarizing it  
+race_flee_data <- fp %>%
+    filter(race != '') %>%
+    group_by(race, flee) %>%
+    summarise(Deaths = n()) %>%
+    spread(flee, Deaths) 
+
+#Replacing the missing values with 0
+race_flee_data[is.na(race_flee_data)] <- 0 
+```
+
+Number of deaths by victims' status (fleeing or not fleeing) by race:
+
+```{r}
+#Printing the table
+summary_table <- cbind(as.data.frame(race_flee_data[,1]), as.data.frame(round(race_flee_data[,-1]/rowSums(race_flee_data[,-1])*100, 2)))
+
+#Renaming the race values
+levels(summary_table$race) <- c("", "Asian", "Black", "Hispanic", "Native American", "Other", "White")
+
+#Print the table
+print(summary_table)
+
+#ggplot(summary_table,aes(x = summary_table)) + geom_bar()
+```
+
+```{r}
+
+by_race <- fp %>%
+  group_by(race, year) %>% # group by race then year
+  summarise(count=n())
+```
+
+
+#### Figure 12
+
+This graph shows the victims of police violence by race over time (2015-2022):
+
+```{r}
+plot1 <- ggplot(by_race, aes(x=year, y=count, alluvium=race)) +
+  theme_bw() +
+  geom_alluvium(aes(fill = race), 
+                color = "white",
+                width = .1, 
+                alpha = .9,
+                decreasing = FALSE) +
+  scale_fill_brewer(palette = "Set1") +
+  scale_fill_discrete(name = "Race") +
+  theme_minimal(base_size = 12) +
+  ggtitle("Police Shootings by Race Each Year from 2015-2022\n") +
+  ylab("Number of Shootings") +
+  xlab("Year")
+print(plot1)
+```
+
+
+#### Figure 13
+
+Surprisingly, there is seasonality across years or months in police shootings. We looked into the monthly trend over 8 years and used ARIMA to forecast the likely number of police shootings over the next four months.
+
+```{r}
+#Summarizing the data at year month level and plotting the trend line
+fp %>%
+   mutate(year_month = format(as.Date(date, '%d-%m-%Y'),"%Y_%m")) %>%
+   group_by(year_month) %>%
+   summarise(n = n()) %>%
+   
+   #Plot the line  
+   ggplot(aes(x = year_month, y = n, group = 1)) +
+   geom_line(color = "blue") +
+   geom_point(color = "red") +
+
+   #Axes labels and titles
+   labs(x = "Year of Fatal Shooting",
+       y = "Number of Deaths",
+       title = "Number of Deaths vs. Year of Fatal Shooting") +
+   scale_x_discrete(breaks =
+     levels(as.factor(format(as.Date(fp$date, '%d-%m-%Y'),"%Y_%m")))[c(T, rep(F, 11))]) +
+   theme_bw()
+```
+
+
+#### Figure 14
+
+The forecast predicts average shootings for the next four months with a wide confidence interval.
+
+```{r}
+#Number crimes
+num_crimes <- fp %>%
+   mutate(year_month = format(as.Date(date, '%d-%m-%Y'),"%Y_%m")) %>%
+   group_by(year_month) %>%
+   summarise(n = n()) %>%
+   select(n)
+
+#Converting num_crimes in to time series object
+crime_ts <- ts(num_crimes)
+
+#Fitting the best arima model
+model <- auto.arima(crime_ts, stepwise = FALSE, approximation = FALSE)
+
+#Predict next 3 months based on the model created
+predict <- model %>% forecast(level = c(95), h = 5)
+
+#Plot the graph
+print(predict %>%
+       autoplot() +
+       labs(x = "Year and Month from  2015 to 2022",
+            y = "Number of deaths",
+            title = paste0("Forecast of Fatal Police Shootings for the Next Four Months")) +
+            theme_bw())
+
+
+```
+
+### Part 3: Reshaping the Data for State and Regional Comparative Analysis
+
+After pursuing the above exploratory analysis, we decided to do some comparative analyses between states and regions to create a specific, measureable, achievable, relevant, and time-oriented research question to pursue for the remainder of the project.
+
+To do this, wee began by dividing the data into regions for easier visualization and comparative analysis. The regions divide each US state as follows:
+
+Northwest (NW) | Southwest (SW) | Midwest (MW) | Southeast (SE) | Northeast (NE)
+:-: | :-: | :-: | :-: | :-:
+California   |   New Mexico   |  Illinois   |  Georgia   |  New York
+Washington   |   Arizona   |  Wisconsin   |  Alabama   |  Rhode Island
+Oregon   |   Texas   |  Indiana   |  Mississippi   |  Maryland
+Nevada   |   Oklahoma   |  Michigan   |  Louisiana   |  Vermont
+Idaho   |   Hawaii   |  Minnesota   |  Tennessee   |  Pennsylvania
+Utah   |   -   |  Missouri   |  North Carolina   |  Maine
+Montana   |   -   |  Iowa   |  South  Carolina   |  New Hampshire
+Colorado   |   -   |  Kansas   |  Florida   |  New Jersey
+Wyoming   |   -   |  North Dakota   |  Arkansas   |  Connecticut
+Arkansas   |   -   |  South Dakota   |  West Virginia   |  Massachusetts
+Arkansas   |   -   |  Nebraska   |  DC   |  -
+   -     |   -   |  Ohio   |  Virginia   |     -
+
+
+Fatal shootings in the Northwest United States:
+
+```{r}
+#Initial creation of regional subgroups and tests that they cover everything.
+NW <- subset(fp, state=="CA"| state=="WA" | state=="OR" | state== "NV"| state=="ID"| state=="UT"|state=="MT"|state=="CO"| state=="WY"| state=="AK")
+nrow(NW)
+```
+
+Fatal shootings in the Southwest United States:
+
+```{r}
+SW <- subset(fp, state== "NM"| state=="AZ"| state== "TX"| state=="OK"| state== "HI")
+nrow(SW)
+```
+
+Fatal shootings in the Midwest United States:
+
+```{r}
+MW <- subset(fp, state== "IL"| state=="WI"| state=="IN"| state=="MI"| state== "MN"| state== "MO"| state== "IA"| state=="KS"| state=="ND"| state== "SD"| state=="NE"| state=="OH")
+nrow(MW)
+```
+
+Fatal shootings in the Southeast United States:
+
+```{r}
+SE <- subset(fp, state == "GA"| state=="AL"| state== "MS"| state=="LA"| state=="TN"| state=="NC"| state=="SC"| state=="FL"| state== "AR"|state=="WV"| state=="DC"| state=="VA"| state=="KY"| state=="DE")
+nrow(SE)
+```
+
+Fatal shootings in the Northeast United States:
+
+```{r}
+NE <- subset(fp, state=="NY"| state== "MD"| state=="RI"| state== "VT"| state=="PA"| state=="ME"| state== "NH"| state=="NJ"| state=="CT"| state=="MA")
+nrow(NE)
+```
+
+```{r}
+#Implementation of the subgroups as a new factor called "regions".
+fp$regions <- as.factor(ifelse(( fp$state=="CA"| fp$state=="WA" | fp$state=="OR" | fp$state== "NV"| fp$state=="ID"| fp$state=="UT"|fp$state=="MT"|fp$state=="CO"| fp$state=="WY"| fp$state=="AK"), 'NW',
+                     ifelse((fp$state== "NM"| fp$state=="AZ"| fp$state== "TX"| fp$state=="OK"| fp$state== "HI"), 'SW', 
+                     ifelse((fp$state== "IL"| fp$state=="WI"| fp$state=="IN"| fp$state=="MI"| fp$state== "MN"| fp$state== "MO"| fp$state== "IA"| fp$state=="KS"| fp$state=="ND"| fp$state== "SD"| fp$state=="NE"| fp$state=="OH"), 'MW', 
+                     ifelse(( fp$state=="NY"| fp$state== "MD"| fp$state=="RI"| fp$state== "VT"| fp$state=="PA"| fp$state=="ME"| fp$state== "NH"| fp$state=="NJ"| fp$state=="CT"| fp$state=="MA"), 'NE', 'SE')))))
+```
+
+We also create some new columns for the Modeling Portion 
+```{r}
+#This is to make state level data for spending per capita
+vspc <- c(477, 1030, 655, 422, 981, 664, 564, 774, 1337, 704, 491, 549, 576, 633, 407, 441, 553, 390, 526, 425, 842, 597, 550, 633, 446, 480, 608, 611, 756, 525, 691, 759, 904, 549, 574, 555, 487, 736, 665, 728, 431, 478, 515, 547,484, 588, 656, 608, 492, 604, 782 )
+fp %>% add_column(spendpc = NA)
+for (i in 1:nrow(fp)) {
+  if(fp$state[i] =="AL"){
+    fp$spendpc[i] <- vspc[1]
+  }
+   if(fp$state[i] =="AK"){
+    fp$spendpc[i] <- vspc[2]
+   }
+   if(fp$state[i] =="AZ"){
+    fp$spendpc[i] <- vspc[3]
+   }
+   if(fp$state[i] =="AR"){
+    fp$spendpc[i] <- vspc[4]
+   }
+   if(fp$state[i] =="CA"){
+    fp$spendpc[i] <- vspc[5]
+   }
+   if(fp$state[i] =="CO"){
+    fp$spendpc[i] <- vspc[6]
+    }
+    if(fp$state[i] =="CT"){
+    fp$spendpc[i] <- vspc[7]
+    }
+    if(fp$state[i] =="DE"){
+    fp$spendpc[i] <- vspc[8]
+    }
+    if(fp$state[i] =="DC"){
+    fp$spendpc[i] <- vspc[9]
+    }
+    if(fp$state[i] =="FL"){
+    fp$spendpc[i] <- vspc[10]
+    }
+    if(fp$state[i] =="GA"){
+    fp$spendpc[i] <- vspc[11]
+    } 
+    if(fp$state[i] =="HI"){
+    fp$spendpc[i] <- vspc[12]
+    }
+    if(fp$state[i] =="ID"){
+    fp$spendpc[i] <- vspc[13]
+    }
+    if(fp$state[i] =="IL"){
+    fp$spendpc[i] <- vspc[14]
+    }
+    if(fp$state[i] =="IN"){
+    fp$spendpc[i] <- vspc[15]
+    }
+    if(fp$state[i] =="IA"){
+    fp$spendpc[i] <- vspc[16]
+    }
+    if(fp$state[i] =="KS"){
+    fp$spendpc[i] <- vspc[17]
+    }
+    if(fp$state[i] =="KY"){
+    fp$spendpc[i] <- vspc[18]
+    }
+    if(fp$state[i] =="LA"){
+    fp$spendpc[i] <- vspc[19]
+    }
+    if(fp$state[i] =="ME"){
+    fp$spendpc[i] <- vspc[20]
+    }
+    if(fp$state[i] =="MD"){
+    fp$spendpc[i] <- vspc[21]
+    }
+    if(fp$state[i] =="MA"){
+    fp$spendpc[i] <- vspc[22]
+    }
+    if(fp$state[i] =="MI"){
+    fp$spendpc[i] <- vspc[23]
+    }
+    if(fp$state[i] =="MN"){
+    fp$spendpc[i] <- vspc[24]
+    }
+    if(fp$state[i] =="MS"){
+    fp$spendpc[i] <- vspc[25]
+    }
+    if(fp$state[i] =="MO"){
+    fp$spendpc[i] <- vspc[26]
+    }
+    if(fp$state[i] =="MT"){
+    fp$spendpc[i] <- vspc[27]
+    }
+    if(fp$state[i] =="NE"){
+    fp$spendpc[i] <- vspc[28]
+    }
+    if(fp$state[i] =="NV"){
+    fp$spendpc[i] <- vspc[29]
+    }
+    if(fp$state[i] =="NH"){
+    fp$spendpc[i] <- vspc[30]
+    }
+    if(fp$state[i] =="NJ"){
+    fp$spendpc[i] <- vspc[31]
+    }
+    if(fp$state[i] =="NM"){
+    fp$spendpc[i] <- vspc[32]
+    }
+    if(fp$state[i] =="NY"){
+    fp$spendpc[i] <- vspc[33]
+    }
+    if(fp$state[i] =="NC"){
+    fp$spendpc[i] <- vspc[34]
+    }
+    if(fp$state[i] =="ND"){
+    fp$spendpc[i] <- vspc[35]
+    }
+    if(fp$state[i] =="OH"){
+    fp$spendpc[i] <- vspc[36]
+    }
+    if(fp$state[i] =="OK"){
+    fp$spendpc[i] <- vspc[37]
+    }
+    if(fp$state[i] =="OR"){
+    fp$spendpc[i] <- vspc[38]
+    }
+    if(fp$state[i] =="PA"){
+    fp$spendpc[i] <- vspc[39]
+    }
+    if(fp$state[i] =="RI"){
+    fp$spendpc[i] <- vspc[40]
+    }
+    if(fp$state[i] =="SC"){
+    fp$spendpc[i] <- vspc[41]
+    }
+    if(fp$state[i] =="SD"){
+    fp$spendpc[i] <- vspc[42]
+    }
+    if(fp$state[i] =="TN"){
+    fp$spendpc[i] <- vspc[43]
+    }
+    if(fp$state[i] =="TX"){
+    fp$spendpc[i] <- vspc[44]
+    }
+    if(fp$state[i] =="UT"){
+    fp$spendpc[i] <- vspc[45]
+    }
+    if(fp$state[i] =="VT"){
+    fp$spendpc[i] <- vspc[46]
+    }
+    if(fp$state[i] =="VA"){
+    fp$spendpc[i] <- vspc[47]
+    }
+    if(fp$state[i] =="WA"){
+    fp$spendpc[i] <- vspc[48]
+    }
+    if(fp$state[i] =="WV"){
+    fp$spendpc[i] <- vspc[49]
+    }
+    if(fp$state[i] =="WI"){
+    fp$spendpc[i] <- vspc[50]
+    }
+    if(fp$state[i] =="WY"){
+    fp$spendpc[i] <- vspc[51]
+    }
+  
+  
+  
+  }
+
+
+```
+```{r}
+#This is to acknowledge the states that (as of 2021) had a laws requiring officers to have the body cameras on during interactions with the public
+fp$bclaw <- NA
+for (i in 1:nrow(fp)) {
+  if(fp$state[i] =="MD"){
+    fp$bclaw[i] <- 1
+  }
+   if(fp$state[i] =="NJ"){
+    fp$bclaw[i] <- 1
+   }
+   if(fp$state[i] =="NM"){
+    fp$bclaw[i] <- 1
+   }
+   if(fp$state[i] =="SC"){
+    fp$bclaw[i] <- 1
+   }
+  else {
+    fp$bclaw[i] <- 0
+  }
+}
+```
+Here we are adding data about the direction a state swung in the 2020 election (Negative = Swing to Trump, Positive = Swing to Biden)
+```{r}
+v2020 <- c(-25, -10, 0.31, -28, 29, 14, 87, 20, 19, -3,0.24, 29, -31, 17, -16, -8, -15, -26, -19, 9, 33, 33, 3, 7, -17, -15, -16, -19, 2, 7, 16, 11, 23, -1.3, -33, -8, -33, 16, 1.2, 21, -12, -26, -23,-6, -20, 34, 10, 19, -39, 0.63, -43  )
+
+fp %>% add_column(marg2020 = NA)
+for (i in 1:nrow(fp)) {
+  if(fp$state[i] =="AL"){
+    fp$marg2020[i] <- v2020[1]
+  }
+   if(fp$state[i] =="AK"){
+    fp$marg2020[i] <- v2020[2]
+   }
+   if(fp$state[i] =="AZ"){
+    fp$marg2020[i] <- v2020[3]
+   }
+   if(fp$state[i] =="AR"){
+    fp$marg2020[i] <- v2020[4]
+   }
+   if(fp$state[i] =="CA"){
+    fp$marg2020[i] <- v2020[5]
+   }
+   if(fp$state[i] =="CO"){
+    fp$marg2020[i] <- v2020[6]
+    }
+    if(fp$state[i] =="CT"){
+    fp$marg2020[i] <- v2020[7]
+    }
+    if(fp$state[i] =="DE"){
+    fp$marg2020[i] <- v2020[8]
+    }
+    if(fp$state[i] =="DC"){
+    fp$marg2020[i] <- v2020[9]
+    }
+    if(fp$state[i] =="FL"){
+    fp$marg2020[i] <- v2020[10]
+    }
+    if(fp$state[i] =="GA"){
+    fp$marg2020[i] <- v2020[11]
+    } 
+    if(fp$state[i] =="HI"){
+    fp$marg2020[i] <- v2020[12]
+    }
+    if(fp$state[i] =="ID"){
+    fp$marg2020[i] <- v2020[13]
+    }
+    if(fp$state[i] =="IL"){
+    fp$marg2020[i] <- v2020[14]
+    }
+    if(fp$state[i] =="IN"){
+    fp$marg2020[i] <- v2020[15]
+    }
+    if(fp$state[i] =="IA"){
+    fp$marg2020[i] <- v2020[16]
+    }
+    if(fp$state[i] =="KS"){
+    fp$marg2020[i] <- v2020[17]
+    }
+    if(fp$state[i] =="KY"){
+    fp$marg2020[i] <- v2020[18]
+    }
+    if(fp$state[i] =="LA"){
+    fp$marg2020[i] <- v2020[19]
+    }
+    if(fp$state[i] =="ME"){
+    fp$marg2020[i] <- v2020[20]
+    }
+    if(fp$state[i] =="MD"){
+    fp$marg2020[i] <- v2020[21]
+    }
+    if(fp$state[i] =="MA"){
+    fp$marg2020[i] <- v2020[22]
+    }
+    if(fp$state[i] =="MI"){
+    fp$marg2020[i] <- v2020[23]
+    }
+    if(fp$state[i] =="MN"){
+    fp$marg2020[i] <- v2020[24]
+    }
+    if(fp$state[i] =="MS"){
+    fp$marg2020[i] <- v2020[25]
+    }
+    if(fp$state[i] =="MO"){
+    fp$marg2020[i] <- v2020[26]
+    }
+    if(fp$state[i] =="MT"){
+    fp$marg2020[i] <- v2020[27]
+    }
+    if(fp$state[i] =="NE"){
+    fp$marg2020[i] <- v2020[28]
+    }
+    if(fp$state[i] =="NV"){
+    fp$marg2020[i] <- v2020[29]
+    }
+    if(fp$state[i] =="NH"){
+    fp$marg2020[i] <- v2020[30]
+    }
+    if(fp$state[i] =="NJ"){
+    fp$marg2020[i] <- v2020[31]
+    }
+    if(fp$state[i] =="NM"){
+    fp$marg2020[i] <- v2020[32]
+    }
+    if(fp$state[i] =="NY"){
+    fp$marg2020[i] <- v2020[33]
+    }
+    if(fp$state[i] =="NC"){
+    fp$marg2020[i] <- v2020[34]
+    }
+    if(fp$state[i] =="ND"){
+    fp$marg2020[i] <- v2020[35]
+    }
+    if(fp$state[i] =="OH"){
+    fp$marg2020[i] <- v2020[36]
+    }
+    if(fp$state[i] =="OK"){
+    fp$marg2020[i] <- v2020[37]
+    }
+    if(fp$state[i] =="OR"){
+    fp$marg2020[i] <- v2020[38]
+    }
+    if(fp$state[i] =="PA"){
+    fp$marg2020[i] <- v2020[39]
+    }
+    if(fp$state[i] =="RI"){
+    fp$marg2020[i] <- v2020[40]
+    }
+    if(fp$state[i] =="SC"){
+    fp$marg2020[i] <- v2020[41]
+    }
+    if(fp$state[i] =="SD"){
+    fp$marg2020[i] <- v2020[42]
+    }
+    if(fp$state[i] =="TN"){
+    fp$marg2020[i] <- v2020[43]
+    }
+    if(fp$state[i] =="TX"){
+    fp$marg2020[i] <- v2020[44]
+    }
+    if(fp$state[i] =="UT"){
+    fp$marg2020[i] <- v2020[45]
+    }
+    if(fp$state[i] =="VT"){
+    fp$marg2020[i] <- v2020[46]
+    }
+    if(fp$state[i] =="VA"){
+    fp$marg2020[i] <- v2020[47]
+    }
+    if(fp$state[i] =="WA"){
+    fp$marg2020[i] <- v2020[48]
+    }
+    if(fp$state[i] =="WV"){
+    fp$marg2020[i] <- v2020[49]
+    }
+    if(fp$state[i] =="WI"){
+    fp$marg2020[i] <- v2020[50]
+    }
+    if(fp$state[i] =="WY"){
+    fp$marg2020[i] <- v2020[51]
+    }
+  
+  
+  
+  }
+
+```
+Finally We will add a variable based on police officers per 100K citizens by state
+```{r}
+vle <- c(418.356, 604.3172, 507.1749, 455.5134, 378.4166, 416.7751, 406.803, 517.3799, 722, 439.7941,  487.2325,494.1445, 378.7875, 476.7941, 379.4256, 307.9675, 466.5578, 390.2951, 595.0071, 411.2744,619.3873,440.4483,359.6753,324.5891,487.8593,459.6233,435.4656, 412.0619, 409.9609, 419.7185, 532.2092, 506.5776, 630.0293, 438.4865, 392.6816, 395.1726, 410.4272, 283.7333, 462.605, 412.0791, 420.8136, 449.0854, 438.823, 479.3943, 299.0369, 321.71, 597.2275, 319.9674, 516.3705, 404.1405, 501.126)
+
+fp %>% add_column(le_per_100k = NA)
+for (i in 1:nrow(fp)) {
+  if(fp$state[i] =="AL"){
+    fp$le_per_100k[i] <- vle[1]
+  }
+   if(fp$state[i] =="AK"){
+    fp$le_per_100k[i] <- vle[2]
+   }
+   if(fp$state[i] =="AZ"){
+    fp$le_per_100k[i] <- vle[3]
+   }
+   if(fp$state[i] =="AR"){
+    fp$le_per_100k[i] <- vle[4]
+   }
+   if(fp$state[i] =="CA"){
+    fp$le_per_100k[i] <- vle[5]
+   }
+   if(fp$state[i] =="CO"){
+    fp$le_per_100k[i] <- vle[6]
+    }
+    if(fp$state[i] =="CT"){
+    fp$le_per_100k[i] <- vle[7]
+    }
+    if(fp$state[i] =="DE"){
+    fp$le_per_100k[i] <- vle[8]
+    }
+    if(fp$state[i] =="DC"){
+    fp$le_per_100k[i] <- vle[9]
+    }
+    if(fp$state[i] =="FL"){
+    fp$le_per_100k[i] <- vle[10]
+    }
+    if(fp$state[i] =="GA"){
+    fp$le_per_100k[i] <- vle[11]
+    } 
+    if(fp$state[i] =="HI"){
+    fp$le_per_100k[i] <- vle[12]
+    }
+    if(fp$state[i] =="ID"){
+    fp$le_per_100k[i] <- vle[13]
+    }
+    if(fp$state[i] =="IL"){
+    fp$le_per_100k[i] <- vle[14]
+    }
+    if(fp$state[i] =="IN"){
+    fp$le_per_100k[i] <- vle[15]
+    }
+    if(fp$state[i] =="IA"){
+    fp$le_per_100k[i] <- vle[16]
+    }
+    if(fp$state[i] =="KS"){
+    fp$le_per_100k[i] <- vle[17]
+    }
+    if(fp$state[i] =="KY"){
+    fp$le_per_100k[i] <- vle[18]
+    }
+    if(fp$state[i] =="LA"){
+    fp$le_per_100k[i] <- vle[19]
+    }
+    if(fp$state[i] =="ME"){
+    fp$le_per_100k[i] <- vle[20]
+    }
+    if(fp$state[i] =="MD"){
+    fp$le_per_100k[i] <- vle[21]
+    }
+    if(fp$state[i] =="MA"){
+    fp$le_per_100k[i] <- vle[22]
+    }
+    if(fp$state[i] =="MI"){
+    fp$le_per_100k[i] <- vle[23]
+    }
+    if(fp$state[i] =="MN"){
+    fp$le_per_100k[i] <- vle[24]
+    }
+    if(fp$state[i] =="MS"){
+    fp$le_per_100k[i] <- vle[25]
+    }
+    if(fp$state[i] =="MO"){
+    fp$le_per_100k[i] <- vle[26]
+    }
+    if(fp$state[i] =="MT"){
+    fp$le_per_100k[i] <- vle[27]
+    }
+    if(fp$state[i] =="NE"){
+    fp$le_per_100k[i] <- vle[28]
+    }
+    if(fp$state[i] =="NV"){
+    fp$le_per_100k[i] <- vle[29]
+    }
+    if(fp$state[i] =="NH"){
+    fp$le_per_100k[i] <- vle[30]
+    }
+    if(fp$state[i] =="NJ"){
+    fp$le_per_100k[i] <- vle[31]
+    }
+    if(fp$state[i] =="NM"){
+    fp$le_per_100k[i] <- vle[32]
+    }
+    if(fp$state[i] =="NY"){
+    fp$le_per_100k[i] <- vle[33]
+    }
+    if(fp$state[i] =="NC"){
+    fp$le_per_100k[i] <- vle[34]
+    }
+    if(fp$state[i] =="ND"){
+    fp$le_per_100k[i] <- vle[35]
+    }
+    if(fp$state[i] =="OH"){
+    fp$le_per_100k[i] <- vle[36]
+    }
+    if(fp$state[i] =="OK"){
+    fp$le_per_100k[i] <- vle[37]
+    }
+    if(fp$state[i] =="OR"){
+    fp$le_per_100k[i] <- vle[38]
+    }
+    if(fp$state[i] =="PA"){
+    fp$le_per_100k[i] <- vle[39]
+    }
+    if(fp$state[i] =="RI"){
+    fp$le_per_100k[i] <- vle[40]
+    }
+    if(fp$state[i] =="SC"){
+    fp$le_per_100k[i] <- vle[41]
+    }
+    if(fp$state[i] =="SD"){
+    fp$le_per_100k[i] <- vle[42]
+    }
+    if(fp$state[i] =="TN"){
+    fp$le_per_100k[i] <- vle[43]
+    }
+    if(fp$state[i] =="TX"){
+    fp$le_per_100k[i] <- vle[44]
+    }
+    if(fp$state[i] =="UT"){
+    fp$le_per_100k[i] <- vle[45]
+    }
+    if(fp$state[i] =="VT"){
+    fp$le_per_100k[i] <- vle[46]
+    }
+    if(fp$state[i] =="VA"){
+    fp$le_per_100k[i] <- vle[47]
+    }
+    if(fp$state[i] =="WA"){
+    fp$le_per_100k[i] <- vle[48]
+    }
+    if(fp$state[i] =="WV"){
+    fp$le_per_100k[i] <- vle[49]
+    }
+    if(fp$state[i] =="WI"){
+    fp$le_per_100k[i] <- vle[50]
+    }
+    if(fp$state[i] =="WY"){
+    fp$le_per_100k[i] <- vle[51]
+    }
+  
+  
+  
+  }
+```
+
+
+We then created two sub-data sets by grouping the data by state and by region for visualization purposes. The contents of both groups are identical, besides their grouping.
+
+```{r}
+#Defining 2 new data sets. These show all the variables (with some modification) by state.
+sfp <- fp %>%
+   group_by(state) %>%
+   mutate(stbcp =  sum(body_camera==1)/n())
+#This is a numeric proportion of the Men by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(gen.p =  sum(gender=="M")/n())
+#This is a numeric proportion of sings_of_mental_illness by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(smi.p =  sum(signs_of_mental_illness==TRUE)/n())
+#This is a numeric proportion of fleeing victims by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(flee.p =  sum(flee=="fleeing")/n())
+#This is a numeric proportion of attackers by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(att.p =  sum(threat_level== "attack")/n())
+#This is a numeric proportion of armed victims by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(armed.p =  sum(armed != "unarmed")/n())
+#This is a numeric proportion of suspects being shot (as opposed to tasered) by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(MoD.p =  sum(manner_of_death == "shot")/n())
+#This is the average age by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(age.avg =  sum(age)/n())
+#This is variable is for later analysis (maybe for the final) and is the proportion of non-white victims by state
+sfp <- sfp %>%
+   group_by(state) %>%
+   mutate(Non_White_prop =  sum(race != "W")/n())
+
+#This line just drops all non grouped by state data from this version of the data frame
+By_State <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, date, is_geocoding_exact))
+```
+
+```{r}
+rfp <- fp %>%
+   group_by(regions) %>%
+   mutate(rgbcp =  sum(body_camera==TRUE)/n())
+
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(gen.p =  sum(gender=="M")/n())
+
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(smi.p =  sum(signs_of_mental_illness==TRUE)/n())
+
+rfp <- rfp %>%
+   group_by(regions) %>%
+   mutate(flee.p =  sum(flee=="fleeing")/n())
+
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(att.p =  sum(threat_level== "attack")/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(armed.p =  sum(armed != "unarmed")/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(MoD.p =  sum(manner_of_death == "shot")/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(age.avg =  sum(age)/n())
+rfp <- sfp %>%
+   group_by(regions) %>%
+   mutate(Non_White_prop =  sum(race != "W")/n())
+
+By_Region <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, regions, date, is_geocoding_exact))
+```
+
+### Part 4: SMART Question and Answer
+
+Within our data set of 6,574 observations of police shootings from 2015 to 2022 in the United States, is there a correlation between the U.S. state of observation and whether a body camera was turned on during the shooting?
+ 
+First let's take a look at our data after it has been grouped by state and reorganized into the following variables:
+
+Variable | Meaning
+:-: | :-:
+state   |   State of observation
+region   |   Region of observation
+stbcp   |   Body camera on proportion by state
+genp.p   |   Proportion of male victims by state
+smi.p   |   Proportion of victims by state with signs of mental illness
+flee.p   |   Proportion of victims by state the were fleeing
+att.p   |   Proportion of victims by state that were attacking
+armed.p   |   Proportion of victims by state that were armed
+MoD.p   |   Proportion of victims by state that were shot
+age.avg   |   Average age by state
+Non_White_Prop   |   Proportion of non-White victims by state
+
+The state data subgroup can be summarized as follows:
+
+```{r}
+#Just some tests on the new sub data set
+summary(By_State)
+```
+
+The region data subgroup can be summarized as follows:
+
+```{r}
+summary(By_Region)
+```
+
+
+#### Figure 15
+
+We will now check our data for normality:
+
+```{r}
+#Normality check of proportions of body cameras being on by state
+qqnorm(By_State$stbcp)
+#Seems normal
+```
+
+Because the plot is relatively linear, we can conclude this data is close enough to normality for our purpose. 
+
+
+#### Figure 16
+
+Now let us look at the body camera proportions by state. In the below bar graph, TRUE signifies a police body camera that was on, while FALSE indicates the body camera was off:
+
+```{r}
+#A bar graph showing the number of fatal police shootings AND proportions of body cameras being on by region (too many states to show on a bar graph like this)
+ggplot(fp, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Deaths", title = "Regional Police Shootings Colored by Body Camera Proportions")
+```
+
+Number of fatal shootings where the body camera was on:
+
+```{r}
+
+print(count(camera_yes,body_camera))
+```
+
+Number of fatal shootings where the body camera was off:
+
+```{r}
+print(count(camera_no,body_camera))
+```
+
+
+#### Figure 17
+
+The below graph illustrates the number of victims shot and killed by race when a body camera was off:
+
+```{r}
+ggplot(camera_no, aes(x =body_camera)) + geom_bar(aes(fill = race),position = "dodge") +
+  labs(x = "Camera Off",title = "Number of Peope Killed with Police Body Camera Off")
+```
+
+
+#### Figure 18
+
+The below graph illustrates the number of victims shot and killed by race when a body camera was on:
+
+```{r}
+ggplot(camera_yes, aes(x =body_camera)) + geom_bar(aes(fill = race),position = "dodge") +
+  labs(x = "Camera On",title = "Number of Peope Killed with Police Body Camera On")
+```
+
+
+#### Figure 19
+
+This scatter plot shows the proportion of fatal shootings when cameras were on by state (the variable stbcp). Each point on the graph depicts a state's proportion of shootings where the police body camera was turned on during the incident). We can see that there is very little variation in Southwest, and many differences among states in the Midwest.
+
+```{r}
+#Scatter Plot of Body Camera Proportion by Region
+pl <- ggplot(data=By_State,aes(x = regions,y=stbcp))
+
+pl + geom_point(aes(colour =stbcp,size=4)) + scale_colour_gradient(high='red',low = "blue")
+```
+
+Finally, let us check out the mean body camera on proportion for all states:
+
+```{r}
+mean(By_State$stbcp)
+```
+
+And the stbcp median body camera on proportion for all states:
+
+```{r}
+median(By_State$stbcp)
+```
+
+We will now perform a chi-square test to see if there is a significant difference between the proportions of each state. 
+
+\(H_{0}\): There is no significant differences between US States in the proportion of body cameras being turned on during police shootings
+
+\(H_{A}\): There is a significant difference between US State in the proportion of body cameras being turned on during police shootings
+
+Significance Level: \( \alpha = 0.05" \)
+
+```{r}
+test<- By_State
+#Setting 
+
+cat3 <- test %>% mutate(proportion=cut(stbcp, breaks=c(0, 0.10, 0.2, 0.3, Inf),labels = c("low", "medium", "high", "very high")))
+
+summary(cat3$stbcp)
+cat3$state <- as.factor(cat3$state)
+cat3$stbcp <- as.factor(cat3$stbcp)
+
+contable= table(cat3$state, cat3$stbcp)
+#print(contable)
+
+suppressWarnings({chisq.test(contable)})
+```
+
+With a p-value of 2e-16, we easily pass our significance level of alpha=0.05 and have shown that there exists significant differences between different states' proportions of body camera usage during fatal police shootings.
+
+This exploratory data analysis has shown that there is significant difference in the level of body camera usage in police shootings between states and regions in the United States. We intend to delve into the reasons why there are differences and research what factors may explain these differences between states. This will require understanding state laws and policies regarding the use of police body cameras. We must also understand the police force consequences for turning off body cameras during police activity in different states.
+
+Studying the use of body cameras in police work is an important topic of study for data-driven policy research in the United States. We hope to be able to apply this correlation between the U.S. state of observation and whether the body camera was on or off during the shooting to state policy on body cameras during police work. 
+
+## Final
+```{r}
+#FINAL PROJECT WORK: ADDING NEW COLUMNS OF DATA
+FD <- subset(By_State, (year== 2022| year==2021) )
+FD$regions = factor(FD$regions)
+head(FD)
+nrow(FD)
+```
+```{r}
+lm1 <- lm(stbcp~ (marg2020 + bclaw + regions + le_per_100k+ spendpc), data=FD)
+summary(lm1)
+car::vif(lm1 )
+```
+```{r}
+lm2 <- lm(stbcp~ (marg2020+bclaw+spendpc), data=FD)
+summary(lm2)
+car::vif(lm2)
+```
+```{r}
+lm3 <- lm(stbcp~ (bclaw + spendpc), data=FD)
+summary(lm3)
+```
+```{r}
+#Redo of lm1 but with an interaction
+lm4 <- lm(stbcp~ (marg2020 + bclaw + regions + le_per_100k+ spendpc + (spendpc*le_per_100k)), data=FD)
+summary(lm4)
+car::vif(lm4 )
+```
+```{r}
+lm5 <- lm(stbcp~ (bclaw + le_per_100k+ spendpc + (spendpc*le_per_100k)), data=FD)
+summary(lm5)
+car::vif(lm5 )
+```
+
