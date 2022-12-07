@@ -1287,6 +1287,24 @@ lm1 <- lm(stbcp~ (marg2020 + bclaw + regions + le_per_100k+ spendpc), data=FD)
 summary(lm1)
 car::vif(lm1 )
 ```
+```{r}
+# Grab residuals
+res <- residuals(lm1)
+
+# Convert to DataFrame for gglpot
+res <- as.data.frame(res)
+
+head(res)
+
+```
+```{r}
+# Histogram of residuals
+ggplot(res,aes(res)) +  geom_histogram(fill='blue',alpha=0.5)
+```
+```{r}
+
+plot(lm1)
+```
 The VIF values for model 1 are all within acceptable range.
 With an R^2 of 0.183, this model is not very good at predicting statewide body camera usage. We can see that the region variable is not helpful so we will remove it.
 
@@ -1295,6 +1313,22 @@ Model 2 uses only the most helpful predictors from the previous model.
 lm2 <- lm(stbcp~ (marg2020+bclaw+spendpc+ le_per_100k), data=FD)
 summary(lm2)
 car::vif(lm2)
+```
+```{r}
+# Grab residuals
+res <- residuals(lm2)
+
+# Convert to DataFrame for gglpot
+res <- as.data.frame(res)
+
+head(res)
+```
+```{r}
+# Histogram of residuals
+ggplot(res,aes(res)) +  geom_histogram(fill='blue',alpha=0.5)
+```
+```{r}
+plot(lm2)
 ```
 
 The VIF values for model 2 are all within acceptable range.
@@ -1307,6 +1341,22 @@ Model 3 is just Model 1 again with the aforementioned interaction.
 #Redo of lm1 but with an interaction
 lm3 <- lm(stbcp~ (marg2020 + bclaw + regions + le_per_100k+ spendpc + I(spendpc*le_per_100k)), data=FD)
 summary(lm3)
+```
+```{r}
+# Grab residuals
+res <- residuals(lm3)
+
+# Convert to DataFrame for gglpot
+res <- as.data.frame(res)
+
+head(res)
+```
+```{r}
+# Histogram of residuals
+ggplot(res,aes(res)) +  geom_histogram(fill='blue',alpha=0.5)
+```
+```{r}
+plot(lm3)
 ```
 We are ignoring the VIF test for multicolinearity because we are using an interaction predictor.
 With an R^2 of 0.276, this model is not good, much better than the others at predicting statewide body camera usage.
