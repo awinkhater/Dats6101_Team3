@@ -91,13 +91,13 @@ We provide some basic statistics about 2015-2022 fatal police shootings in the U
 Mean age of victims of police violence:
 
 ```{r}
-mean(fp1$age, na.rm= TRUE)
+mean(fp$age, na.rm= TRUE)
 ```
 
 Median age of victims of police violence:
 
 ```{r}
-median(fp1$age)
+median(fp$age)
 ```
 
 

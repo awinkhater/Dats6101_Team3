@@ -93,13 +93,13 @@ We provide some basic statistics about 2015-2022 fatal police shootings in the U
 Mean age of victims of police violence:
 
 ```{r}
-mean(fp1$age, na.rm= TRUE)
+mean(fp$age, na.rm= TRUE)
 ```
 
 Median age of victims of police violence:
 
 ```{r}
-median(fp1$age)
+median(fp$age)
 ```
 
 
@@ -1275,7 +1275,7 @@ Note: Because most states that have body camera laws had them take affect in the
 
 First let us take a look at the new dataset with its new variables:
 ```{r}
-#FINAL PROJECT WORK: ADDING NEW COLUMNS OF DATA
+#FINAL PROJECT WORK: ADDING NEW COLUMNS OF DATA   
 FD <- subset(By_State, (year== 2022| year==2021) )
 FD$regions = factor(FD$regions)
 head(FD)
@@ -1340,6 +1340,122 @@ predict(lm3, newdata = HW, interval = 'confidence')
 ```
 We can see the difference of fit on states E and F as well as G and H and see the effect body camera laws have.
 This model still is not a great predictor of statewide body camera usage, which can lead us to the following conclusions:
+
+
+##EDA (ALEX help us with the interpretation of the following graphs)
+
+The following 3D plot compares the following variables:
+bclaw,stbcp,marg2020
+
+```{r}
+
+fig <- plot_ly(FD, x = FD$bclaw, y = FD$stbcp, z = FD$marg2020,color = factor(FD$bclaw), colors = c('red', 'black'))
+fig <- fig %>% add_markers()
+fig <- fig %>% layout(scene = list(xaxis = list(title = 'police officers to turn on their cameras'),
+                     yaxis = list(title = 'proportion of fatal shootings'),
+                     zaxis = list(title = 'percentage margin')))
+fig
+```
+
+
+The following 3D plot compares the following variables:
+regions,stbcp,marg2020
+
+```{r}
+fig <- plot_ly(FD, x = FD$regions, y = FD$stbcp, z = FD$marg2020,color =  FD$regions, colors = c('purple', 'yellow'))
+fig <- fig %>% add_markers()
+fig <- fig %>% layout(scene = list(xaxis = list(title = 'Regions'),
+                     yaxis = list(title = 'proportion of fatal shootings'),
+                     zaxis = list(title = 'percentage margin')))
+fig
+```
+
+The following 3D plot compares the following variables:
+regions,spendpc,le_per_100k
+
+```{r}
+fig <- plot_ly(FD, x = FD$regions, y = FD$spendpc, z = FD$le_per_100k,color =  FD$regions, colors = c('blue', 'green'))
+fig <- fig %>% add_markers()
+fig <- fig %>% layout(scene = list(xaxis = list(title = 'Regions'),
+                     yaxis = list(title = 'spending on LE '),
+                     zaxis = list(title = 'police  per 100,000 citizens')))
+fig
+```
+
+
+#UNIVARIATE ANALYSIS
+Histogram on stbcp
+```{r}
+ggplot(FD, aes(x=stbcp)) + geom_histogram( binwidth =0.03,aes(fill = ..count..))+scale_fill_gradient('Count',low='blue',high='red') + labs(x = "proportion of fatal shootings that were caught on camera by police", y="Number of incidents captured on camera", title = "Histogram")
+```
+Histogram on spendpc
+```{r}
+ggplot(FD, aes( x=spendpc)) + geom_histogram(aes(fill = ..count..))+scale_fill_gradient('Count',low='purple',high='green') + labs(x = "spending on law enforcement per capita (which means per person in the state)", y="count", title = "Histogram")
+
+
+```
+
+Histogram on le_per_100k
+
+```{r}
+ggplot(FD, aes( x=le_per_100k)) + geom_histogram(aes(fill = ..count..))+scale_fill_gradient('Count',low='green',high='orange') + labs(x = "how many police officers there are per 100,000 citizens", y="count", title = "Histogram")
+
+
+```
+
+Histogram on marg2020
+
+```{r}
+ggplot(FD, aes( x=marg2020)) + geom_histogram(aes(fill = ..count..))+scale_fill_gradient('Count',low='purple',high='orange') + labs(x = "percentage margin with which the state voted for Joe Biden or Donald Trump in the 2020", y="count", title = "Histogram")
+
+```
+
+#Multivariate Analysis
+
+le_per_100k vs marg2020
+
+```{r}
+#le_per_100k vs marg2020
+
+ggplot(data=FD,aes(x = le_per_100k,y=marg2020)) + geom_point(aes(color=marg2020,size=le_per_100k))
+
+```
+
+stbcp vs le_per_100k
+
+```{r}
+#stbcp vs le_per_100k
+ggplot(data=FD,aes(x = stbcp,y=le_per_100k)) + geom_point(aes(color=le_per_100k,size=le_per_100k))
+
+
+```
+
+stbcp vs marg2020
+
+```{r}
+#stbcp vs marg2020
+ggplot(data=FD,aes(x = stbcp,y=marg2020)) + geom_point(aes(color=marg2020,size =marg2020))
+
+
+```
+
+spendpc vs regions
+
+```{r}
+#spendpc vs regions
+ggplot(data=FD,aes(x = regions,y=spendpc)) + geom_point(aes(color=regions,size =regions))
+
+
+```
+
+regions vs le_per_100k
+
+```{r}
+#regions vs le_per_100k
+ggplot(data=FD,aes(x = regions,y=le_per_100k)) + geom_point(aes(color=regions,size =regions))
+
+
+```
 
 
 
