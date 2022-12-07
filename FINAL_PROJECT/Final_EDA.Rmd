@@ -1111,7 +1111,7 @@ rfp <- sfp %>%
 By_Region <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, regions, date, is_geocoding_exact))
 ```
 
-### Part 4: SMART Question and Answer
+### Part 4: Research SMART Question and Answer
 
 Within our data set of 6,574 observations of police shootings from 2015 to 2022 in the United States, is there a correlation between the U.S. state of observation and whether a body camera was turned on during the shooting?
  
@@ -1313,15 +1313,19 @@ With an R^2 of 0.276, this model is not good, much better than the others at pre
 
 Since this is our best model, lets try to predict a few made up New US states:
 
-Please notice Eleum and Faraam are identical despite their body camera laws.
+Please notice Eleum and Faraam are identical except their body camera laws same as GW and HW
+
 ```{r}
 Atlantis <- data.frame(bclaw = c(1), marg2020=c(-10), regions=c('SW'), le_per_100k= c(500), spendpc=c(720))
 Burk <- data.frame(bclaw = c(0), marg2020=c(-33), regions=c('MW'), le_per_100k= c(249), spendpc=c(398))
 Caelid <-data.frame(bclaw = c(1), marg2020=c(29), regions=c('NE'), le_per_100k= c(610), spendpc=c(880))
 Dollywood <- data.frame(bclaw = c(0), marg2020=c(5), regions=c('SE'), le_per_100k= c(200), spendpc=c(203))
 
-Eleum <- data.frame(bclaw = c(0), marg2020=c(10), regions=c('NW'), le_per_100k= c(440), spendpc=c(645))
-Faraam <- data.frame(bclaw = c(1), marg2020=c(10), regions=c('NW'), le_per_100k= c(440), spendpc=c(645))
+Eleum <- data.frame(bclaw = c(0), marg2020=c(-20), regions=c('NW'), le_per_100k= c(440), spendpc=c(545))
+Faraam <- data.frame(bclaw = c(1), marg2020=c(-20), regions=c('NW'), le_per_100k= c(440), spendpc=c(545))
+
+GW <- data.frame(bclaw = c(0), marg2020=c(20), regions=c('SE'), le_per_100k= c(540), spendpc=c(645))
+HW <- data.frame(bclaw = c(1), marg2020=c(20), regions=c('SE'), le_per_100k= c(540), spendpc=c(645))
 ```
 Now lets plug these new states into our model:
 ```{r}
@@ -1331,8 +1335,10 @@ predict(lm3, newdata = Caelid, interval = 'confidence')
 predict(lm3, newdata = Dollywood, interval = 'confidence')
 predict(lm3, newdata = Eleum, interval = 'confidence')
 predict(lm3, newdata = Faraam, interval = 'confidence')
+predict(lm3, newdata = GW, interval = 'confidence')
+predict(lm3, newdata = HW, interval = 'confidence')
 ```
-
+We can see the difference of fit on states E and F as well as G and H and see the effect body camera laws have.
 This model still is not a great predictor of statewide body camera usage, which can lead us to the following conclusions:
 
 
