@@ -1,5 +1,5 @@
 ---
-title: "Midterm EDA: Group 7"
+title: "Final EDA: Group 7"
 author: "Alex Khater, Rajeev Koneru, and Cora Martin"
 date: "`r Sys.Date()`"
 output:
@@ -27,7 +27,9 @@ always_allow_html = TRUE
 
 In response to a severe lack of reporting within government sources, The Washington Post compiled a database of every fatal police shooting in the United States from 2015-2022. We are interested in exploring this data, specifically as it relates to differences between U.S. states and regions.
 
-This exploratory data analysis is divided into four main parts: first, we organize the data; second, we perform some basic statistical analyses; third, we reshape the data for state- and region-based comparative analyses; fourth, we ask a SMART research question about our data and attempt to answer this question. 
+This exploratory data analysis is divided into five main parts: first, we organize the data; second, we perform some basic statistical analyses; third, we reshape the data for state- and region-based comparative analyses; fourth, we ask a SMART research question about our data and attempt to answer this question. Finally, we will use the result of our research SMART question and impose a modeling SMART question.
+
+
 
 ### Part 1: Setting Up the Data
 
@@ -511,7 +513,7 @@ fp$regions <- as.factor(ifelse(( fp$state=="CA"| fp$state=="WA" | fp$state=="OR"
                      ifelse(( fp$state=="NY"| fp$state== "MD"| fp$state=="RI"| fp$state== "VT"| fp$state=="PA"| fp$state=="ME"| fp$state== "NH"| fp$state=="NJ"| fp$state=="CT"| fp$state=="MA"), 'NE', 'SE')))))
 ```
 
-We also create some new columns for the Modeling Portion 
+We also create some new columns for the Modeling Portion (Part 5)
 ```{r}
 #This is to make state level data for spending per capita
 vspc <- c(477, 1030, 655, 422, 981, 664, 564, 774, 1337, 704, 491, 549, 576, 633, 407, 441, 553, 390, 526, 425, 842, 597, 550, 633, 446, 480, 608, 611, 756, 525, 691, 759, 904, 549, 574, 555, 487, 736, 665, 728, 431, 478, 515, 547,484, 588, 656, 608, 492, 604, 782 )
@@ -698,7 +700,7 @@ for (i in 1:nrow(fp)) {
   }
 }
 ```
-Here we are adding data about the direction a state swung in the 2020 election (Negative = Swing to Trump, Positive = Swing to Biden)
+Here we are adding data about the direction a state swung in the 2020 election (Negative = Swing to Trump, Positive = Swing to Biden) (for Part 5)
 ```{r}
 v2020 <- c(-25, -10, 0.31, -28, 29, 14, 87, 20, 19, -3,0.24, 29, -31, 17, -16, -8, -15, -26, -19, 9, 33, 33, 3, 7, -17, -15, -16, -19, 2, 7, 16, 11, 23, -1.3, -33, -8, -33, 16, 1.2, 21, -12, -26, -23,-6, -20, 34, 10, 19, -39, 0.63, -43  )
 
@@ -863,7 +865,7 @@ for (i in 1:nrow(fp)) {
   }
 
 ```
-Finally We will add a variable based on police officers per 100K citizens by state
+Finally We will add a variable based on police officers per 100K citizens by state (For part 5)
 ```{r}
 vle <- c(418.356, 604.3172, 507.1749, 455.5134, 378.4166, 416.7751, 406.803, 517.3799, 722, 439.7941,  487.2325,494.1445, 378.7875, 476.7941, 379.4256, 307.9675, 466.5578, 390.2951, 595.0071, 411.2744,619.3873,440.4483,359.6753,324.5891,487.8593,459.6233,435.4656, 412.0619, 409.9609, 419.7185, 532.2092, 506.5776, 630.0293, 438.4865, 392.6816, 395.1726, 410.4272, 283.7333, 462.605, 412.0791, 420.8136, 449.0854, 438.823, 479.3943, 299.0369, 321.71, 597.2275, 319.9674, 516.3705, 404.1405, 501.126)
 
@@ -1252,7 +1254,26 @@ This exploratory data analysis has shown that there is significant difference in
 
 Studying the use of body cameras in police work is an important topic of study for data-driven policy research in the United States. We hope to be able to apply this correlation between the U.S. state of observation and whether the body camera was on or off during the shooting to state policy on body cameras during police work. 
 
-## Final
+## Part 5:
+Because of our findings in Part 4, we know there are significant differences in the level of body camera usage in police shootings between US states, but let us see if we can find out what drives those differences. 
+
+Our second smart question:
+
+For the years 2021 and 2022, do
+
+-US Region, 
+-Law Enforcement Officers per capita, 
+-Law Enforcement spending per capita, 
+-body camera mandate laws
+-2020 presidential election leaning 
+have any influence on a state's proportion of body camera usage  ?
+
+We will use multiple linear regression to build various models to see if any of these variables can be useful predictors.
+
+
+Note: Because most states that have body camera laws had them take affect in the start of 2021, so we will only be looking at data from 2021 and 2022. This reduces the number of cases in our original data set to 1763. (This is below the 4000 observation threshold, but was approved in class by Professor Faruque)
+
+First let us take a look at the new dataset with its new variables:
 ```{r}
 #FINAL PROJECT WORK: ADDING NEW COLUMNS OF DATA
 FD <- subset(By_State, (year== 2022| year==2021) )
@@ -1260,29 +1281,59 @@ FD$regions = factor(FD$regions)
 head(FD)
 nrow(FD)
 ```
+This is model 1: A simple MLRG model that uses all the new variables along with the region variable:
 ```{r}
 lm1 <- lm(stbcp~ (marg2020 + bclaw + regions + le_per_100k+ spendpc), data=FD)
 summary(lm1)
 car::vif(lm1 )
 ```
+The VIF values for model 1 are all within acceptable range.
+With an R^2 of 0.183, this model is not very good at predicting statewide body camera usage. We can see that the region variable is not helpful so we will remove it.
+
+Model 2 uses only the most helpful predictors from the previous model.
 ```{r}
-lm2 <- lm(stbcp~ (marg2020+bclaw+spendpc), data=FD)
+lm2 <- lm(stbcp~ (marg2020+bclaw+spendpc+ le_per_100k), data=FD)
 summary(lm2)
 car::vif(lm2)
 ```
-```{r}
-lm3 <- lm(stbcp~ (bclaw + spendpc), data=FD)
-summary(lm3)
-```
+
+The VIF values for model 2 are all within acceptable range.
+With an R^2 of 0.152, this model is even worse at predicting statewide body camera usage.
+
+Let us try analyzing the interaction of law enforcement spending per capita and officers per capita.
+
+Model 3 is just Model 1 again with the aforementioned interaction.
 ```{r}
 #Redo of lm1 but with an interaction
-lm4 <- lm(stbcp~ (marg2020 + bclaw + regions + le_per_100k+ spendpc + (spendpc*le_per_100k)), data=FD)
-summary(lm4)
-car::vif(lm4 )
+lm3 <- lm(stbcp~ (marg2020 + bclaw + regions + le_per_100k+ spendpc + I(spendpc*le_per_100k)), data=FD)
+summary(lm3)
 ```
+We are ignoring the VIF test for multicolinearity because we are using an interaction predictor.
+With an R^2 of 0.276, this model is not good, much better than the others at predicting statewide body camera usage.
+
+Since this is our best model, lets try to predict a few made up New US states:
+
+Please notice Eleum and Faraam are identical despite their body camera laws.
 ```{r}
-lm5 <- lm(stbcp~ (bclaw + le_per_100k+ spendpc + (spendpc*le_per_100k)), data=FD)
-summary(lm5)
-car::vif(lm5 )
+Atlantis <- data.frame(bclaw = c(1), marg2020=c(-10), regions=c('SW'), le_per_100k= c(500), spendpc=c(720))
+Burk <- data.frame(bclaw = c(0), marg2020=c(-33), regions=c('MW'), le_per_100k= c(249), spendpc=c(398))
+Caelid <-data.frame(bclaw = c(1), marg2020=c(29), regions=c('NE'), le_per_100k= c(610), spendpc=c(880))
+Dollywood <- data.frame(bclaw = c(0), marg2020=c(5), regions=c('SE'), le_per_100k= c(200), spendpc=c(203))
+
+Eleum <- data.frame(bclaw = c(0), marg2020=c(10), regions=c('NW'), le_per_100k= c(440), spendpc=c(645))
+Faraam <- data.frame(bclaw = c(1), marg2020=c(10), regions=c('NW'), le_per_100k= c(440), spendpc=c(645))
 ```
+Now lets plug these new states into our model:
+```{r}
+predict(lm3, newdata = Atlantis, interval = 'confidence')
+predict(lm3, newdata= Burk ,interval = 'confidence')
+predict(lm3, newdata = Caelid, interval = 'confidence')
+predict(lm3, newdata = Dollywood, interval = 'confidence')
+predict(lm3, newdata = Eleum, interval = 'confidence')
+predict(lm3, newdata = Faraam, interval = 'confidence')
+```
+
+This model still is not a great predictor of statewide body camera usage, which can lead us to the following conclusions:
+
+
 
