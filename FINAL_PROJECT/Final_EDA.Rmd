@@ -832,9 +832,14 @@ There will be basic EDA of these new variables within part 5.
 
 We then created two sub-data sets by grouping the data by state and by region for visualization purposes. The contents of both groups are identical, besides their grouping.
 
+```{r, results=FALSE}
+ffp <- subset(fp, (year== 2022| year==2021) )
+```
+
 ```{r}
 #Defining 2 new data sets. These show all the variables (with some modification) by state.
-sfp <- fp %>%
+
+sfp <- ffp %>%
    group_by(state) %>%
    mutate(stbcp =  sum(body_camera==1)/n())
 #This is a numeric proportion of the Men by state
@@ -875,7 +880,7 @@ By_State <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, man
 ```
 
 ```{r}
-rfp <- fp %>%
+rfp <- sfp %>%
    group_by(regions) %>%
    mutate(rgbcp =  sum(body_camera==TRUE)/n())
 
