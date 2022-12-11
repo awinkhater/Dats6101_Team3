@@ -3,9 +3,9 @@ title: "Final EDA: Group 7"
 author: "Alex Khater, Rajeev Koneru, and Cora Martin"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
-  word_document: default
   html_document: default
+  word_document: default
+  pdf_document: default
 ---
 
 ### Introduction
