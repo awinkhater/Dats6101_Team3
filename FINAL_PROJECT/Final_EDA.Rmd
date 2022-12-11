@@ -1,5 +1,5 @@
 ---
-title: "Final EDA: Group 7"
+title: "Group 7 Final Project"
 author: "Alex Khater, Rajeev Koneru, and Cora Martin"
 date: "`r Sys.Date()`"
 output:
@@ -26,15 +26,11 @@ always_allow_html = TRUE
 
 ```
 
-In response to a severe lack of reporting within government sources, The Washington Post compiled a database of every fatal police shooting in the United States from 2015-2022. We are interested in exploring this data, specifically as it relates to differences between U.S. states and regions.
+In response to a severe lack of reporting within government sources, The Washington Post compiled a database of every fatal police shooting in the United States from 2015-2022. We are interested in exploring this data, then carrying out research about a specific variable in the data set: the use of body cameras during fatal shootings. 
 
-This exploratory data analysis is divided into five main parts: first, we organize the data; second, we perform some basic statistical analyses; third, we reshape the data for state- and region-based comparative analyses; fourth, we ask a SMART research question about our data and attempt to answer this question. Finally, we will use the result of our research SMART question and impose a modeling SMART question.
+This exploratory data analysis is divided into five main parts: first, we organize the data; second, we we reshape the data for state- and region-based comparative analyses and build four new variables (police spending, laws that mandate body camera usage, political leaning (Republican or Democrat) in 2020, number of police officers); third, we ask a SMART research question about our data and attempt to answer this question; fourth, we will continue our research by asking a modeling SMART question and attempt to answer this question.
 
-In part 3 the data is reshaped and new data is added. This is for both the first part of this project (Midterm) and the latter part (Final).
-
-To Look at the Modeling Part of this Project, Please move down to line 1053, where part 5 starts.
-
-If you would like to only run things with 
+#To skip to the modeling part of this project, please scroll to line 1053, where part 5 starts.
 
 
 ### Part 1: Setting Up the Data
@@ -92,162 +88,12 @@ fp$year <- format(fp$date, format = "%Y")
 
 ```
 
-### Part 2: Basic Statistics
-
-We provide some basic statistics about 2015-2022 fatal police shootings in the United States, using information from the Washington Post data set.
-
-Mean age of victims of police violence:
-
-```{r}
-mean(fp$age, na.rm= TRUE)
-```
-
-Median age of victims of police violence:
-
-```{r}
-median(fp$age)
-```
-
-
-#### Figure 1
-
-Frequency graph for the age of victims of police violence:
-
-```{r}
-ggplot(fp, aes(x=age)) + geom_histogram( binwidth =0.6,aes(fill = ..count..))+scale_fill_gradient('Count',low='blue',high='red') + labs(x = "Age of Victim", y="Number of Deaths", title = "Age Frequency Histogram")
-```
-
-
-#### Figure 2
-
-Frequency graph for the race of victims of police violence:
-
-```{r}
-ggplot(fp, aes(x=race,fill=race, color=race)) + geom_histogram(stat="count") + labs(x = "Race: Unknown, Asian, Black, Hispanic, Native, Other, White", y="Number of Deaths", title = "Race Frequency Histogram")
-```
-
-
-#### Figure 3
-
-Frequency graph for the gender of victims of police violence:
-
-```{r}
-ggplot(fp, aes(x=gender, fill=gender, color=gender)) + geom_histogram(stat="count") + labs(x = "Gender", y="Number of Deaths", title = "Gender Frequency Histogram")
-```
-
-
-#### Figure 4
-
-Frequency graph for the manner of death of victims of police violence:
-
-```{r}
-ggplot(fp, aes(x= manner_of_death, fill=manner_of_death, color=manner_of_death)) + geom_histogram(stat="count") + labs(x = "Manner of Death", y="Number of Deaths", title = "Manner of Death Frequency Histogram")
-```
-
-
-#### Figure 5
-
-Frequency graph for the threat level of victims of police violence:
-
-```{r}
-ggplot(fp, aes(x=threat_level, fill=threat_level, color=threat_level)) + geom_histogram(stat="count") + labs(x = "Threat Level", y="Number of Deaths", title = "Threat Level Frequency Histogram")
-```
-
-
-#### Figure 6
-
-Hover over the map below to see the breakdown of fatal police shootings, divided by the race of the victim. We looked at the total number of deaths in each state by race and following are some of the insights:
-
-1) We see that the state with the highest level of victims of police violence is California with a total of 885 victims, followed by Texas with a total of 553 and then Florida with 427.
-
-2) These results are consistent with the populations of these states, with the highest being California, then Texas, and then Florida.
-
-3) We also observe that the highest number of deaths is for Hispanic people in California, whereas in Texas and Florida there are more fatal shootings of White people.
-
-```{r}
-police_sr <- fp %>%
-  filter(!race == "") %>%
-  group_by(state, race) %>%
-  summarise(deaths = n())
-  
-#Spreading the data to get deaths by race
-spread_sr <- spread(police_sr, race, deaths)
-
-#Getting the total number of deaths per state
-spread_sr$Total <- rowSums(spread_sr[,-1], na.rm = TRUE)
-
-#Check the results if needed
-# head(spread_sr)
-
-#Data setup for hovering on the map
-sr_data <- spread_sr
-sr_data$hover <- with(sr_data, paste("Asian", A, '<br>',
-                                     "Black",B,'<br>',
-                                     "Hispanic",H,'<br>',
-                                     "Native American",N,'<br>',
-                                     "Other",O,'<br>',
-                                     "White",W,'<br>',
-                                     "Total Deaths", `Total`))
-#Map specifications
-graph <- list(
-  scope = 'usa',
-  projection = list(type = 'albers usa'),
-  showlakes = TRUE,
-  lakecolor = toRGB('white')
-)
-
-#Plotting the graph
-plot_ly(spread_sr, z = spread_sr$Total, text = sr_data$hover, locations = sr_data$state, type = 'choropleth',
-        locationmode = 'USA-states', color = spread_sr$Total, colors = 'Reds',
-        colorbar = list(title = "Counts ")) %>%
-        layout(title = 'Number of people shot dead by race per State<br>(Hover for breakdown by race)', geo = graph)
-
-```
-
-
-
-#### Figure 7
-
-Now we look at the age of the suspect shot, as well as their race. We made the following observations:
-
-1) We see from the boxplot below that the median age for Black people that have been killed by police is 29 years.
-
-2) White people have a relatively higher median age of 35 years whereas Asian people have the highest median age of around 38 years.
-
-```{r}
-  #Box plots
-  ggplot (fp,aes(x=race, y=age)) +
-  geom_boxplot(aes(color = race)) +
-
-  #Axes labels and titles
-  labs(x = "Race of Victim", y = "Age of Victim", 
-       title = "Distribution of Victims' Age across Race") +
-  scale_x_discrete(labels=c('White',
-                            'Other',
-                            'Native American',
-                            'Hispanic',
-                            'Black',
-                            'Asian')) +
-  coord_flip() +
-  theme_bw() +
-  theme(legend.position = "none")
-```
-
-
-#### Figure 8
-
-If we look at the age of each victim against the status of their mental health, we can make the following observation: signs of mental illness appear more frequently within the 30s age range while death by police for people age 50 and above are more common for people showing signs of mental illness.
-
-```{r}
-#Age against signs of mental illness
-ggplot(fp, aes(x=signs_of_mental_illness, y=age, fill=signs_of_mental_illness)) + geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)) + labs(x = "Sign of Mental Illness", y="Age", title = "Status of Mental Wellbeing during Fatal Shooting by Age of Victim")
-```
 
 ### Part 3: Reshaping the Data for State and Regional Comparative Analysis
 
-After pursuing the above exploratory analysis, we decided to do some comparative analyses between states and regions to create a specific, measureable, achievable, relevant, and time-oriented research question to pursue for the remainder of the project.
+After pursuing the an exploratory data analysis, we decided to do some comparative analyses between states and regions to create a specific, measureable, achievable, relevant, and time-oriented research question to pursue for the remainder of the project.
 
-To do this, wee began by dividing the data into regions for easier visualization and comparative analysis. The regions divide each US state as follows:
+To do this, we began by dividing the data into regions for easier visualization and comparative analysis. The regions divide each US state as follows:
 
 Northwest (NW) | Southwest (SW) | Midwest (MW) | Southeast (SE) | Northeast (NE)
 :-: | :-: | :-: | :-: | :-:
@@ -309,9 +155,10 @@ fp$regions <- as.factor(ifelse(( fp$state=="CA"| fp$state=="WA" | fp$state=="OR"
                      ifelse(( fp$state=="NY"| fp$state== "MD"| fp$state=="RI"| fp$state== "VT"| fp$state=="PA"| fp$state=="ME"| fp$state== "NH"| fp$state=="NJ"| fp$state=="CT"| fp$state=="MA"), 'NE', 'SE')))))
 ```
 
-We also create some new columns for the Modeling Portion (Part 5)
+To determine the likely causality of police body cameras turned on or off, we added several new variables. These will help us understand why there are differences between states in terms of whether body cameras are used during fatal police shootings. We will provide some sample data for each new variable. 
 
-The first new block of data we will add will be state level spending per capita on police for the year 2021
+The first new data set we add  is state spending per capita on police for the year 2021.
+
 ```{r, results = FALSE}
 #This is to make state level data for spending per capita
 vspc <- c(477, 1030, 655, 422, 981, 664, 564, 774, 1337, 704, 491, 549, 576, 633, 407, 441, 553, 390, 526, 425, 842, 597, 550, 633, 446, 480, 608, 611, 756, 525, 691, 759, 904, 549, 574, 555, 487, 736, 665, 728, 431, 478, 515, 547,484, 588, 656, 608, 492, 604, 782 )
@@ -475,9 +322,10 @@ for (i in 1:nrow(fp)) {
   
   }
 
-
 ```
-Then we will add a new binary variable that have laws that mandate an police officer using their body camera when interacting with members of the public. (For Part 5)
+
+Then we add a new binary variable that illustrates whether states have laws that mandate a police officer to use their body camera when interacting with members of the public. Not many states have this particular law, so only Maryland, New Jersey, New Mexico, and South Carolina are given the value 1, while all other states are given the value 0.
+
 ```{r, results = FALSE}
 #This is to acknowledge the states that (as of 2021) had a laws requiring officers to have the body cameras on during interactions with the public
 fp$bclaw <- NA
@@ -499,7 +347,9 @@ for (i in 1:nrow(fp)) {
   }
 }
 ```
-Here we are adding data about the direction a state swung in the 2020 election (Negative = Swing to Trump, Positive = Swing to Biden) (for Part 5)
+
+We add data on the political affiliation of a state. We used the direction the state swung in the 2020 election. That is, either a state voted from President Trump or for President Biden. Negative values indicate a swing towards Trump and positive values indicate a swing towards Biden.
+
 ```{r, results = FALSE}
 v2020 <- c(-25, -10, 0.31, -28, 29, 14, 87, 20, 19, -3,0.24, 29, -31, 17, -16, -8, -15, -26, -19, 9, 33, 33, 3, 7, -17, -15, -16, -19, 2, 7, 16, 11, 23, -1.3, -33, -8, -33, 16, 1.2, 21, -12, -26, -23,-6, -20, 34, 10, 19, -39, 0.63, -43  )
 
@@ -664,7 +514,9 @@ for (i in 1:nrow(fp)) {
   }
 
 ```
-Finally We will add a variable based on police officers per 100K citizens by state (For part 5)
+
+Finally, we add a variable that looks at a state's quantity of police officers per 100K citizens.
+
 ```{r, results = FALSE}
 vle <- c(418.356, 604.3172, 507.1749, 455.5134, 378.4166, 416.7751, 406.803, 517.3799, 722, 439.7941,  487.2325,494.1445, 378.7875, 476.7941, 379.4256, 307.9675, 466.5578, 390.2951, 595.0071, 411.2744,619.3873,440.4483,359.6753,324.5891,487.8593,459.6233,435.4656, 412.0619, 409.9609, 419.7185, 532.2092, 506.5776, 630.0293, 438.4865, 392.6816, 395.1726, 410.4272, 283.7333, 462.605, 412.0791, 420.8136, 449.0854, 438.823, 479.3943, 299.0369, 321.71, 597.2275, 319.9674, 516.3705, 404.1405, 501.126)
 
@@ -828,9 +680,17 @@ for (i in 1:nrow(fp)) {
   
   }
 ```
-There will be basic EDA of these new variables within part 5.
 
-We then created two sub-data sets by grouping the data by state and by region for visualization purposes. The contents of both groups are identical, besides their grouping.
+Example data points are shown below:
+
+State | Variable | Value
+:-: | :-: | :-:
+Alabama   |   Police Spending Per Capita   |  USD$477
+Maryland   |   Police Body Camera Laws   |  1
+Iowa   |   2020 US Presidential Election Vote   |  -8
+Florida   |   Police Quantity Per 100k Citizens   |  USD$477
+
+We also created two sub-data sets by grouping the data by state and by region for visualization purposes. The contents of both groups are identical, besides their grouping.
 
 ```{r, results=FALSE}
 ffp <- subset(fp, (year== 2022| year==2021) )
@@ -917,23 +777,7 @@ By_Region <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, ma
 
 ### Part 4: Research SMART Question and Answer
 
-Within our data set of 6,574 observations of police shootings from 2015 to 2022 in the United States, is there a correlation between the U.S. state of observation and whether a body camera was turned on during the shooting?
- 
-First let's take a look at our data after it has been grouped by state and reorganized into the following variables:
-
-Variable | Meaning
-:-: | :-:
-state   |   State of observation
-region   |   Region of observation
-stbcp   |   Body camera on proportion by state
-genp.p   |   Proportion of male victims by state
-smi.p   |   Proportion of victims by state with signs of mental illness
-flee.p   |   Proportion of victims by state the were fleeing
-att.p   |   Proportion of victims by state that were attacking
-armed.p   |   Proportion of victims by state that were armed
-MoD.p   |   Proportion of victims by state that were shot
-age.avg   |   Average age by state
-Non_White_Prop   |   Proportion of non-White victims by state
+Within our data set of 5,720 observations of police shootings from 2015 to 2022 in the United States, is there a correlation between the U.S. state of observation and whether a body camera was turned on during the shooting?
 
 The state data subgroup can be summarized as follows:
 
@@ -948,7 +792,7 @@ The region data subgroup can be summarized as follows:
 summary(By_Region)
 ```
 
-
+#### Figure 1: Normality
 
 We will now check our data for normality:
 
@@ -960,12 +804,13 @@ qqnorm(By_State$stbcp)
 
 Because the plot is relatively linear, we can conclude this data is close enough to normality for our purpose. 
 
+#### Figure 2: Body Camera Usage by Region
 
 Now let us look at the body camera proportions by state. In the below bar graph, TRUE signifies a police body camera that was on, while FALSE indicates the body camera was off:
 
 ```{r}
 #A bar graph showing the number of fatal police shootings AND proportions of body cameras being on by region (too many states to show on a bar graph like this)
-ggplot(fp, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Deaths", title = "Regional Police Shootings Colored by Body Camera Proportions")
+ggplot(fp, aes(x = regions, y = frequency(regions), color=body_camera)) + geom_bar(stat = "identity")+ labs(x = "State", y="Number of Deaths")
 ```
 
 Number of fatal shootings where the body camera was on:
@@ -980,6 +825,8 @@ Number of fatal shootings where the body camera was off:
 ```{r}
 print(count(camera_no,body_camera))
 ```
+
+#### Figure 3: stbcp by Region
 
 This scatter plot shows the proportion of fatal shootings when cameras were on by state (the variable stbcp). Each point on the graph depicts a state's proportion of shootings where the police body camera was turned on during the incident). We can see that there is very little variation in Southwest, and many differences among states in the Midwest.
 
@@ -1001,6 +848,8 @@ And the stbcp median body camera on proportion for all states:
 ```{r}
 median(By_State$stbcp)
 ```
+
+#### Model 1: Chi-square Test
 
 We will now perform a chi-square test to see if there is a significant difference between the proportions of each state. 
 
@@ -1028,140 +877,119 @@ suppressWarnings({chisq.test(contable)})
 
 With a p-value of 2e-16, we easily pass our significance level of alpha=0.05 and have shown that there exists significant differences between different states' proportions of body camera usage during fatal police shootings.
 
-This exploratory data analysis has shown that there is significant difference in the level of body camera usage in police shootings between states and regions in the United States. We intend to delve into the reasons why there are differences and research what factors may explain these differences between states. This will require understanding state laws and policies regarding the use of police body cameras. We must also understand the police force consequences for turning off body cameras during police activity in different states.
+### Part 5: Investigating Causality
 
-Studying the use of body cameras in police work is an important topic of study for data-driven policy research in the United States. We hope to be able to apply this correlation between the U.S. state of observation and whether the body camera was on or off during the shooting to state policy on body cameras during police work. 
+We now know there are significant differences in the level of body camera usage during police shootings among US states. Let us see if we can find out what drives those differences. 
 
-## Part 5:
-Because of our findings in Part 4, we know there are significant differences in the level of body camera usage in police shootings between US states, but let us see if we can find out what drives those differences. 
+Our second SMART question: For the years 2021 and 2022, what variables influence a state's proportion of body cameras turned on during fatal police shootings? 
 
-Our second SMART question:
+The variables we will study include: 
 
-For the years 2021 and 2022, do
+1. US region
 
--US Region, 
--Law Enforcement Officers per capita, 
--Law Enforcement spending per capita, 
--body camera mandate laws
--2020 presidential election leaning 
-have any influence on a state's proportion of body camera usage  ?
+2. Law enforcement officers per 100,000 citizens
 
-We will use multiple linear regression to build various models to see if any of these variables can be useful predictors.
+3. Law enforcement spending per capita
 
+4. Body camera mandate laws
 
-Note: Because most states that have body camera laws had them take affect in the start of 2021, so we will only be looking at data from 2021 and 2022. This reduces the number of cases in our original data set to 1763. (This is below the 4000 observation threshold, but was approved in class by Professor Faruque)
+5. 2020 presidential election voting
 
-### 5.1: Introduction to the New Data 
+We will use multiple linear regression to build  models that investigate whether any of these variables can be useful predictors of body cameras being turned on during fatal shootings in the United States.
 
-First let us take a look at the new dataset with its new variables (added in Part 3):
+Because most states' body camera laws were enacted at the start of 2021, we will only look at data from 2021 and 2022. This reduces the number of cases in our original data set to 1,763.
+
+First let us take a look at the new data set with its new variables (added in Part 3):
+
 ```{r}
 #FINAL PROJECT WORK: ADDING NEW COLUMNS OF DATA   
 FD <- subset(By_State, (year== 2022| year==2021) )
 FD$regions = factor(FD$regions)
 head(FD)
+```
+
+Number of observations:
+
+```{r}
 nrow(FD)
 ```
-Now for some light EDA to look at the new data:
 
+#### Figure 4: Body Camera Laws
 
-Histogram on 2020 Election Swing Margin
-
-```{r}
-ggplot(FD, aes( x=marg2020)) + geom_histogram(aes(fill = ..count..))+scale_fill_gradient('Count',low='purple',high='orange') + labs(x = "percentage margin with which the state voted for Joe Biden or Donald Trump in the 2020", y="count", title = "Histogram")
-
-```
-
-Histogram on police spending per capita (for the year 2021)
-```{r}
-ggplot(FD, aes( x=spendpc)) + geom_histogram(aes(fill = ..count..))+scale_fill_gradient('Count',low='purple',high='green') + labs(x = "spending on law enforcement per capita (which means per person in the state)", y="count", title = "Histogram")
-
-
-```
-Histogram on Law Enforcement Officers per 100K citizens
-
-```{r}
-ggplot(FD, aes( x=le_per_100k)) + geom_histogram(aes(fill = ..count..))+scale_fill_gradient('Count',low='green',high='orange') + labs(x = "how many police officers there are per 100,000 citizens", y="count", title = "Histogram")
-
-
-```
-
-The following 3D plot compares the following variables:
-bclaw,stbcp,marg2020
-
-
-Here are some multivariate models to visualize how the new data relates:
-
-Law Enforcement Officers Per 100K citizens vs 2020 Election Margin
-
-```{r}
-#le_per_100k vs marg2020
-
-ggplot(data=FD,aes(x = le_per_100k,y=marg2020)) + geom_point(aes(color=marg2020,size=le_per_100k))
-
-```
-
-State Body Camera Proportion vs Law Enforcement Officers Per 100K citizens
+The following figure depicts the relationship between body camera laws and stbcp. 
 
 ```{r}
 #stbcp vs le_per_100k
-ggplot(data=FD,aes(x = stbcp,y=le_per_100k)) + geom_point(aes(color=le_per_100k,size=le_per_100k))
-
-
+ggplot(data=FD,aes(x = stbcp,y=bclaw)) + geom_point(aes(color=le_per_100k,size=le_per_100k))+ labs(x = "stbcp", y="Laws governing body camera usage")
 ```
 
- State Body Camera Proportion vs 2020 Election Margin
+#### Figure 5: Law Enforcement Officers Per 100,000 Citizens
+
+The following figure depicts the relationship between law enforcement officers per 100K citizens and stbcp. 
+
+```{r}
+#stbcp vs le_per_100k
+ggplot(data=FD,aes(x = stbcp,y=le_per_100k)) + geom_point(aes(color=le_per_100k,size=le_per_100k))+ labs(x = "stbcp", y="Law enforcment officers per 100,000 citizens")
+```
+
+#### Figure 6: 2020 Election Voting Margin
+
+This figure depicts the relationship between the 2020 US presidential election margin and stbcp.
 
 ```{r}
 #stbcp vs marg2020
-ggplot(data=FD,aes(x = stbcp,y=marg2020)) + geom_point(aes(color=marg2020,size =marg2020))
-
-
+ggplot(data=FD,aes(x = stbcp,y=marg2020)) + geom_point(aes(color=marg2020,size =marg2020))+ labs(x = "stbcp", y="Percent margin voting swing")
 ```
 
-State Body Camera Proportion vs US Regions
+#### Figure 7: Spending on Policing Per Capita
+
+This figure depicts the relationship between the state spending on policing per capita and stbcp.
 
 ```{r}
 #spendpc vs regions
-ggplot(data=FD,aes(x = regions,y=spendpc)) + geom_point(aes(color=regions,size =regions))
-
+ggplot(data=FD,aes(x = regions,y=spendpc)) + geom_point(aes(color=regions,size =regions))+ labs(x = "stbcp", y="State spending on policing per capita")
 
 ```
 
-US Regions vs Law Enforcement Officers Per 100K citizens
+#### Figure 8: Law Enforcement Officers Per 100,000 Citizens
+
+This figure shows law enforcement officers per 100K citizens, grouped by region.
 
 ```{r}
 #regions vs le_per_100k
-ggplot(data=FD,aes(x = regions,y=le_per_100k)) + geom_point(aes(color=regions,size =regions))
-
-
+ggplot(data=FD,aes(x = regions,y=le_per_100k)) + geom_point(aes(color=regions,size=regions))+ labs(x = "Region", y="Law enforcment officers per 100,000 citizens")
 ```
-The following 3D plot compares the following variables:
-Body Camera Proportion, 2020 Elecion Margin, and The State's Region
+
+#### Figure 9: 2020 Election Voting Margin
+
+The following plot compares the following variables: stbcp, 2020 election margin, and region. 
 
 ```{r}
 fig <- plot_ly(FD, x = FD$regions, y = FD$stbcp, z = FD$marg2020,color =  FD$regions, colors = c('purple', 'yellow'))
 fig <- fig %>% add_markers()
 fig <- fig %>% layout(scene = list(xaxis = list(title = 'Regions'),
                      yaxis = list(title = 'Body Camera Proportion'),
-                     zaxis = list(title = '2020 margin')))
+                     zaxis = list(title = '2020 Election Margin')))
 fig
 ```
-And Finally, here is a 3-D plot of Law Enforcement Officer's per 100K citizens, Police Spending, and a State's Region
+
+#### Figure 10: Law Enforcement Officers Per 100,000 Citizens
+
+Finally, here is a plot showing law enforcement officers per 100K citizens, police spending, and region.
 
 ```{r}
 fig <- plot_ly(FD, x = FD$regions, y = FD$spendpc, z = FD$le_per_100k,color =  FD$regions, colors = c('blue', 'green'))
 fig <- fig %>% add_markers()
-fig <- fig %>% layout(scene = list(xaxis = list(title = 'Regions'),
-                     yaxis = list(title = 'spending on LE '),
-                     zaxis = list(title = 'police  per 100,000 citizens')))
+fig <- fig %>% layout(scene = list(xaxis = list(title = 'Region'),
+                     yaxis = list(title = 'Law Enforcement Spending'),
+                     zaxis = list(title = 'Police per 100,000 citizens')))
 fig
 ```
 
-
-### Part 5.2: The Models
 Now that we are familiar with the data, we can start to model with our new state-wide data.
 
-This is model 1: A simple MLRG model that uses all the new variables along with the region variable:
+#### Model 2: A simple MLRG model that uses all the new variables along with the region variable
+
 ```{r}
 lm1 <- lm(stbcp~ (marg2020 + bclaw + regions + le_per_100k+ spendpc), data=FD)
 summary(lm1)
@@ -1185,10 +1013,13 @@ ggplot(res,aes(res)) +  geom_histogram(fill='blue',alpha=0.5)
 
 plot(lm1)
 ```
+
 The VIF values for model 1 are all within acceptable range.
+
 With an R^2 of 0.183, this model is not very good at predicting statewide body camera usage. We can see that the region variable is not helpful so we will remove it.
 
-Model 2 uses only the most helpful predictors from the previous model.
+#### Model 3: Uses only the most helpful predictors from the previous model
+
 ```{r}
 lm2 <- lm(stbcp~ (marg2020+bclaw+spendpc+ le_per_100k), data=FD)
 summary(lm2)
@@ -1212,11 +1043,11 @@ plot(lm2)
 ```
 
 The VIF values for model 2 are all within acceptable range.
+
 With an R^2 of 0.152, this model is even worse at predicting statewide body camera usage.
 
-Let us try analyzing the interaction of law enforcement spending per capita and officers per capita.
+#### Model 4: Interaction of law enforcement spending per capita on quantity of officers per capita
 
-Model 3 is just Model 1 again with the aforementioned interaction.
 ```{r}
 #Redo of lm1 but with an interaction
 lm3 <- lm(stbcp~ (marg2020 + bclaw + regions + le_per_100k+ spendpc + I(spendpc*le_per_100k)), data=FD)
@@ -1238,16 +1069,16 @@ ggplot(res,aes(res)) +  geom_histogram(fill='blue',alpha=0.5)
 ```{r}
 plot(lm3)
 ```
+
 We are ignoring the VIF test for multicolinearity because we are using an interaction predictor.
+
 With an R^2 of 0.276, this model is not good, much better than the others at predicting statewide body camera usage.
 
+#### Model 5: Testing lm3
 
-### Part 5.3: Predicting New Data
+Since lm3 is our best model (per our R^2), lets try to predict a few made up US states:
 
-
-Since lm3 is our best model (per our R^2), lets try to predict a few made up New US states:
-
-Please notice Eleum and Faraam are identical except their body camera laws same as GW and HW
+Please notice Eleum and Faraam are identical except their body camera laws. This is the same for GW and HW.
 
 ```{r}
 Atlantis <- data.frame(bclaw = c(1), marg2020=c(-10), regions=c('SW'), le_per_100k= c(500), spendpc=c(720))
@@ -1261,7 +1092,9 @@ Faraam <- data.frame(bclaw = c(1), marg2020=c(-20), regions=c('NW'), le_per_100k
 GW <- data.frame(bclaw = c(0), marg2020=c(20), regions=c('SE'), le_per_100k= c(540), spendpc=c(645))
 HW <- data.frame(bclaw = c(1), marg2020=c(20), regions=c('SE'), le_per_100k= c(540), spendpc=c(645))
 ```
-Now lets plug these new "states" into our model:
+
+Now let's plug these new "states" into our model:
+
 ```{r}
 predict(lm3, newdata = Atlantis, interval = 'confidence')
 predict(lm3, newdata= Burk ,interval = 'confidence')
@@ -1272,10 +1105,21 @@ predict(lm3, newdata = Faraam, interval = 'confidence')
 predict(lm3, newdata = GW, interval = 'confidence')
 predict(lm3, newdata = HW, interval = 'confidence')
 ```
-We can see the difference of fit on states E and F as well as G and H and see the effect body camera laws have.
 
-### Part 5.4: Conclusions
+We can see the difference of fit on states Eleum and Faraam, as well as GW and HW.
 
-Though lm3 is our best model, it still is not a great predictor of statewide body camera usage, which can lead us to the following conclusions:
+### Part 6: Conclusion
 
+Studying the use of body cameras in police work is an important topic of study for data-driven policy research in the United States. While we hoped to be able to associate this correlation between the U.S. state of observation and whether the body camera was on or off during the shooting to state policy on body cameras to some variable, we were unable to find a strong correlation. Although lm3 was our best model, it is still not a great predictor of statewide body camera usage, which can lead us to the following conclusions:
 
+1. Both regional and state groupings demonstrated quantifiable differences in the proportion of body cameras turned on or off during fatal police shootings.
+
+2. The number of law enforcement officers per capita does not influence whether a body camera is turned on or off.
+
+3. State spending on policing per capita does not influence whether a body camera is turned on or off.
+
+4. The political affiliation of a states does not influence whether a body camera is turned on or off.
+
+5. Body camera mandate laws, present in Maryland, New Jersey, New Mexico, and South Carolina, slightly influence whether a body camera is turned on or off. 
+
+Considering body camera laws are relatively nascent, it will be an interesting topic of study to evaluate changes in stbcp as more states adopt such laws. This research project has shown that they may be the best chance states have of increasing camera usage during active police duty.
