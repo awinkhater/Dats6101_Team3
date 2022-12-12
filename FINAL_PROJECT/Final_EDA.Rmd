@@ -30,7 +30,7 @@ In response to a severe lack of reporting within government sources, The Washing
 
 This exploratory data analysis is divided into five main parts: first, we organize the data; second, we we reshape the data for state- and region-based comparative analyses and build four new variables (police spending, laws that mandate body camera usage, political leaning (Republican or Democrat) in 2020, number of police officers); third, we ask a SMART research question about our data and attempt to answer this question; fourth, we will continue our research by asking a modeling SMART question and attempt to answer this question.
 
-#To skip to the modeling part of this project, please scroll to line 1053, where part 5 starts.
+#To skip to the modeling part of this project, please scroll to line 880, where part 4 starts.
 
 
 ### Part 1: Setting Up the Data
@@ -89,7 +89,7 @@ fp$year <- format(fp$date, format = "%Y")
 ```
 
 
-### Part 3: Reshaping the Data for State and Regional Comparative Analysis
+### Part 2: Reshaping the Data for State and Regional Comparative Analysis
 
 After pursuing the an exploratory data analysis, we decided to do some comparative analyses between states and regions to create a specific, measureable, achievable, relevant, and time-oriented research question to pursue for the remainder of the project.
 
@@ -775,7 +775,7 @@ rfp <- sfp %>%
 By_Region <- subset(sfp, select= -c(name, id, age, latitude, longitude, city, manner_of_death, gender, armed, race, signs_of_mental_illness, flee, threat_level, body_camera, regions, date, is_geocoding_exact))
 ```
 
-### Part 4: Research SMART Question and Answer
+### Part 3: Research SMART Question and Answer
 
 Within our data set of 5,720 observations of police shootings from 2015 to 2022 in the United States, is there a correlation between the U.S. state of observation and whether a body camera was turned on during the shooting?
 
@@ -877,7 +877,7 @@ suppressWarnings({chisq.test(contable)})
 
 With a p-value of 2e-16, we easily pass our significance level of alpha=0.05 and have shown that there exists significant differences between different states' proportions of body camera usage during fatal police shootings.
 
-### Part 5: Investigating Causality
+### Part 4: Investigating Causality
 
 We now know there are significant differences in the level of body camera usage during police shootings among US states. Let us see if we can find out what drives those differences. 
 
@@ -1108,7 +1108,7 @@ predict(lm3, newdata = HW, interval = 'confidence')
 
 We can see the difference of fit on states Eleum and Faraam, as well as GW and HW.
 
-### Part 6: Conclusion
+### Part 5: Conclusion
 
 Studying the use of body cameras in police work is an important topic of study for data-driven policy research in the United States. While we hoped to be able to associate this correlation between the U.S. state of observation and whether the body camera was on or off during the shooting to state policy on body cameras to some variable, we were unable to find a strong correlation. Although lm3 was our best model, it is still not a great predictor of statewide body camera usage, which can lead us to the following conclusions:
 
