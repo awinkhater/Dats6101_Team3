@@ -1010,8 +1010,7 @@ head(res)
 ggplot(res,aes(res)) +  geom_histogram(fill='blue',alpha=0.5)
 ```
 ```{r}
-
-plot(lm1)
+plot(lm3)
 ```
 
 The VIF values for model 1 are all within acceptable range.
@@ -1106,7 +1105,7 @@ predict(lm3, newdata = GW, interval = 'confidence')
 predict(lm3, newdata = HW, interval = 'confidence')
 ```
 
-We can see the difference of fit on states Eleum and Faraam, as well as GW and HW.
+Here we can see the difference of fit on states E and F (swung towards Trump) as well as G and H and (swung towards Biden), as well as the effect body camera laws have.
 
 ### Part 5: Conclusion
 
