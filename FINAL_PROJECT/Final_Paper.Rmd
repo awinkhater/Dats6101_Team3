@@ -1005,16 +1005,18 @@ Here we can see the difference of fit on states E and F (swung towards Trump) as
 
 ### Part 5: Conclusion
 
-Studying the use of body cameras in police work is an important topic of study for data-driven policy research in the United States. While we hoped to be able to associate this correlation between the U.S. state of observation and whether the body camera was on or off during the shooting to state policy on body cameras to some variable, we were unable to find a strong correlation. Although lm3 was our best model, it is still not a great predictor of statewide body camera usage, which can lead us to the following conclusions:
+Studying the use of body cameras in police work is an important topic of study for data-driven policy research in the United States. While we hoped to be able to associate this correlation between the U.S. state of observation and whether the body camera was on or off during the shooting to state policy on body cameras to some variable, we were unable to find a strong correlation. Although lm3 was our best model, it is still not a great predictor of statewide body camera usage. 
 
-1. Both regional and state groupings demonstrated quantifiable differences in the proportion of body cameras turned on or off during fatal police shootings.
+Although we were not able to create a multiple linear regression that served as a predictor of body camera usage, this leads us to an interesting finding: regardless of whether states of body camera laws, well-funded police forces, high numbers of police forces, or progressive state leadership, these variables do not determine whether law enforcement will have their body camera turned on during active police duty. This is actually a major finding. While we have proven that there are significant, quantifiable differences between states as to stbcp, we still do not know why these differences occur. 
 
-2. The number of law enforcement officers per capita does not influence whether a body camera is turned on or off.
+We would like to conclude with one theory as to why these variables did not serve as predictors of body camera usage. Police body cameras, especially their state-mandated regulation, is a field of study very new to the policy field. In ten years down the line, this will be a fascinating field of research that may better present variables with predictive power. We are a bit early to the show, but as more and more states mandate camera laws and introduce cameras into their police forces, this type of research will have a lot more teeth. Considering body camera laws are relatively nascent, it will be an interesting topic of study to evaluate changes in stbcp as more states adopt such laws. This research project has shown that they may be the best chance states have of increasing camera usage during active police duty.
 
-3. State spending on policing per capita does not influence whether a body camera is turned on or off.
+### Part 6: Bibliography 
 
-4. The political affiliation of a states does not influence whether a body camera is turned on or off.
+(1) 1,032 people have been shot and killed by police in the past year (November 10, 2022), The Washington Post. https://www.washingtonpost.com/graphics/investigations/police-shootings-database/
 
-5. Body camera mandate laws, present in Maryland, New Jersey, New Mexico, and South Carolina, slightly influence whether a body camera is turned on or off. 
+(2) J. Michtom, US Budget Analysis: Policing and Corrections Spending by State (October 21, 2022), Money Geek. https://www.moneygeek.com/living/state-policing-corrections-spending/
 
-Considering body camera laws are relatively nascent, it will be an interesting topic of study to evaluate changes in stbcp as more states adopt such laws. This research project has shown that they may be the best chance states have of increasing camera usage during active police duty.
+(3) Joe Biden has been declared winner, toppling Donald Trump after four years of upheaval in the White House (November 8, 2022), Politico. https://www.politico.com/2020-election/results/president/
+
+(4) Police Officers by State 2022 (2022), World Population Review. https://worldpopulationreview.com/state-rankings/police-officers-by-state
